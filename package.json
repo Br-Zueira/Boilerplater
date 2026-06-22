@@ -1,6 +1,6 @@
 {
   "name": "boilerplater",
-  "displayName": "boilerplater",
+  "displayName": "Boilerplater",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -14,8 +14,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "boilerplater.helloWorld",
-        "title": "Hello World"
+        "command": "boilerplater.pickupText",
+        "title": "Pickup Text"
+      }
+    ],
+    "keybindings": [ 
+      {
+        "command": "boilerplater.pickupText",
+        "key": "ctrl+u",
+        "mac": "cmd+u",
+        "when": "editorTextFocus"
       }
     ]
   },
