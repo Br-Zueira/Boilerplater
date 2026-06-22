@@ -18,7 +18,7 @@
         "title": "Pickup Text"
       }
     ],
-    "keybindings": [ 
+    "keybindings": [
       {
         "command": "boilerplater.pickupText",
         "key": "ctrl+u",
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && shx cp node_modules/sql.js/dist/sql-wasm.wasm ./out/database && shx cp node_modules/sql.js/dist/sql-wasm.js ./out/database",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
@@ -38,11 +38,16 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.20.0",
+    "@types/sql.js": "^1.4.11",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.3",
+    "shx": "^0.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "sql.js": "^1.14.1"
   }
 }

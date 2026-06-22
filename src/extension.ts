@@ -7,9 +7,9 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showWarningMessage('Open a file first!');
     	    return;
 		}
+
 		const selection = editor.selection;
 		const highlightedCode = editor.document.getText(selection);
-
 		if (!highlightedCode || highlightedCode.trim() === "") {
         	vscode.window.showWarningMessage('Please highlight some code first!');
         	return;
