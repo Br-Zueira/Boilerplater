@@ -9,7 +9,7 @@ export async function sqlInit(context: vscode.ExtensionContext): Promise<Databas
     
     fs.mkdirSync(dbFolderPath, { recursive: true });
 
-    const raw = fs.readFileSync(path.join(context.extensionPath, 'out', 'sql-wasm.wasm'));
+    const raw = fs.readFileSync(path.join(context.extensionPath, 'out', 'database', 'sql-wasm.wasm'));
     const wasmBinary = raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength) as ArrayBuffer;
 
     const SQL = await initSqlJs({ wasmBinary });
@@ -58,7 +58,8 @@ export async function sqlInit(context: vscode.ExtensionContext): Promise<Databas
 
         db.run("CREATE TABLE IF NOT EXISTS languages " + 
             "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "name TEXT UNIQUE NOT NULL);");
+            "displayName TEXT UNIQUE NOT NULL, " + 
+            "internalName TEXT UNIQUE NOT NULL);");
 
         db.run("CREATE TABLE IF NOT EXISTS snippets " +
             "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
