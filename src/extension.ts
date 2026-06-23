@@ -1,13 +1,26 @@
 import * as vscode from 'vscode';
+import {sqlInit, saveDB} from './database/database.js';
+import {getInput} from './helpers.js';
 
-export function activate(context: vscode.ExtensionContext) {
-	const pickupText = vscode.commands.registerCommand('boilerplater.pickupText', () => {
+export async function activate(context: vscode.ExtensionContext) {
+	// Setting database up
+	let db: any;
+	try {
+		db = await sqlInit(context);
+	} catch (error: any) {
+		vscode.window.showErrorMessage(`Failed to initialize database: ${error}`);
+	}
+
+	// Function to save new snippets via highlighting and shortcut
+	const pickupText = vscode.commands.registerCommand('boilerplater.pickupText', async () => {
+		// Refers to the open code editor/file (such as this one right now!)
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			vscode.window.showWarningMessage('Open a file first!');
     	    return;
 		}
 
+		// Reads the selected code
 		const selection = editor.selection;
 		const highlightedCode = editor.document.getText(selection);
 		if (!highlightedCode || highlightedCode.trim() === "") {
@@ -15,7 +28,51 @@ export function activate(context: vscode.ExtensionContext) {
         	return;
     	}
 
-		vscode.window.showInformationMessage(`You highlighted: '${highlightedCode}'`)
+		// Asks for the snippet details
+		const title = await getInput(
+			'Give a title to your snippet', // Prompt
+			'My beautiful boilerplate' // PlaceHolder
+		);
+		if (!title) return;
+
+		const description = await getInput(
+			'Give a description to your snippet (optional)',
+			'This snippet is for...'
+		);
+
+		// Get the language part
+		const languageId = editor.document.languageId;
+		const lang = db.exec('SELECT * FROM languages WHERE internalName = ?', [languageId]);
+
+		let lId: number;
+
+		if (lang.length === 0) {
+			// Create new language
+			const displayName = languageId.charAt(0).toUpperCase() + languageId.slice(1);
+
+			db.run('INSERT INTO languages (displayName, internalName) VALUES (?, ?)', [displayName, languageId]);
+
+			// Get ID from new language
+			const idResult = db.exec('SELECT last_insert_rowid();');
+
+			lId = idResult[0].values[0][0] as number;
+		} else {
+			// Get ID from language that already exists
+			lId = lang[0].values[0][0] as number;
+		}
+		try {
+			db.run('INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)', [title, description, highlightedCode, lId]);
+			saveDB(db, context);
+		} catch (error: any) {
+			if (error.message && error.message.includes('UNIQUE constraint failed')) {
+				vscode.window.showWarningMessage('You tried to use an already existing title');
+				return;
+			} else {
+				vscode.window.showWarningMessage(`Error: ${error}`);
+				return;
+			}
+		}
+		vscode.window.showInformationMessage(`Snippet '${title}' saved successfully`);
 	});
 
 	context.subscriptions.push(pickupText);
