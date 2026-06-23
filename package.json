@@ -1,7 +1,8 @@
 {
   "name": "boilerplater",
-  "displayName": "Boilerplater",
-  "description": "",
+  "displayName": "Br-Zueira's Boilerplater",
+  "publisher": "br-zueira",
+  "description": "Extension to storage boilerplate snippets so they can be easily reused later",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.120.0"
@@ -29,7 +30,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && shx cp node_modules/sql.js/dist ./out/database",
+    "compile": "tsc -p ./ && shx cp -R node_modules/sql.js/dist ./out/database",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
