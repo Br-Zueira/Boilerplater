@@ -1,71 +1,28 @@
-# boilerplater README
+# Br-Zueira's Boilerplater
 
-This is the README for your extension "boilerplater". After writing up a brief description, we recommend including the following sections.
+An extension that allows saving boilerplate code snippets for later use in a simple way. From a dev, to devs.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* **Saving snippets** by highlighting them and pressing ctrl+u (mac: cmd+u)
+* **Snippet organizing** by language, tags, title and description
+* **Further editing** if you want to edit or delete a snippet, tag or language after its creation
+* **Easy use of the snippets** by pressing ctrl+shift+u (mac: cmd+shift+u), selecting a snippet and pasting it directly into your cursor position. No more jumping through old projects or searching into internet to copy boilerplate
+* **100% local and self contained,** so no external dependencies or connections needed
+* **Plug-and-play:** Zero login, zero configuration, zero headaches. Just download and enjoy!
 
-For example if there is an image subfolder under your extension project workspace:
+## How it Works (Under the Hood)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Boilerplater uses an isolated virtual database instance that commits directly to a local `.db` file in your extension context via asynchronous tasks, ensuring your editor UI stays completely smooth and throttle-free.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+The extension was made to be 100% self contained, so no external requirements.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+None for now
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+None for now
