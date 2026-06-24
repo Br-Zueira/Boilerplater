@@ -44,8 +44,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		const languageId = editor.document.languageId;
 		const lang = db.exec('SELECT * FROM languages WHERE internalName = ?', [languageId]);
 
+		// Language ID
 		let lId: number;
 
+		// If the language isn't on DB yet
 		if (lang.length === 0) {
 			// Create new language
 			const displayName = languageId.charAt(0).toUpperCase() + languageId.slice(1);
@@ -56,14 +58,19 @@ export async function activate(context: vscode.ExtensionContext) {
 			const idResult = db.exec('SELECT last_insert_rowid();');
 
 			lId = idResult[0].values[0][0] as number;
+
+		// If language already exists
 		} else {
 			// Get ID from language that already exists
 			lId = lang[0].values[0][0] as number;
 		}
+
+		// (Try to) save the snippet
 		try {
 			db.run('INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)', [title, description, highlightedCode, lId]);
 			saveDB(db, context);
 		} catch (error: any) {
+			// If the error is related to duplicates of unique-only values
 			if (error.message && error.message.includes('UNIQUE constraint failed')) {
 				vscode.window.showWarningMessage('You tried to use an already existing title');
 				return;
