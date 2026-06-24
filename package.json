@@ -16,7 +16,11 @@
     "commands": [
       {
         "command": "boilerplater.pickupText",
-        "title": "Pickup Text"
+        "title": "Boilerplater: Pickup Text"
+      },
+      {
+        "command": "boilerplater.openWebView",
+        "title": "Boilerplater: Open Web View"
       }
     ],
     "keybindings": [
@@ -25,6 +29,11 @@
         "key": "ctrl+u",
         "mac": "cmd+u",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "boilerplater.openWebView",
+        "key": "ctrl+alt+u",
+        "mac": "cmd+alt+u"
       }
     ]
   },

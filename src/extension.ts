@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {sqlInit, saveDB} from './database/database.js';
 import {getInput} from './helpers/helpers.js';
+import {index} from './helpers/html.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up
@@ -83,7 +84,32 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage(`Snippet '${title}' saved successfully`);
 	});
 
-	context.subscriptions.push(pickupText);
+	const openWebView = vscode.commands.registerCommand('boilerplater.openWebView', async () => {
+		// Create web panel
+		const panel = vscode.window.createWebviewPanel(
+			'boilerplater.managerView', // Internal name
+			'Boilerplater WebView', // Display name
+			vscode.ViewColumn.One, // How to display the panel
+			{
+				enableScripts: true, // Important: lets JavaScript to be executed inside the panel
+				retainContextWhenHidden: true // Panel is not killed when closed
+			}
+		);
+
+		// Defines panel HTML content
+		panel.webview.html = index(); // Placeholder
+
+		// Sets up panel-backend connection
+		panel.webview.onDidReceiveMessage(
+			async (message) => {
+				// Handle messages received from the panel
+			},
+			undefined,
+			context.subscriptions
+		);
+	})
+
+	context.subscriptions.push(pickupText, openWebView);
 }
 
 export function deactivate() {}

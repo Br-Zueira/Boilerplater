@@ -6,7 +6,8 @@ An extension that allows saving boilerplate code snippets for later use in a sim
 
 * **Saving snippets** by highlighting them and pressing ctrl+u (mac: cmd+u)
 * **Snippet organizing** by language, tags, title and description
-* **Further editing** if you want to edit or delete a snippet, tag or language after its creation
+* **Further editing** if you want to edit or delete a snippet, tag or language after its creation, using a ->
+* **Webview** displaued with ctrl+alt+u (mac: cmd+alt+u)
 * **Easy use of the snippets** by pressing ctrl+shift+u (mac: cmd+shift+u), selecting a snippet and pasting it directly into your cursor position. No more jumping through old projects or searching into internet to copy boilerplate
 * **100% local and self contained,** so no external dependencies or connections needed
 * **Plug-and-play:** Zero login, zero configuration, zero headaches. Just download and enjoy!
