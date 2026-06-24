@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import {sqlInit, saveDB} from './database/database.js';
-import {getInput} from './helpers.js';
+import {getInput} from './helpers/helpers.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up
