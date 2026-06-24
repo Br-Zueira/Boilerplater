@@ -9,6 +9,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		db = await sqlInit(context);
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to initialize database: ${error}`);
+		return;
 	}
 
 	// Function to save new snippets via highlighting and shortcut
