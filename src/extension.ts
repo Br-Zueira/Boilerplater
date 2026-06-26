@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as database from './database/database.js';
 import * as helpers from './helpers/helpers.js';
-import * as html from './helpers/html.js';
+import * as layout from './html/layout.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up
@@ -96,20 +96,20 @@ export async function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
-		// Defines panel HTML content
-		panel.webview.html = html.index();
+		// Defines panel html content
+		panel.webview.html = layout.index();
 
 		// Sets up panel-backend connection
 		panel.webview.onDidReceiveMessage(
 			async (message) => {
 				if (message.command == "goToIndex") {
-					panel.webview.html = html.index();
+					panel.webview.html = layout.index();
 				}
 				if (message.command == "goToManager") {
-					panel.webview.html = html.list(message.payload.model, db);
+					panel.webview.html = layout.list(message.payload.model, db);
 				}
 				if (message.command == "goToPage") {
-					panel.webview.html = html.list(message.payload.model, db, message.payload.page);
+					panel.webview.html = layout.list(message.payload.model, db, message.payload.page);
 				}
 			},
 			undefined,

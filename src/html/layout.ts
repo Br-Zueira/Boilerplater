@@ -1,9 +1,10 @@
-import * as helpers from './helpers.js';
+import * as helpers from '../helpers/helpers.js';
 import * as database from '../database/database.js';
+import * as htmlHelper from './htmlHelper.js'
 
 // Page to return an HTML plain string to pass to the webView
 export function index() {
-    return boiler(`
+    return htmlHelper.boiler(`
         <script>
             // VsCode API to bridge gap between frontend and backend
             const vscode = acquireVsCodeApi();
@@ -25,6 +26,7 @@ export function index() {
     `);
 }
 
+// Page to return generic list
 export function list(model: string, db: any, page: number = 1) {
 
     // Ensure model is valid (Software development 101 - Never trust user input)
@@ -58,7 +60,7 @@ export function list(model: string, db: any, page: number = 1) {
             list = `<ul>`;
             for (const instance of data) {
                 list += `<div>`;
-                    list += getInstanceContent(model, instance, db);
+                    list += htmlHelper.getInstanceContent(model, instance, db);
                     list += `<button>Edit ${model.slice(0, -1)}</button>`
                 list += `</div>`;
             }
@@ -76,7 +78,7 @@ export function list(model: string, db: any, page: number = 1) {
             buttons += `<button onclick="goToPage(${page + 1})">Next Page</button>`;
         }
 
-        return boiler(`
+        return htmlHelper.boiler(`
             <script>
                 const vscode = acquireVsCodeApi();
 
@@ -115,62 +117,6 @@ export function list(model: string, db: any, page: number = 1) {
         `);
 
     } else {
-        return page404(`Model "${model}" does not exist`);
-    }
-}
-
-export function page404(message: string) {
-    return boiler(`
-        <h1>Error 404:</h1>
-        <p>${message}</p>
-    `);
-}
-
-// HTML boilerplate
-function boiler(body: string, head?: string) {
-    return `
-        <!DOCTYPE html>
-
-        <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Boilerplater</title>
-                ${head ?? ''}
-            </head>
-            <body>
-                ${body}
-            </body>
-        </html>
-    `;
-}
-
-function getInstanceContent(model: string, instance: any, db: any) {
-    switch (model) {
-        case ("snippets"): {
-            const lang = db.exec(`SELECT displayName FROM languages WHERE id = ?`, [instance.language_id])[0]?.values?.[0]?.[0] || "UNKNOWN LANGUAGE";
-            return `
-                <p><strong>Title:</strong> ${instance.title}</p>
-                <p><strong>Description:</strong> ${instance.description}</p>
-                <p><strong>Snippet:</strong> ${instance.snippet}</p>
-                <p><strong>Language:</strong> ${lang}</p>
-            `;
-        }
-        case ("tags"): {
-            return `
-                <p><strong>Label:</strong> ${instance.label}</p>
-            `;
-        }
-        case ("languages"): {
-            return `
-                <p><strong>Display name:</strong> ${instance.displayName}</p>
-                <p><strong>Internal name:</strong> ${instance.internalName}</p>
-            `;
-        }
-        default: {
-            return `
-                <p><strong>INVALID MODEL</strong></p>
-            `;
-        }
+        return htmlHelper.page404(`Model "${model}" does not exist`);
     }
 }
