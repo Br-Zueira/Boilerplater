@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import {sqlInit, saveDB} from './database/database.js';
-import {getInput} from './helpers/helpers.js';
-import {index} from './helpers/html.js';
+import * as database from './database/database.js';
+import * as helpers from './helpers/helpers.js';
+import * as html from './helpers/html.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up
 	let db: any;
 	try {
-		db = await sqlInit(context);
+		db = await database.sqlInit(context);
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to initialize database: ${error}`);
 		return;
@@ -31,13 +31,13 @@ export async function activate(context: vscode.ExtensionContext) {
     	}
 
 		// Asks for the snippet details
-		const title = await getInput(
+		const title = await helpers.getInput(
 			'Give a title to your snippet', // Prompt
 			'My beautiful boilerplate' // PlaceHolder
 		);
 		if (!title) return;
 
-		const description = await getInput(
+		const description = await helpers.getInput(
 			'Give a description to your snippet (optional)',
 			'This snippet is for...'
 		);
@@ -70,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		// (Try to) save the snippet
 		try {
 			db.run('INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)', [title, description, highlightedCode, lId]);
-			saveDB(db, context);
+			database.saveDB(db, context);
 		} catch (error: any) {
 			// If the error is related to duplicates of unique-only values
 			if (error.message && error.message.includes('UNIQUE constraint failed')) {
@@ -97,12 +97,20 @@ export async function activate(context: vscode.ExtensionContext) {
 		);
 
 		// Defines panel HTML content
-		panel.webview.html = index(); // Placeholder
+		panel.webview.html = html.index();
 
 		// Sets up panel-backend connection
 		panel.webview.onDidReceiveMessage(
 			async (message) => {
-				// Handle messages received from the panel
+				if (message.command == "goToIndex") {
+					panel.webview.html = html.index();
+				}
+				if (message.command == "goToManager") {
+					panel.webview.html = html.list(message.payload.model, db);
+				}
+				if (message.command == "goToPage") {
+					panel.webview.html = html.list(message.payload.model, db, message.payload.page);
+				}
 			},
 			undefined,
 			context.subscriptions

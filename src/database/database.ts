@@ -45,6 +45,21 @@ export function saveDB(db: Database, context: vscode.ExtensionContext) {
     fs.writeFileSync(dbFilePath, Buffer.from(db.export()));
 }
 
+export function getTotalPages(db: any, tableName: string, perPage: number = 20): number {
+    // 1. Get total row count from the table
+    const countResult = db.exec(`SELECT COUNT(*) AS total FROM ${tableName}`);
+    
+    // Safely extract the number from sql.js array structure
+    const totalItems = countResult[0]?.values[0][0] || 0;
+
+    // 2. Divide by items per page and round up
+    // e.g., 41 items / 20 per page = 2.05 -> Rounds up to 3 pages
+    const totalPages = Math.ceil(totalItems / perPage);
+
+    // Always return at least 1 page, even if the database is completely empty
+    return totalPages < 1 ? 1 : totalPages;
+}
+
 // Internal helper to create new BD
 function createFreshDB(SQL: any, context: vscode.ExtensionContext) {
     // Database object from SQL instance
