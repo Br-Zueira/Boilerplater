@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as database from './database/database.js';
 import * as helpers from './helpers/helpers.js';
-import * as layout from './views/templates/layout.js';
-import * as htmlHelper from './helpers/htmlHelpers.js';
+import * as layout from './views/templates/layouts.js';
+import * as htmlHelpers from './helpers/htmlHelpers.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up
@@ -115,14 +115,14 @@ export async function activate(context: vscode.ExtensionContext) {
 						// Validates model coming
 						const validModels = ["snippets", "tags", "languages"];
 						if (!validModels.includes(param.model)) {
-							return htmlHelper.page404(`Model "${param.model}" does not exist`);
+							return htmlHelpers.page404(`Model "${param.model}" does not exist`);
 						}
 
 						// Raw query response
 						const rawObject = db.query(`SELECT * FROM ${param.model} WHERE id = ?`, [param.id])?.[0] || { columns: [], rows: [] };
 						// Validates something is actually received
 						if (!rawObject.values || rawObject.values.length <= 0) {
-							return htmlHelper.page404(`ID ${param.id} from "${param.model}" was not found`);
+							return htmlHelpers.page404(`ID ${param.id} from "${param.model}" was not found`);
 						}
 
 						// Formated response
@@ -137,7 +137,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						// Ensure model is valid (Software development 101 - Never trust user input)
 						const validModels = ["snippets", "tags", "languages"];
 						if (!validModels.includes(param.model)) {
-							panel.webview.html = htmlHelper.page404(`Model "${param.model}" does not exist`);
+							panel.webview.html = htmlHelpers.page404(`Model "${param.model}" does not exist`);
 							break;
 						}
 							

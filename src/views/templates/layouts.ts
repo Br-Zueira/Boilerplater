@@ -1,10 +1,10 @@
 import * as helpers from '../../helpers/helpers.js';
-import * as htmlHelper from '../../helpers/htmlHelpers.js'
+import * as htmlHelpers from '../../helpers/htmlHelpers.js'
 import * as scripts from '../static/scripts.js'
 
 // Page to return an HTML plain string to pass to the webView
 export function index() {
-    return htmlHelper.boiler(`
+    return htmlHelpers.boiler(`
         <h1>Br-Zueira's Boilerplater!</h1>
 
         <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
@@ -29,7 +29,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
         list = `<ul>`;
         for (const instance of data) {
             list += `<div>`;
-                list += htmlHelper.getInstanceContent(model, instance, db);
+                list += htmlHelpers.getInstanceContent(model, instance, db);
                 list += `<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
             list += `</div>`;
         }
@@ -47,7 +47,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
         buttons += `<button onclick="goToPage(${page + 1})">Next Page</button>`;
     }
     
-    return htmlHelper.boiler(`
+    return htmlHelpers.boiler(`
         <!-- Like "Snippets manager" -->
         <h1>${modelFirstUpper} manager</h1>
 
@@ -70,12 +70,12 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
 
 // Generic model editing view
 export function edit(model: string, object: any, id: number) {
-    return htmlHelper.boiler(`
+    return htmlHelpers.boiler(`
         <h1>Edit ${model.charAt(0).toUpperCase() + model.slice(1)}</h1>
         <form id="editForm">
             <input type="hidden" name="model" value="${model}">
             <input type="hidden" name="id" value="${id}">
-            ${htmlHelper.getEditableFields(model, object)}
+            ${htmlHelpers.getEditableFields(model, object)}
             <button type="submit">Save ${model.slice(0, -1)}</button>
             <button onclick="goToIndex">Cancel editing</button>
             <button onclick="deleteModel">Delete ${model.slice(0, -1)}</button>
