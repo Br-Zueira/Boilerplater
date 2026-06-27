@@ -3,7 +3,40 @@ import * as fs from 'fs';
 import * as path from 'path';
 import initSqlJs, { Database } from 'sql.js';
 
-export async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {
+export class dataBase {
+    private db: any;
+    private context: vscode.ExtensionContext;
+
+    constructor(context: vscode.ExtensionContext) {
+        this.context = context;
+    }
+
+    public async initialize(): Promise<void> {
+        this.db = await sqlInit(this.context);
+    }
+
+    public save() {
+        saveDB(this.db, this.context);
+    }
+
+    public getPages(table: string, perPage: number = 20): number {
+        return getTotalPages(this.db, table, perPage);
+    }
+
+    public getLanguage(instance: any) {
+        return this.db.exec(`SELECT displayName FROM languages WHERE id = ?`, [instance.language_id])[0]?.values?.[0]?.[0] || "UNKNOWN LANGUAGE";
+    }
+
+    public query(sql: string, params: any[] = []) {
+        return this.db.exec(sql, params);
+    }
+
+    public alter(sql: string, params: any[] = []) {
+        return this.db.run(sql, params);
+    }
+}
+
+async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {
     // Mount database path
     const dbFolderPath = context.globalStorageUri.fsPath;
     const dbFilePath = path.join(dbFolderPath, 'boilerplater.db');
@@ -36,7 +69,7 @@ export async function sqlInit(context: vscode.ExtensionContext): Promise<Databas
 }
 
 // Commit changes to the hard drive
-export function saveDB(db: Database, context: vscode.ExtensionContext) {
+function saveDB(db: Database, context: vscode.ExtensionContext) {
     // Get database path
     const dbFolderPath = context.globalStorageUri.fsPath;
     const dbFilePath = path.join(dbFolderPath, 'boilerplater.db');
@@ -45,7 +78,7 @@ export function saveDB(db: Database, context: vscode.ExtensionContext) {
     fs.writeFileSync(dbFilePath, Buffer.from(db.export()));
 }
 
-export function getTotalPages(db: any, tableName: string, perPage: number = 20): number {
+function getTotalPages(db: any, tableName: string, perPage: number = 20): number {
     // 1. Get total row count from the table
     const countResult = db.exec(`SELECT COUNT(*) AS total FROM ${tableName}`);
     
