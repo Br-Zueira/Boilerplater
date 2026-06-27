@@ -1,4 +1,4 @@
-import * as helpers from '../../helpers/helpers.js';
+import * as databaseHelpers from '../../helpers/databaseHelpers.js';
 import * as htmlHelpers from '../../helpers/htmlHelpers.js'
 import * as scripts from '../static/scripts.js'
 
@@ -25,7 +25,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
     const modelFirstUpper = model.charAt(0).toUpperCase() + model.slice(1);
 
     if (rawRows.values && rawRows.values.length > 0) {
-        data = helpers.formatRows(rawRows.columns, rawRows.values);
+        data = databaseHelpers.formatRows(rawRows.columns, rawRows.values);
         list = /*HTML*/`<ul>`;
         for (const instance of data) {
             list += /*HTML*/`<div>`;

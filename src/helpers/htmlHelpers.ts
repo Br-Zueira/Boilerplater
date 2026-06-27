@@ -1,4 +1,4 @@
-import { tomSelectCss } from "../views/static/css";
+import { tomSelectCss } from "../views/static/css.js";
 
 export function page404(message: string) {
     return boiler(/*HTML*/`

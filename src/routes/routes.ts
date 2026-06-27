@@ -1,8 +1,9 @@
 import * as layouts from '../views/templates/layouts.js';
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
-import * as helpers from '../helpers/helpers.js';
+import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import * as tomSelectControler from '../controlers/tomSelectControler.js';
 
-export function routes(param: any, panel: any, command: any, db: any) {
+export function routes(param: any, panel: any, command: any, db: any, context: any) {
     switch (command) {
         case ("goToIndex"): {
             panel.webview.html = layouts.index();
@@ -24,7 +25,7 @@ export function routes(param: any, panel: any, command: any, db: any) {
             }
 
             // Formated response
-            const object = helpers.formatRows(rawObject.columns, rawObject.values);
+            const object = databaseHelpers.formatRows(rawObject.columns, rawObject.values);
 
             panel.webview.html = layouts.edit(param.model, object[0], param.id);
             break;
@@ -59,6 +60,11 @@ export function routes(param: any, panel: any, command: any, db: any) {
             const rawRows = queryResult[0] || { columns: [], values: [] };
 
             panel.webview.html = layouts.list(param.model, rawRows, param.page, totalPages, db);
+            break;
+        }
+        
+        case ("searchTags"): {
+            tomSelectControler.searchTags(param.query, db, panel);
             break;
         }
 

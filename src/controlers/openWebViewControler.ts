@@ -20,7 +20,7 @@ export async function openWebViewControler(context: vscode.ExtensionContext, db:
     // Sets up panel-backend connection
     panel.webview.onDidReceiveMessage(
         async (message) => {
-            routes.routes(message.payload, panel, message.command, db);
+            routes.routes(message.payload, panel, message.command, db, context);
         },
         undefined,
         context.subscriptions
