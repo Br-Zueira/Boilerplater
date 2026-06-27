@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as database from './database/database.js';
 import * as helpers from './helpers/helpers.js';
-import * as layout from './html/layout.js';
-import * as htmlHelper from './html/htmlHelper.js';
+import * as layout from './views/templates/layout.js';
+import * as htmlHelper from './helpers/htmlHelpers.js';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Setting database up

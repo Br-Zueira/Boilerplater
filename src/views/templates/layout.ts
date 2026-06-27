@@ -1,6 +1,6 @@
-import * as helpers from '../helpers/helpers.js';
-import * as database from '../database/database.js';
-import * as htmlHelper from './htmlHelper.js'
+import * as helpers from '../../helpers/helpers.js';
+import * as htmlHelper from '../../helpers/htmlHelpers.js'
+import * as scripts from '../static/scripts.js'
 
 // Page to return an HTML plain string to pass to the webView
 export function index() {
@@ -10,17 +10,7 @@ export function index() {
         <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
         <button id="tagBtn" onclick="goToManager('tags')">Manage tags</button>
         <button id="langBtn" onclick="goToManager('languages')">Manage languages</button>
-    `, 
-    // Script
-    `
-        // Function to abstract the page swapping message call
-        function goToManager(model) {
-            vscode.postMessage({
-                command: "goToManager",
-                payload: { model: model, page: 1 }
-            });
-        }`
-    );
+    `, scripts.index());
 }
 
 // Page to return generic list
@@ -75,30 +65,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
         <!-- Footbar -->
         <p>Page ${page} of ${totalPages}</p>
         ${buttons}
-    `,
-    `            
-        function goToPage(page) {
-            vscode.postMessage({
-                command: "goToPage",
-                payload: { model: "${model}", page: page}
-            })
-        }
-
-        function goToIndex() {
-            vscode.postMessage({
-                command: "goToIndex",
-                payload: { dummy: "foo" }
-            })
-        }
-
-        function goToEdit(id) {
-            vscode.postMessage({
-                command: "goToEdit",
-                payload: { model: "${model}", id: id }
-            })
-        }
-    `
-    );
+    `, scripts.list(model));
 }
 
 // Generic model editing view
@@ -113,21 +80,5 @@ export function edit(model: string, object: any, id: number) {
             <button onclick="goToIndex">Cancel editing</button>
             <button onclick="deleteModel">Delete ${model.slice(0, -1)}</button>
         </form>
-    `, 
-    `
-        function goToIndex() {
-            vscode.postMessage({
-                command: "goToIndex",
-                payload: { dummy: "foo"}
-            })
-        }
-            
-        function deleteModel() {
-            vscode.postMessage({
-                command: "deleteModel",
-                payload: { model: "${model}", id: ${id} }
-            })
-        }
-    `
-    );
+    `, scripts.edit(model, id));
 }

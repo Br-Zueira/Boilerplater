@@ -1,3 +1,5 @@
+import { tomSelectCss } from "../views/static/css";
+
 export function page404(message: string) {
     return boiler(`
         <h1>Error 404:</h1>
@@ -15,6 +17,7 @@ export function boiler(body: string, script?: string, head?: string) {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Boilerplater</title>
+                <style>${ tomSelectCss }</style>
 
                 <script>
                     const vscode = acquireVsCodeApi();
