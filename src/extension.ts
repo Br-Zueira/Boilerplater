@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as database from './database/database.js';
 import * as helpers from './helpers/helpers.js';
-import * as layout from './views/templates/layouts.js';
+import * as layouts from './views/templates/layouts.js';
 import * as htmlHelpers from './helpers/htmlHelpers.js';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -99,7 +99,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		);
 
 		// Defines panel html content
-		panel.webview.html = layout.index();
+		panel.webview.html = layouts.index();
 
 		// Sets up panel-backend connection
 		panel.webview.onDidReceiveMessage(
@@ -107,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				const param = message.payload;
 				switch (message.command) {
 					case ("goToIndex"): {
-						panel.webview.html = layout.index();
+						panel.webview.html = layouts.index();
 						break;
 					}
 
@@ -128,7 +128,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						// Formated response
 						const object = helpers.formatRows(rawObject.columns, rawObject.values);
 
-						panel.webview.html = layout.edit(param.model, object[0], param.id);
+						panel.webview.html = layouts.edit(param.model, object[0], param.id);
 						break;
 					}	
 
@@ -160,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						const queryResult = db.query(`SELECT * FROM ${param.model} LIMIT ? OFFSET ?`, [perPage, offset]);
 						const rawRows = queryResult[0] || { columns: [], values: [] };
 
-						panel.webview.html = layout.list(param.model, rawRows, param.page, totalPages, db);
+						panel.webview.html = layouts.list(param.model, rawRows, param.page, totalPages, db);
 						break;
 					}
 
