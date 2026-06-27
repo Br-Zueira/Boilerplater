@@ -1,5 +1,5 @@
 export function index() {
-    return `
+    return /*JavaScript*/`
         // Function to abstract the page swapping message call
         function goToManager(model) {
             vscode.postMessage({
@@ -11,7 +11,7 @@ export function index() {
 }
 
 export function list(model: string) {
-    return `            
+    return /*JavaScript*/`            
         function goToPage(page) {
             vscode.postMessage({
                 command: "goToPage",
@@ -36,7 +36,7 @@ export function list(model: string) {
 }
 
 export function edit(model: string, id: number) {
-    return `
+    return /*JavaScript*/`
         function goToIndex() {
             vscode.postMessage({
                 command: "goToIndex",
@@ -50,5 +50,9 @@ export function edit(model: string, id: number) {
                 payload: { model: "${model}", id: ${id} }
             })
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("dummy");
+        })
     `;
 }

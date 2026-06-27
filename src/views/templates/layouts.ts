@@ -4,7 +4,7 @@ import * as scripts from '../static/scripts.js'
 
 // Page to return an HTML plain string to pass to the webView
 export function index() {
-    return htmlHelpers.boiler(`
+    return htmlHelpers.boiler(/*HTML*/`
         <h1>Br-Zueira's Boilerplater!</h1>
 
         <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
@@ -26,28 +26,28 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
 
     if (rawRows.values && rawRows.values.length > 0) {
         data = helpers.formatRows(rawRows.columns, rawRows.values);
-        list = `<ul>`;
+        list = /*HTML*/`<ul>`;
         for (const instance of data) {
-            list += `<div>`;
+            list += /*HTML*/`<div>`;
                 list += htmlHelpers.getInstanceContent(model, instance, db);
-                list += `<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
-            list += `</div>`;
+                list += /*HTML*/`<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
+            list += /*HTML*/`</div>`;
         }
-        list += `</ul>`
+        list += /*HTML*/`</ul>`
     } else {
-        list = `<p>Sorry, nothing found</p>`;
+        list = /*HTML*/`<p>Sorry, nothing found</p>`;
     }
 
     let buttons = "";
 
     if (page > 1) {
-        buttons += `<button onclick="goToPage(${page - 1})">Last Page</button>`;
+        buttons += /*HTML*/`<button onclick="goToPage(${page - 1})">Last Page</button>`;
     }
     if (page < totalPages) {
-        buttons += `<button onclick="goToPage(${page + 1})">Next Page</button>`;
+        buttons += /*HTML*/`<button onclick="goToPage(${page + 1})">Next Page</button>`;
     }
     
-    return htmlHelpers.boiler(`
+    return htmlHelpers.boiler(/*HTML*/`
         <!-- Like "Snippets manager" -->
         <h1>${modelFirstUpper} manager</h1>
 
@@ -70,7 +70,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
 
 // Generic model editing view
 export function edit(model: string, object: any, id: number) {
-    return htmlHelpers.boiler(`
+    return htmlHelpers.boiler(/*HTML*/`
         <h1>Edit ${model.charAt(0).toUpperCase() + model.slice(1)}</h1>
         <form id="editForm">
             <input type="hidden" name="model" value="${model}">

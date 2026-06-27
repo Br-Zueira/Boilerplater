@@ -1,7 +1,7 @@
 import { tomSelectCss } from "../views/static/css";
 
 export function page404(message: string) {
-    return boiler(`
+    return boiler(/*HTML*/`
         <h1>Error 404:</h1>
         <p>${message}</p>
     `);
@@ -9,7 +9,7 @@ export function page404(message: string) {
 
 // HTML boilerplate
 export function boiler(body: string, script?: string, head?: string) {
-    return `
+    return /*HTML*/`
         <!DOCTYPE html>
 
         <html lang="en">
@@ -37,7 +37,7 @@ export function getInstanceContent(model: string, instance: any, db: any) {
     switch (model) {
         case ("snippets"): {
             const lang = db.getLanguage(instance);
-            return `
+            return /*HTML*/`
                 <p><strong>Title:</strong> ${instance.title}</p>
                 <p><strong>Description:</strong> ${instance.description}</p>
                 <p><strong>Snippet:</strong> ${instance.snippet}</p>
@@ -45,18 +45,18 @@ export function getInstanceContent(model: string, instance: any, db: any) {
             `;
         }
         case ("tags"): {
-            return `
+            return /*HTML*/`
                 <p><strong>Label:</strong> ${instance.label}</p>
             `;
         }
         case ("languages"): {
-            return `
+            return /*HTML*/`
                 <p><strong>Display name:</strong> ${instance.displayName}</p>
                 <p><strong>Internal name:</strong> ${instance.internalName}</p>
             `;
         }
         default: {
-            return `
+            return /*HTML*/`
                 <p><strong>INVALID MODEL</strong></p>
             `;
         }
@@ -66,7 +66,7 @@ export function getInstanceContent(model: string, instance: any, db: any) {
 export function getEditableFields(model: string, object: any) {
     switch (model) {
         case ("snippets"): {
-            return `
+            return /*HTML*/`
                 <label>
                     <h2>Title:</h2>
                     <input type="text" name="title" value="${object.title}" placeholder="My amazing snippet">
@@ -90,7 +90,7 @@ export function getEditableFields(model: string, object: any) {
             `;
         }
         case ("languages"): {
-            return `
+            return /*HTML*/`
                 <label>
                     <h2>Display name:</h2>
                     <input type="text" name="displayName" value="${object.displayName}" placeholder="LoremipsumScript">
@@ -102,7 +102,7 @@ export function getEditableFields(model: string, object: any) {
             `;
         }
         case ("tags"): {
-            return `
+            return /*HTML*/`
                 <label>
                     <h2>Label:</h2>
                     <input type="text" name="label" value="${object.label}" placeholder="Cool Functions">
@@ -110,7 +110,7 @@ export function getEditableFields(model: string, object: any) {
             `;
         }
         default: {
-            return `<h1>INVALID MODEL</h1>`
+            return /*HTML*/`<h1>INVALID MODEL</h1>`
         }
     }
 }
