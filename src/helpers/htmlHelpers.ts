@@ -1,3 +1,5 @@
+import * as css from '../views/static/css.js';
+
 export function page404(message: string) {
     return boiler(/*HTML*/`
         <h1>Error 404:</h1>
@@ -15,6 +17,7 @@ export function boiler(body: string, script?: string, head?: string) {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Boilerplater</title>
+                <style>${ css.webviewCss }</style>
 
                 <script>
                     const vscode = acquireVsCodeApi();

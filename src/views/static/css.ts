@@ -14,11 +14,31 @@ export const webviewCss =
 VS CODE WEBVIEW EXTENSION OVERRIDES FOR DEFAULT STYLES
 ========================================================================== */
 button {
-    padding: 5px;
-    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
-    border: 1px solid var(--vscode-dropdown-border, #000);
+    padding: 6px 14px;
+    margin: 4px 2px;
+
+    font-family: var(--vscode-font-family, system-ui, sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+
+    border: 1px solid var(--vscode-button-border, transparent);
     border-radius: 2px;
-    color: var(--vscode-editor-foreground, #000);
+
+    color: var(--vscode-button-foreground, #fff);
+    background-color: var(--vscode-button-background, #007acc);
+
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:hover {
+    background-color: var(--vscode-button-hoverBackground, #0062a3);
+}
+
+button:focus {
+    outline: 1px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
 }
 `;
 
@@ -31,7 +51,7 @@ VS CODE WEBVIEW EXTENSION OVERRIDES FOR TOM-SELECT
 /* 1. Main Outer Wrapper */
 .ts-wrapper {
     padding: 0 !important;
-    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
+    font-family: var(--vscode-font-family, system-ui, sans-serif);
     font-size: var(--vscode-font-size, 13px);
 }
 
