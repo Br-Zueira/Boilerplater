@@ -4,9 +4,6 @@ import * as path from 'path';
 import initSqlJs, { Database } from 'sql.js';
 
 export class dataBase {
-    private db: any;
-    private context: vscode.ExtensionContext;
-
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
     }
@@ -34,6 +31,34 @@ export class dataBase {
     public alter(sql: string, params: any[] = []) {
         return this.db.run(sql, params);
     }
+
+    private db: any;
+    private context: vscode.ExtensionContext;
+}
+
+export interface snippets {
+    id: number;
+    title: string;
+    description: string;
+    snippet: string;
+    language_id: number;
+}
+
+export interface tags {
+    id: number;
+    label: string;
+}
+
+export interface languages {
+    id: number;
+    displayName: string;
+    internalName: string;
+}
+
+export interface snippet_tags {
+    id: number;
+    tag_id: number;
+    snippet_id: number;
 }
 
 async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {

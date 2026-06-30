@@ -14,3 +14,17 @@ export async function getInput(prompt: string, placeHolder: string): Promise<str
 
     return input.trim();
 }
+
+export function sendError(error: string, panel: any) {
+    panel.webview.postMessage({
+        message: 'error',
+        payload: {error}
+    });
+}
+
+export function sendStringMessage(message: string, string: string, panel: any) {
+    panel.webview.postMessage({
+        message,
+        payload: {string}
+    });
+}

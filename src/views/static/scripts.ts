@@ -47,11 +47,6 @@ export function list(model: string) {
 
 export function edit(model: string, id: number, context: vscode.ExtensionContext) {
     return /*JavaScript*/`
-        const activeCallbacks = {
-            tags: null,
-            languages: null
-        };
-            
         function goToIndex() {
             vscode.postMessage({
                 command: "goToIndex",
@@ -67,6 +62,11 @@ export function edit(model: string, id: number, context: vscode.ExtensionContext
         }
 
         // TomSelect part (for snippet editing)
+        const activeCallbacks = {
+            tags: null,
+            languages: null
+        };
+
         function loadTomSelect() {
             const tagSelector = document.getElementById("tagSelector");
             const languageSelector = document.getElementById("languageSelector");
@@ -109,32 +109,89 @@ export function edit(model: string, id: number, context: vscode.ExtensionContext
                     });
                 }
             });
+        }
 
-            window.addEventListener("message", (event) => {
-                const message = event.data;
-                switch (message.command) {
-                    case "receiveTags": {
-                        if (activeCallbacks.tags) {
-                            activeCallbacks.tags(message.payload.tags);
-                            activeCallbacks.tags = null;
-                        }
-                        break;
+        // Bridge between the webview and the extension
+        window.addEventListener("message", (event) => {
+            const message = event.data;
+            switch (message.command) {
+                case "receiveTags": {
+                    if (activeCallbacks.tags) {
+                        activeCallbacks.tags(message.payload.tags);
+                        activeCallbacks.tags = null;
                     }
-                    case "receiveLanguages": {
-                        if (activeCallbacks.languages) {
-                            activeCallbacks.languages(message.payload.languages);
-                            activeCallbacks.languages = null;
-                        }
-                        break;
-                    }
+                    break;
                 }
+                case "receiveLanguages": {
+                    if (activeCallbacks.languages) {
+                        activeCallbacks.languages(message.payload.languages);
+                        activeCallbacks.languages = null;
+                    }
+                    break;
+                }
+                case "error": {
+                    const errorMessageElement = document.getElementById("errorMessage");
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = message.payload.error;
+                        errorMessageElement.style.display = "block";
+                    }
+                    const successMessageElement = document.getElementById("successMessage");
+                    if (successMessageElement) {
+                        successMessageElement.textContent = '';
+                        successMessageElement.style.display = "none";
+                    }
+                    break;
+                }
+                case "success": {
+                    const successMessageElement = document.getElementById("successMessage");
+                    if (successMessageElement) {
+                        successMessageElement.textContent = message.payload.string;
+                        successMessageElement.style.display = "block";
+                    }
+                    const errorMessageElement = document.getElementById("errorMessage");
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = '';
+                        errorMessageElement.style.display = "none";
+                    }
+                    break;
+                }
+            }
+        });
+
+        // Form submission part
+        function setupForm() {
+            const editForm = document.getElementById("editForm");
+            if (!editForm) {
+                return;
+            }
+            editForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData.entries());
+
+                if (formData.has('tags')) {
+                    data.tags = formData.getAll('tags'); 
+                } else {
+                    data.tags = [];
+                }
+
+                vscode.postMessage({
+                    command: "submitEdit",
+                    payload: { model: "${model}", id: ${id}, formData: data }
+                });
             });
         }
 
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", loadTomSelect);
-        } else {
+        // Load the TomSelect and setup the form when the DOM is fully loaded
+        function loadPage() {
             loadTomSelect();
+            setupForm();
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", loadPage);
+        } else {
+            loadPage();
         }
     `;
 }

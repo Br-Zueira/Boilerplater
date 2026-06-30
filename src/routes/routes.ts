@@ -2,6 +2,7 @@ import * as layouts from '../views/templates/layouts.js';
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as tomSelectControler from '../controlers/tomSelectControler.js';
+import * as editControler from '../controlers/editControler.js';
 import * as vscode from 'vscode';
 
 export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
@@ -97,6 +98,11 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
 
         case ("searchLanguages"): {
             tomSelectControler.searchLanguages(param.searchQuery, db, panel);
+            break;
+        }
+
+        case("submitEdit"): {
+            editControler.submitEdit(param.model, param.id, param.formData, db, panel);
             break;
         }
 
