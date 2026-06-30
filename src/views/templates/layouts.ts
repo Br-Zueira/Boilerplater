@@ -1,6 +1,8 @@
 import * as databaseHelpers from '../../helpers/databaseHelpers.js';
 import * as htmlHelpers from '../../helpers/htmlHelpers.js'
 import * as scripts from '../static/scripts.js'
+import * as css from "../static/css.js";
+import * as vscode from 'vscode';
 
 // Page to return an HTML plain string to pass to the webView
 export function index() {
@@ -69,16 +71,20 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
 }
 
 // Generic model editing view
-export function edit(model: string, object: any, id: number) {
+export function edit(model: string, object: any, id: number, context: vscode.ExtensionContext) {
     return htmlHelpers.boiler(/*HTML*/`
-        <h1>Edit ${model.charAt(0).toUpperCase() + model.slice(1)}</h1>
+        <h1>Edit ${model.slice(0, -1)}</h1>
         <form id="editForm">
             <input type="hidden" name="model" value="${model}">
             <input type="hidden" name="id" value="${id}">
             ${htmlHelpers.getEditableFields(model, object)}
             <button type="submit">Save ${model.slice(0, -1)}</button>
-            <button onclick="goToIndex">Cancel editing</button>
-            <button onclick="deleteModel">Delete ${model.slice(0, -1)}</button>
+            <button type="button" onclick="goToIndex()">Cancel editing</button>
+            <button type="button" onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>
         </form>
-    `, scripts.edit(model, id));
+    `, scripts.edit(model, id), /*HTML*/`
+        <script>${ scripts.getTomSelectLibJs(context) }</script>
+        <style>${ css.getTomSelectLibCss(context) }</style>
+        <style>${ css.tomSelectCssOverride }</style>
+    `);
 }

@@ -15,6 +15,7 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
+			"timeout": 20000,
 			"preLaunchTask": "${defaultBuildTask}"
 		}
 	]

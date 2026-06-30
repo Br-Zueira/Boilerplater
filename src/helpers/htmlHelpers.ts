@@ -1,5 +1,3 @@
-import { tomSelectCss } from "../views/static/css.js";
-
 export function page404(message: string) {
     return boiler(/*HTML*/`
         <h1>Error 404:</h1>
@@ -17,7 +15,6 @@ export function boiler(body: string, script?: string, head?: string) {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Boilerplater</title>
-                <style>${ tomSelectCss }</style>
 
                 <script>
                     const vscode = acquireVsCodeApi();
@@ -81,11 +78,11 @@ export function getEditableFields(model: string, object: any) {
                 </label>
                 <div>
                     <label for="tagSelector">Tags</label>
-                    <select id="tagSelector" multiple placeholder="Type to search tags..."></select>
+                    <select id="tagSelector" multiple></select>
                 </div>
                 <div>
                     <label for="languageSelector">Language</label>
-                    <select id="languageSelector" placeholder="Type to search languages..."></select>
+                    <select id="languageSelector"></select>
                 </div>
             `;
         }

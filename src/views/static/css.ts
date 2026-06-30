@@ -1,4 +1,14 @@
-export const tomSelectCss =
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
+export function getTomSelectLibCss(context: vscode.ExtensionContext): string {
+    const cssPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'css', 'tom-select.css');
+    const file = fs.readFileSync(cssPath, 'utf8');
+    return file;
+}
+
+export const tomSelectCssOverride =
 /*CSS*/`
 /* ==========================================================================
 VS CODE WEBVIEW EXTENSION OVERRIDES FOR TOM-SELECT
@@ -33,14 +43,14 @@ VS CODE WEBVIEW EXTENSION OVERRIDES FOR TOM-SELECT
     box-shadow: none !important;
 }
 
-/* 4. Inside the Input Box (Placeholder text and active cursor input) */
-.ts-control::placeholder {
-    color: var(--vscode-input-placeholderForeground, #a6a6a6) !important;
-}
-
+/* 4. Inside the Input Box (Active cursor input) */
 .ts-control input {
     color: var(--vscode-dropdown-foreground, #cccccc) !important;
     font-family: inherit;
+}
+
+.ts-control input::placeholder {
+    color: var(--vscode-input-placeholderForeground, #a6a6a6) !important;
 }
 
 /* 5. Dropdown List Container (Floating Box) */
@@ -105,12 +115,12 @@ VS CODE WEBVIEW EXTENSION OVERRIDES FOR TOM-SELECT
     padding-right: 24px !important;
 }
 
-.ts-wrapper.toggle .ts-control::after {
+.ts-wrapper.single .ts-control::after {
     border-color: var(--vscode-dropdown-foreground, #cccccc) transparent transparent transparent !important;
     right: 10px !important;
 }
 
-.ts-wrapper.toggle.open .ts-control::after {
+.ts-wrapper.single.open .ts-control::after {
     border-color: transparent transparent var(--vscode-dropdown-foreground, #cccccc) transparent !important;
 }
 `;

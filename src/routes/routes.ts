@@ -2,8 +2,9 @@ import * as layouts from '../views/templates/layouts.js';
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as tomSelectControler from '../controlers/tomSelectControler.js';
+import * as vscode from 'vscode';
 
-export function routes(param: any, panel: any, command: any, db: any, context: any) {
+export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
     switch (command) {
         case ("goToIndex"): {
             panel.webview.html = layouts.index();
@@ -27,7 +28,7 @@ export function routes(param: any, panel: any, command: any, db: any, context: a
             // Formated response
             const object = databaseHelpers.formatRows(rawObject.columns, rawObject.values);
 
-            panel.webview.html = layouts.edit(param.model, object[0], param.id);
+            panel.webview.html = layouts.edit(param.model, object[0], param.id, context);
             break;
         }	
 
@@ -64,7 +65,12 @@ export function routes(param: any, panel: any, command: any, db: any, context: a
         }
         
         case ("searchTags"): {
-            tomSelectControler.searchTags(param.query, db, panel);
+            tomSelectControler.searchTags(param.searchQuery, db, panel);
+            break;
+        }
+
+        case ("searchLanguages"): {
+            tomSelectControler.searchLanguages(param.searchQuery, db, panel);
             break;
         }
 
