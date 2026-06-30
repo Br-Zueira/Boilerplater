@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
 
+// TomSelect CSS
 export function getTomSelectLibCss(context: vscode.ExtensionContext): string {
-    const cssPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'css', 'tom-select.css');
-    const file = fs.readFileSync(cssPath, 'utf8');
-    return file;
+    const tomSelectLibCssPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'css', 'tom-select.css');
+    return fs.readFileSync(tomSelectLibCssPath, 'utf8');
 }
 
 export const tomSelectCssOverride =

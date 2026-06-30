@@ -1,13 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
 
 // TomSelect Js
-
-export function getTomSelectLibJs(context: vscode.ExtensionContext) {
-    const jsPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'js', 'tom-select.complete.min.js');
-    const file = fs.readFileSync(jsPath, 'utf8');
-    return file;
+export function getTomSelectLibJs(context: vscode.ExtensionContext): string {
+    const tomSelectLibJsPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'js', 'tom-select.complete.js');
+    return fs.readFileSync(tomSelectLibJsPath, 'utf8');
 }
 
 export function index() {
@@ -47,8 +45,13 @@ export function list(model: string) {
     `;
 }
 
-export function edit(model: string, id: number) {
+export function edit(model: string, id: number, context: vscode.ExtensionContext) {
     return /*JavaScript*/`
+        const activeCallbacks = {
+            tags: null,
+            languages: null
+        };
+            
         function goToIndex() {
             vscode.postMessage({
                 command: "goToIndex",
@@ -64,24 +67,24 @@ export function edit(model: string, id: number) {
         }
 
         // TomSelect part (for snippet editing)
-        function loadTom() {
+        function loadTomSelect() {
             const tagSelector = document.getElementById("tagSelector");
             const languageSelector = document.getElementById("languageSelector");
             if (!tagSelector || !languageSelector) {
                 return;
             }
 
-            const activeCallbacks = {
-                tags: null,
-                languages: null
-            };
-
             const tagTom = new TomSelect(tagSelector, {
                 valueField: 'id',
                 labelField: 'label',
                 searchField: 'label',
-                plugins: ['remove_button', 'dropdown_input', 'no_backspace_delete'],
-                placeholder: 'Type to search tags...',
+                plugins: {
+                    'remove_button': {
+                        title: 'Remove this tag'
+                    }, 
+                    'no_backspace_delete': {}, 
+                    'checkbox_options': {}
+                },
                 load: function(query, callback) {
                     activeCallbacks.tags = callback;
                     vscode.postMessage({
@@ -95,8 +98,9 @@ export function edit(model: string, id: number) {
                 valueField: 'id',
                 labelField: 'displayName',
                 searchField: 'displayName',
-                plugins: ['dropdown_input', 'no_backspace_delete'],
-                placeholder: 'Type to search languages...',
+                plugins: {
+                    'no_backspace_delete': {}, 
+                },
                 load: function(query, callback) {
                     activeCallbacks.languages = callback;
                     vscode.postMessage({
@@ -125,15 +129,12 @@ export function edit(model: string, id: number) {
                     }
                 }
             });
-        };
+        }
 
-        // Surpass VsCode's natural unpredictable behaviour 
-        // (Sometimes script will be executed after DOMContentLoaded 
-        // even if it's loaded before)
-        if (document.readyState == "loading") {
-            window.addEventListener("DOMContentLoaded", loadTom);
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", loadTomSelect);
         } else {
-            loadTom();
+            loadTomSelect();
         }
     `;
 }

@@ -82,9 +82,10 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
             <button type="button" onclick="goToIndex()">Cancel editing</button>
             <button type="button" onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>
         </form>
-    `, scripts.edit(model, id), /*HTML*/`
-        <script>${ scripts.getTomSelectLibJs(context) }</script>
-        <style>${ css.getTomSelectLibCss(context) }</style>
-        <style>${ css.tomSelectCssOverride }</style>
+    `, scripts.edit(model, id, context),
+    /*HTML*/`
+    <style>${ css.getTomSelectLibCss(context) }</style> 
+    <style>${ css.tomSelectCssOverride }</style>
+    <script>${ scripts.getTomSelectLibJs(context) }</script>
     `);
 }
