@@ -90,11 +90,11 @@ export function getEditableFields(model: string, object: any, language: any = un
                 </label>
                 <label>
                     <h2>Description:</h2>
-                    <p contenteditable="plaintext-only" data-name="description">${object.description}</p>
+                    <textarea name="description">${object.description}</textarea>
                 </label>
                 <label>
                     <h2>Snippet:</h2>
-                    <p contenteditable="plaintext-only" data-name="snippet">${object.snippet}</p>
+                    <textarea name="snippet">${object.snippet}</textarea>
                 </label>
                 <div>
                     <label for="tagSelector">Tags</label>
