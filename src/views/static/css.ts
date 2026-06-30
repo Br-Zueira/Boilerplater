@@ -8,6 +8,20 @@ export function getTomSelectLibCss(context: vscode.ExtensionContext): string {
     return fs.readFileSync(tomSelectLibCssPath, 'utf8');
 }
 
+export const webviewCss = 
+/*CSS*/`
+/* ==========================================================================
+VS CODE WEBVIEW EXTENSION OVERRIDES FOR DEFAULT STYLES
+========================================================================== */
+button {
+    padding: 5px;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
+    border: 1px solid var(--vscode-dropdown-border, #000);
+    border-radius: 2px;
+    color: var(--vscode-editor-foreground, #000);
+}
+`;
+
 export const tomSelectCssOverride =
 /*CSS*/`
 /* ==========================================================================

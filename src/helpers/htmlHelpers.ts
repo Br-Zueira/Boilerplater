@@ -60,9 +60,26 @@ export function getInstanceContent(model: string, instance: any, db: any) {
     }
 }
 
-export function getEditableFields(model: string, object: any) {
+export function getEditableFields(model: string, object: any, language: any = undefined, tags: any = undefined) {
     switch (model) {
         case ("snippets"): {
+            let languageOption: string;
+
+            // Avoid "accessing property of undefined" error
+            if (language && language.id && language.displayName) {
+                languageOption = /*HTML*/`<option value="${language.id}" selected>${language.displayName}</option>`
+            } else {
+                languageOption = ''
+            }
+
+            let tagOptions = '';
+
+            if (tags)  {
+                tags.forEach((element: any) => {
+                    tagOptions += /*HTML*/`<option value="${element.id}" selected>${element.label}</option>\n`;
+                });
+            }
+
             return /*HTML*/`
                 <label>
                     <h2>Title:</h2>
@@ -78,11 +95,15 @@ export function getEditableFields(model: string, object: any) {
                 </label>
                 <div>
                     <label for="tagSelector">Tags</label>
-                    <select id="tagSelector" multiple></select>
+                    <select id="tagSelector" name="tags" multiple>
+                        ${tagOptions}
+                    </select>
                 </div>
                 <div>
                     <label for="languageSelector">Language</label>
-                    <select id="languageSelector"></select>
+                    <select id="languageSelector" name="language" required="true">
+                        ${languageOption}
+                    </select>
                 </div>
             `;
         }

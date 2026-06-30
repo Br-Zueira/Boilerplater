@@ -28,7 +28,33 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
             // Formated response
             const object = databaseHelpers.formatRows(rawObject.columns, rawObject.values);
 
-            panel.webview.html = layouts.edit(param.model, object[0], param.id, context);
+            // Declare the necessary variables up here to avoid variable scope issues
+            let language: any = null;
+            let tags: any = [];
+
+            // Ensure the following procedure only happens if we're dealing with a snippet
+            if (param.model === 'snippets') {
+                // Get the snippet language
+                const rawLanguage = db.query('SELECT * FROM languages WHERE id = ?', [object[0].language_id])?.[0] || { columns: [], rows: [] };
+
+                // Avoid null accessing property errors
+                if (rawLanguage && rawLanguage.columns && rawLanguage.rows) {
+                    language = databaseHelpers.formatRows(rawLanguage.columns, rawLanguage.values);
+                }
+
+                // Get all tags assigned to this snippet
+                const snippet_tags = db.query('SELECT * FROM snippet_tags WHERE snippet_id = ?', [object[0].id]) || { columns: [], rows: [] };
+
+                // Avoid null accessing property errors
+                if (snippet_tags && snippet_tags.columns && snippet_tags.rows) {
+                    snippet_tags.forEach((element: any) => {
+                        const tag = databaseHelpers.formatRows(element.columns, element.rows);
+                        tags.push({ ...tag[0] });
+                    });
+                }
+            }
+
+            panel.webview.html = layouts.edit(param.model, object[0], param.id, context, language, tags);
             break;
         }	
 
