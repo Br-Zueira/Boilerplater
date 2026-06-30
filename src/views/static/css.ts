@@ -13,6 +13,9 @@ export const webviewCss =
 /* ==========================================================================
 VS CODE WEBVIEW EXTENSION OVERRIDES FOR DEFAULT STYLES
 ========================================================================== */
+
+/* BUTTON */
+
 button {
     padding: 6px 14px;
     margin: 4px 2px;
@@ -39,6 +42,31 @@ button:hover {
 button:focus {
     outline: 1px solid var(--vscode-focusBorder);
     outline-offset: 2px;
+}
+
+/* INPUT */
+
+input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea {
+    background-color: var(--vscode-dropdown-background, #3c3c3c);
+    color: var(--vscode-dropdown-foreground, #cccccc);
+    border: 1px solid var(--vscode-dropdown-border, #3c3c3c);
+    border-radius: 2px;
+    padding: 6px 8px !important;
+    box-shadow: none !important;
+    transition: border-color 0.1s ease;
+    display: inline flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+:is(input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea):focus {
+    outline: 1px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+}
+
+:is(input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea):hover {
+    background-color: var(--vscode-input-hoverBackground, #454545);
 }
 `;
 
