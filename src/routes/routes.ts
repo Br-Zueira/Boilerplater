@@ -13,7 +13,7 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
         }
 
         case ("goToEdit"): {
-            // Validates model coming
+            // Validates the model
             const validModels = ["snippets", "tags", "languages"];
             if (!validModels.includes(param.model)) {
                 return htmlHelpers.page404(`Model "${param.model}" does not exist`);
@@ -39,8 +39,8 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
                 const rawLanguage = db.query('SELECT * FROM languages WHERE id = ?', [object[0].language_id])?.[0] || { columns: [], rows: [] };
 
                 // Avoid null accessing property errors
-                if (rawLanguage && rawLanguage.columns && rawLanguage.rows) {
-                    language = databaseHelpers.formatRows(rawLanguage.columns, rawLanguage.values);
+                if (rawLanguage && rawLanguage.columns && rawLanguage.values) {
+                    language = databaseHelpers.formatRows(rawLanguage.columns, rawLanguage.values)[0];
                 }
 
                 // Get all tags assigned to this snippet
@@ -49,7 +49,7 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
                 // Avoid null accessing property errors
                 if (snippet_tags && snippet_tags.columns && snippet_tags.rows) {
                     snippet_tags.forEach((element: any) => {
-                        const tag = databaseHelpers.formatRows(element.columns, element.rows);
+                        const tag = databaseHelpers.formatRows(element.columns, element.values);
                         tags.push({ ...tag[0] });
                     });
                 }

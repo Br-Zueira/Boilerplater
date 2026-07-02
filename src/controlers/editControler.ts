@@ -12,7 +12,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
     switch (model) {
         case 'snippets': {
             // Validating required fields
-            const { rawTitle = "", rawDescription = "", rawSnippet = "", rawLanguageId = null } = formData;
+            const { title: rawTitle = "", description: rawDescription = "", snippet: rawSnippet = "", language: rawLanguageId = null } = formData;
 
             // Sanitizing inputs to prevent SQL injection and other potential issues
             const title = databaseHelpers.sanitize(rawTitle) || null;
@@ -90,30 +90,35 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             ]);
 
             // Delete tags that are no longer associated with the snippet
-            const removePlaceholders = deleteTags.map(() => '?').join(',');
-            db.alter(/*SQL*/`
-                DELETE FROM snippet_tags
-                WHERE snippet_id = ? AND tag_id IN (${removePlaceholders})`,
-            [id, ...deleteTags]);
+            if (deleteTags.length > 0) {
+                const removePlaceholders = deleteTags.map(() => '?').join(',');
+                db.alter(/*SQL*/`
+                    DELETE FROM snippet_tags
+                    WHERE snippet_id = ? AND tag_id IN (${removePlaceholders})`,
+                [id, ...deleteTags]);
+            }
 
             // Add new tags that are now associated with the snippet
-            const addPlaceholders = newTags.map(() => '(?, ?)').join(',');
-            const addParams = newTags.flatMap(tagId => [id, tagId]);
-            db.alter(/*SQL*/`
-                INSERT INTO snippet_tags (snippet_id, tag_id)
-                VALUES ${addPlaceholders}`,
-            addParams);
+            if (newTags.length > 0) {
+                const addPlaceholders = newTags.map(() => '(?, ?)').join(',');
+                const addParams = newTags.flatMap(tagId => [id, tagId]);
+                db.alter(/*SQL*/`
+                    INSERT INTO snippet_tags (snippet_id, tag_id)
+                    VALUES ${addPlaceholders}`,
+                addParams);
+            }
             
             // Model name to be displayed in the success message (From 'snippets' to 'Snippet', for example)
             const showModel = model[0].toUpperCase() + model.slice(1, -1);
 
             // Success message
+            db.save();
             helpers.sendStringCommand(`success`, `${showModel} successfully edited`, panel);
             break;
         }
         case 'tags': {
             // Validating required fields
-            const { rawLabel = '' } = formData;
+            const { label: rawLabel = '' } = formData;
             const label = databaseHelpers.sanitize(rawLabel) || null;
             
             // Ensuring that the required field is present
@@ -132,12 +137,13 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             ]);
 
             // Success message
+            db.save();
             helpers.sendStringCommand(`success`, `Tag successfully edited`, panel);
             break;
         }
         case 'languages': {
             // Validating required fields
-            const { rawDisplayName = '' } = formData;
+            const { displayName: rawDisplayName = '' } = formData;
             const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
 
             // Ensuring that the required field is present
@@ -156,6 +162,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             ]);
 
             // Success message
+            db.save();
             helpers.sendStringCommand(`success`, `Language successfully edited`, panel);
             break;
         }

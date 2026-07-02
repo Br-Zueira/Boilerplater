@@ -74,7 +74,9 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
 }
 
 // Generic model editing view
-export function edit(model: string, object: any, id: number, context: vscode.ExtensionContext, language: any, tags: any) {
+export function edit(model: string, object: any, id: number, context: vscode.ExtensionContext, language: any = undefined, tags: any = undefined) {
+    const deleteButton = model === "languages" ? "" : /*HTML*/`<button onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>`;
+    
     return htmlHelpers.boiler(/*HTML*/`
         <h1>Edit ${model.slice(0, -1)}</h1>
         <form id="editForm">
@@ -83,7 +85,7 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
             ${htmlHelpers.getEditableFields(model, object, language, tags)}
             <button type="submit">Save ${model.slice(0, -1)}</button>
             <button type="button" onclick="goToIndex()">Cancel editing</button>
-            <button type="button" onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>
+            ${deleteButton}
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
             <p id="successMessage" role="alert" style="color: green; display: none;"></p>
         </form>

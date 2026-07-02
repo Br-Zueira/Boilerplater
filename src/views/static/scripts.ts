@@ -47,6 +47,7 @@ export function list(model: string) {
 
 export function edit(model: string, id: number, context: vscode.ExtensionContext) {
     return /*JavaScript*/`
+        // Functions for the buttons on the page
         function goToIndex() {
             vscode.postMessage({
                 command: "goToIndex",
