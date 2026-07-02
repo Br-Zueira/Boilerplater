@@ -2,6 +2,7 @@ import * as helpers from '../helpers/helpers.js'
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 
 export function submitEdit(model: string, id: number, formData: any, db: any, panel: any) {
+    // Validating model
     const validModels = ['snippets', 'tags', 'languages'];
     if (!validModels.includes(model)) {
         helpers.sendError(`Invalid model: "${model}" doesn't exist`, panel);
@@ -10,47 +11,70 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
 
     switch (model) {
         case 'snippets': {
-            const { title = undefined, description = "", snippet = undefined, languageId = undefined } = formData;
+            // Validating required fields
+            const { rawTitle = "", rawDescription = "", rawSnippet = "", rawLanguageId = null } = formData;
+
+            // Sanitizing inputs to prevent SQL injection and other potential issues
+            const title = databaseHelpers.sanitize(rawTitle) || null;
+            const description = databaseHelpers.sanitize(rawDescription) || null; // Optional field, can be null
+            const snippet = databaseHelpers.sanitize(rawSnippet) || null;
+            
+            // Validating languageId to ensure it's a number or null
+            const languageId = !rawLanguageId || Number.isNaN(Number(rawLanguageId)) ? null : Number(rawLanguageId);
+
+            // Ensuring that all required fields are present
             if (!title || !snippet || !languageId) {
                 helpers.sendError(`Snippet lacks a required field: Either title, snippet or language`, panel);
                 return;
             }
 
+            // Get the current tags associated with the snippet from the database
             const rawSnippetTags = db.query(/*SQL*/
                 `SELECT * FROM snippet_tags 
                 WHERE snippet_id = ?`, formData.id
             ) || { columns: [], rows: [] };
-            let mappedSnippetTags: any[] = [];
 
+            // Mapping the raw snippet tags to a more usable format
+            let mappedSnippetTags: any[] = [];
             for (const row of rawSnippetTags) {
                 const mappedRow = databaseHelpers.formatRows(row.column, row.values);
                 mappedSnippetTags.push(mappedRow);
             }
             
+            // Arrays to hold the IDs of tags that are already associated, new tags to be added, and tags to be removed
             let existentTags: Number[] = [];
             let newTags: Number[] = [];
             let deleteTags: Number[] = [];
 
+            const existingTagIdsSet = new Set(mappedSnippetTags.map((tag: { id: number }) => tag.id));
+
+            // Looping through the tags sent in the form data to determine which tags are new, which are existing, and which should be deleted
             for (const rawTag of formData.tags) {
-                if (Number.isNaN(rawTag) || rawTag.trim() === '') {
+                const tagId = Number(rawTag)
+
+                // Validating each tag to ensure it's a number and not empty
+                if (Number.isNaN(tagId) || !rawTag || rawTag.trim() === '') {
                     helpers.sendError(`A sent tag ID isn't valid`, panel);
                     return;
                 }
-                const tagId = Number(rawTag)
-                if (mappedSnippetTags.some((tag: any) => tag.id === tagId)) {
+
+                // Sanitizing the tag ID to ensure it's a number
+                if (existingTagIdsSet.has(tagId)) {
                     existentTags.push(tagId);
                 } else {
                     newTags.push(tagId);
                 }
             }
 
+            // Looping through the existing tags to determine which ones should be deleted 
             for (const tag of mappedSnippetTags) {
                 const id = Number(tag.id);
                 if (!existentTags.includes(id)) {
                     deleteTags.push(id);
                 }
             }
-            
+
+            // Updating the snippet in the database with the new values
             db.alter(/*SQL*/`
                 UPDATE snippets SET title = ?, 
                 description = ?, 
@@ -58,10 +82,10 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
                 language_id = ?
                 WHERE id = ?`, 
             [
-                databaseHelpers.sanitize(title), 
-                databaseHelpers.sanitize(description),
-                databaseHelpers.sanitize(snippet),
-                databaseHelpers.sanitize(languageId), 
+                title, 
+                description,
+                snippet,
+                languageId, 
                 id
             ]);
 
@@ -72,7 +96,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
                 WHERE snippet_id = ? AND tag_id IN (${removePlaceholders})`,
             [id, ...deleteTags]);
 
-            // Add new tags that are associated with the snippet
+            // Add new tags that are now associated with the snippet
             const addPlaceholders = newTags.map(() => '(?, ?)').join(',');
             const addParams = newTags.flatMap(tagId => [id, tagId]);
             db.alter(/*SQL*/`
@@ -84,39 +108,55 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             const showModel = model[0].toUpperCase() + model.slice(1, -1);
 
             // Success message
-            helpers.sendStringMessage(`success`, `${showModel} successfully edited`, panel);
+            helpers.sendStringCommand(`success`, `${showModel} successfully edited`, panel);
             break;
         }
         case 'tags': {
-            const { label = undefined } = formData;
+            // Validating required fields
+            const { rawLabel = '' } = formData;
+            const label = databaseHelpers.sanitize(rawLabel) || null;
+            
+            // Ensuring that the required field is present
             if (!label) {
                 helpers.sendError(`Tag lacks a required field: label`, panel);
                 return;
             }
+
+            // Updating the tag in the database with the new value
             db.alter(/*SQL*/`
                 UPDATE tags SET label = ?
                 WHERE id = ?`, 
             [
-                databaseHelpers.sanitize(label), 
+                label, 
                 id
             ]);
-            helpers.sendStringMessage(`success`, `Tag successfully edited`, panel);
+
+            // Success message
+            helpers.sendStringCommand(`success`, `Tag successfully edited`, panel);
             break;
         }
         case 'languages': {
-            const { displayName = undefined } = formData;
+            // Validating required fields
+            const { rawDisplayName = '' } = formData;
+            const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
+
+            // Ensuring that the required field is present
             if (!displayName) {
                 helpers.sendError(`Language lacks a required field: display Name`, panel);
                 return;
             }
+
+            // Updating the language in the database with the new value
             db.alter(/*SQL*/`
                 UPDATE languages SET displayName = ?
                 WHERE id = ?`, 
             [
-                databaseHelpers.sanitize(displayName),
+                displayName,
                 id
             ]);
-            helpers.sendStringMessage(`success`, `Language successfully edited`, panel);
+
+            // Success message
+            helpers.sendStringCommand(`success`, `Language successfully edited`, panel);
             break;
         }
     }

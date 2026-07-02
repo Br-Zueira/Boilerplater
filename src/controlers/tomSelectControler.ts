@@ -1,8 +1,8 @@
 import * as databaseHelpers from '../helpers/databaseHelpers';
 
 export function searchTags(rawQuery: string, db: any, panel: any) {
-    const query = databaseHelpers.sanitize(rawQuery);
-    const data = db.query("SELECT * FROM tags WHERE label LIKE ? LIMIT 50", [`%${query}%`]);
+    const query = databaseHelpers.sanitizeLike(rawQuery);
+    const data = db.query("SELECT * FROM tags WHERE label LIKE ? ESCAPE '\\' LIMIT 50", [`%${query}%`]);
     let tags: any [] = [];
     for (const row of data) {
         const formated = databaseHelpers.formatRows(row.columns, row.values)
@@ -15,8 +15,8 @@ export function searchTags(rawQuery: string, db: any, panel: any) {
 }
 
 export function searchLanguages(rawQuery: string, db: any, panel: any) {
-    const query = databaseHelpers.sanitize(rawQuery);
-    const data = db.query("SELECT * FROM languages WHERE displayName LIKE ? LIMIT 50", [`%${query}%`]);
+    const query = databaseHelpers.sanitizeLike(rawQuery);
+    const data = db.query("SELECT * FROM languages WHERE displayName LIKE ? ESCAPE '\\' LIMIT 50", [`%${query}%`]);
     let languages: any [] = [];
     for (const row of data) {
         const formated = databaseHelpers.formatRows(row.columns, row.values)

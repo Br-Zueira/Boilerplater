@@ -23,5 +23,29 @@ export function formatRows(columns: Array<any> | undefined, rows: Array<any> | u
 }
 
 export function sanitize(query: string) {
-    return query.replace(/%/g, '//%').replace(/_/, '//_');
+    // Safety gate
+    if (!query || typeof query !== 'string') {
+        return '';
+    }
+    
+    // Trim whitespace from the beginning and end of the query
+    const trimmedQuery = query.trim();
+
+    // If the trimmed query is empty, return an empty string
+    if (trimmedQuery === '') {
+        return '';
+    }
+
+    return trimmedQuery;
+}
+
+export function sanitizeLike(query: string) {
+    // Safety gate
+    const trimmedQuery = sanitize(query);
+    if (trimmedQuery === '') {
+        return '';
+    }
+
+    // Escape special characters for SQL LIKE queries
+    return trimmedQuery.replace(/\\/g, '\\\\\\\\' /* This creates "\\" to escape the own escape char*/).replace(/%/g, '\\\\%').replace(/_/g, '\\\\_');
 }

@@ -17,14 +17,14 @@ export async function getInput(prompt: string, placeHolder: string): Promise<str
 
 export function sendError(error: string, panel: any) {
     panel.webview.postMessage({
-        message: 'error',
+        command: 'error',
         payload: {error}
     });
 }
 
-export function sendStringMessage(message: string, string: string, panel: any) {
+export function sendStringCommand(command: string, string: string, panel: any) {
     panel.webview.postMessage({
-        message,
+        command,
         payload: {string}
     });
 }

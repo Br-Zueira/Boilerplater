@@ -112,51 +112,53 @@ export function edit(model: string, id: number, context: vscode.ExtensionContext
         }
 
         // Bridge between the webview and the extension
-        window.addEventListener("message", (event) => {
-            const message = event.data;
-            switch (message.command) {
-                case "receiveTags": {
-                    if (activeCallbacks.tags) {
-                        activeCallbacks.tags(message.payload.tags);
-                        activeCallbacks.tags = null;
+        function setupMessageListener() {
+            window.addEventListener("message", (event) => {
+                const message = event.data;
+                switch (message.command) {
+                    case "receiveTags": {
+                        if (activeCallbacks.tags) {
+                            activeCallbacks.tags(message.payload.tags);
+                            activeCallbacks.tags = null;
+                        }
+                        break;
                     }
-                    break;
+                    case "receiveLanguages": {
+                        if (activeCallbacks.languages) {
+                            activeCallbacks.languages(message.payload.languages);
+                            activeCallbacks.languages = null;
+                        }
+                        break;
+                    }
+                    case "error": {
+                        const errorMessageElement = document.getElementById("errorMessage");
+                        if (errorMessageElement) {
+                            errorMessageElement.textContent = message.payload.error;
+                            errorMessageElement.style.display = "block";
+                        }
+                        const successMessageElement = document.getElementById("successMessage");
+                        if (successMessageElement) {
+                            successMessageElement.textContent = '';
+                            successMessageElement.style.display = "none";
+                        }
+                        break;
+                    }
+                    case "success": {
+                        const successMessageElement = document.getElementById("successMessage");
+                        if (successMessageElement) {
+                            successMessageElement.textContent = message.payload.string;
+                            successMessageElement.style.display = "block";
+                        }
+                        const errorMessageElement = document.getElementById("errorMessage");
+                        if (errorMessageElement) {
+                            errorMessageElement.textContent = '';
+                            errorMessageElement.style.display = "none";
+                        }
+                        break;
+                    }
                 }
-                case "receiveLanguages": {
-                    if (activeCallbacks.languages) {
-                        activeCallbacks.languages(message.payload.languages);
-                        activeCallbacks.languages = null;
-                    }
-                    break;
-                }
-                case "error": {
-                    const errorMessageElement = document.getElementById("errorMessage");
-                    if (errorMessageElement) {
-                        errorMessageElement.textContent = message.payload.error;
-                        errorMessageElement.style.display = "block";
-                    }
-                    const successMessageElement = document.getElementById("successMessage");
-                    if (successMessageElement) {
-                        successMessageElement.textContent = '';
-                        successMessageElement.style.display = "none";
-                    }
-                    break;
-                }
-                case "success": {
-                    const successMessageElement = document.getElementById("successMessage");
-                    if (successMessageElement) {
-                        successMessageElement.textContent = message.payload.string;
-                        successMessageElement.style.display = "block";
-                    }
-                    const errorMessageElement = document.getElementById("errorMessage");
-                    if (errorMessageElement) {
-                        errorMessageElement.textContent = '';
-                        errorMessageElement.style.display = "none";
-                    }
-                    break;
-                }
-            }
-        });
+            });
+        }
 
         // Form submission part
         function setupForm() {
@@ -167,17 +169,24 @@ export function edit(model: string, id: number, context: vscode.ExtensionContext
             editForm.addEventListener("submit", (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.target);
-                const data = Object.fromEntries(formData.entries());
+                const data = {};
 
-                if (formData.has('tags')) {
-                    data.tags = formData.getAll('tags'); 
-                } else {
+                for (const key of formData.keys()) {
+                    const value = formData.getAll(key);
+                    if (value.length > 1) {
+                        data[key] = value;
+                    } else {
+                        data[key] = value[0];
+                    }
+                }
+
+                if (!data.tags) {
                     data.tags = [];
                 }
 
                 vscode.postMessage({
                     command: "submitEdit",
-                    payload: { model: "${model}", id: ${id}, formData: data }
+                    payload: { model: "${model}", id: Number("${id}") || null, formData: data }
                 });
             });
         }
@@ -186,6 +195,7 @@ export function edit(model: string, id: number, context: vscode.ExtensionContext
         function loadPage() {
             loadTomSelect();
             setupForm();
+            setupMessageListener();
         }
 
         if (document.readyState === "loading") {

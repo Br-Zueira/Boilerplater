@@ -31,7 +31,7 @@ export async function pickupTextControler(db: any) {
 
     // Get the language part
     const languageId = editor.document.languageId;
-    const lang = db.query('SELECT * FROM languages WHERE internalName = ?', [languageId]);
+    const lang = db.query(/*SQL*/`SELECT * FROM languages WHERE internalName = ?`, [languageId]);
 
     // Language ID
     let lId: number;
@@ -41,10 +41,10 @@ export async function pickupTextControler(db: any) {
         // Create new language
         const displayName = languageId.charAt(0).toUpperCase() + languageId.slice(1);
 
-        db.query('INSERT INTO languages (displayName, internalName) VALUES (?, ?)', [displayName, languageId]);
+        db.query(/*SQL*/`INSERT INTO languages (displayName, internalName) VALUES (?, ?)`, [displayName, languageId]);
 
         // Get ID from new language
-        const idResult = db.query('SELECT last_insert_rowid();');
+        const idResult = db.query(/*SQL*/`SELECT last_insert_rowid();`);
 
         lId = idResult[0].values[0][0] as number;
 
@@ -56,7 +56,7 @@ export async function pickupTextControler(db: any) {
 
     // (Try to) save the snippet
     try {
-        db.query('INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)', [title, description, highlightedCode, lId]);
+        db.query(/*SQL*/`INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)`, [title, description, highlightedCode, lId]);
         db.save();
     } catch (error: any) {
         // If the error is related to duplicates of unique-only values

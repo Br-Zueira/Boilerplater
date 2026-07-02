@@ -81,11 +81,11 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
             <input type="hidden" name="model" value="${model}">
             <input type="hidden" name="id" value="${id}">
             ${htmlHelpers.getEditableFields(model, object, language, tags)}
-            <p id="errorMessage" style="color: red; display: none;"></p>
-            <p id="successMessage" style="color: green; display: none;"></p>
             <button type="submit">Save ${model.slice(0, -1)}</button>
             <button type="button" onclick="goToIndex()">Cancel editing</button>
             <button type="button" onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>
+            <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
+            <p id="successMessage" role="alert" style="color: green; display: none;"></p>
         </form>
     `, scripts.edit(model, id, context),
     /*HTML*/`
