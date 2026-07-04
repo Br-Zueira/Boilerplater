@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
-export async function getInput(prompt: string, placeHolder: string): Promise<string | undefined> {
+export async function getInput(prompt: string, placeHolder: string, ignoreFocusOut: boolean): Promise<string | undefined> {
     // Input popup
     const input = await vscode.window.showInputBox({
         prompt,
         placeHolder,
+        ignoreFocusOut
     });
 
     // If they hit Escape (undefined) or just press Enter without typing anything ('')

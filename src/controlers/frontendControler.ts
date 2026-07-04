@@ -27,7 +27,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
     // Ensure the following procedure only happens if we're dealing with a snippet
     if (model === 'snippets') {
         // Get the snippet language
-        const rawLanguage = db.query('SELECT * FROM languages WHERE id = ?', [object[0].language_id])?.[0] || { columns: [], rows: [] };
+        const rawLanguage = db.query(/*SQL*/`SELECT * FROM languages WHERE id = ?`, [object.language_id])?.[0] || { columns: [], rows: [] };
 
         // Avoid null accessing property errors
         if (rawLanguage && rawLanguage.columns && rawLanguage.values) {
@@ -35,7 +35,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
         }
 
         // Get all tags assigned to this snippet
-        const snippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object[0].id]) || [];
+        const snippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object.id]) || [];
 
         // Avoid null accessing property errors
         if (snippet_tags && snippet_tags.length > 0 && snippet_tags[0].columns && snippet_tags[0].values) {

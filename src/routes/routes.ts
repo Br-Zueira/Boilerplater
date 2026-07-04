@@ -2,6 +2,7 @@ import * as tomSelectControler from '../controlers/tomSelectControler.js';
 import * as editControler from '../controlers/editControler.js';
 import * as addControler from '../controlers/addControler.js';
 import * as frontendControler from '../controlers/frontendControler.js';
+import * as deleteControler from '../controlers/deleteControler.js';
 import * as vscode from 'vscode';
 
 export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
@@ -37,6 +38,10 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
         case ("submitEdit"): {
             editControler.submitEdit(param.model, param.id, param.formData, db, panel);
             break;
+        }
+
+        case ("deleteModel"): {
+            deleteControler.submitDelete(param.id, param.model, db, panel);
         }
         
         // TomSelect/API routes

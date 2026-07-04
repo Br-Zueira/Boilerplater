@@ -19,14 +19,16 @@ export async function pickupTextControler(db: any) {
 
     // Asks for the snippet details
     const title = await helpers.getInput(
-        'Give a title to your snippet', // Prompt
-        'My beautiful boilerplate' // PlaceHolder
+        'Give a title to your snippet (let empty to cancel operation)',
+        'My beautiful boilerplate',
+        true
     );
     if (!title) return;
 
     const description = await helpers.getInput(
         'Give a description to your snippet (optional)',
-        'This snippet is for...'
+        'This snippet is for...',
+        true
     );
 
     // Get the language part
