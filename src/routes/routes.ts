@@ -3,6 +3,7 @@ import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as tomSelectControler from '../controlers/tomSelectControler.js';
 import * as editControler from '../controlers/editControler.js';
+import * as addControler from '../controlers/addControler.js';
 import * as vscode from 'vscode';
 
 export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
@@ -101,8 +102,23 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
             break;
         }
 
-        case("submitEdit"): {
+        case ("submitEdit"): {
             editControler.submitEdit(param.model, param.id, param.formData, db, panel);
+            break;
+        }
+
+        case ("goToAdd"): {
+            // Validates the model
+            const validModels = ["snippets", "tags", "languages"];
+            if (!validModels.includes(param.model)) {
+                return htmlHelpers.page404(`Model "${param.model}" does not exist`);
+            }
+            panel.webview.html = layouts.add(param.model, context);
+            break;
+        }
+
+        case ("submitAdd"): {
+            addControler.submitAdd(param.model, param.formData, db, panel);
             break;
         }
 
