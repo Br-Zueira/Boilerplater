@@ -45,13 +45,22 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
                 }
 
                 // Get all tags assigned to this snippet
-                const snippet_tags = db.query('SELECT * FROM snippet_tags WHERE snippet_id = ?', [object[0].id]) || { columns: [], rows: [] };
+                const snippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object[0].id]) || [];
 
                 // Avoid null accessing property errors
-                if (snippet_tags && snippet_tags.columns && snippet_tags.rows) {
+                if (snippet_tags && snippet_tags.length > 0 && snippet_tags[0].columns && snippet_tags[0].values) {
                     snippet_tags.forEach((element: any) => {
-                        const tag = databaseHelpers.formatRows(element.columns, element.values);
-                        tags.push({ ...tag[0] });
+                        // Format model to a more usable format
+                        const snippet_tag = databaseHelpers.formatRows(element.columns, element.values)[0];
+                        
+                        // Get the tag from the snippet_tag
+                        const tag = db.query(/*SQL*/`SELECT * FROM tags WHERE id = ?`, [snippet_tag.tag_id])?.[0] || [];
+                        
+                        // Ensure tag actually exist
+                        if (tag && tag.columns && tag.values) {
+                            const formatedTag = databaseHelpers.formatRows(tag.columns, tag.values)[0];
+                            tags.push(formatedTag);
+                        }
                     });
                 }
             }

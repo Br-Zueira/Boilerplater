@@ -31,46 +31,42 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             // Get the current tags associated with the snippet from the database
             const rawSnippetTags = db.query(/*SQL*/
                 `SELECT * FROM snippet_tags 
-                WHERE snippet_id = ?`, formData.id
-            ) || { columns: [], rows: [] };
-
-            // Mapping the raw snippet tags to a more usable format
-            let mappedSnippetTags: any[] = [];
-            for (const row of rawSnippetTags) {
-                const mappedRow = databaseHelpers.formatRows(row.column, row.values);
-                mappedSnippetTags.push(mappedRow);
-            }
+                WHERE snippet_id = ?`, [formData.id]
+            ) || [];
             
-            // Arrays to hold the IDs of tags that are already associated, new tags to be added, and tags to be removed
-            let existentTags: Number[] = [];
-            let newTags: Number[] = [];
-            let deleteTags: Number[] = [];
+            // Sets to hold the IDs of tags that are already associated, new tags to be added, and tags to be removed
+            const existingTags = new Set<number>();
 
-            const existingTagIdsSet = new Set(mappedSnippetTags.map((tag: { id: number }) => tag.id));
+            const maintainTags = new Set<number>();
+            const newTags = new Set<number>();
+            const deleteTags = new Set<number>();
+
+            for (const row of rawSnippetTags) {
+                const mappedRow = databaseHelpers.formatRows(row.columns, row.values)[0];
+                existingTags.add(mappedRow.tag_id);
+            }
 
             // Looping through the tags sent in the form data to determine which tags are new, which are existing, and which should be deleted
             for (const rawTag of formData.tags) {
+                 // Sanitizing and validating the tag ID to ensure it's a number
                 const tagId = Number(rawTag)
 
-                // Validating each tag to ensure it's a number and not empty
-                if (Number.isNaN(tagId) || !rawTag || rawTag.trim() === '') {
+                if (!rawTag || rawTag.trim() === '' || Number.isNaN(tagId)) {
                     helpers.sendError(`A sent tag ID isn't valid`, panel);
                     return;
                 }
 
-                // Sanitizing the tag ID to ensure it's a number
-                if (existingTagIdsSet.has(tagId)) {
-                    existentTags.push(tagId);
+                if (existingTags.has(tagId)) {
+                    maintainTags.add(tagId);
                 } else {
-                    newTags.push(tagId);
+                    newTags.add(tagId);
                 }
             }
 
             // Looping through the existing tags to determine which ones should be deleted 
-            for (const tag of mappedSnippetTags) {
-                const id = Number(tag.id);
-                if (!existentTags.includes(id)) {
-                    deleteTags.push(id);
+            for (const tag of existingTags) {
+                if (!maintainTags.has(tag)) {
+                    deleteTags.add(tag);
                 }
             }
 
@@ -90,18 +86,19 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             ]);
 
             // Delete tags that are no longer associated with the snippet
-            if (deleteTags.length > 0) {
-                const removePlaceholders = deleteTags.map(() => '?').join(',');
+            if (deleteTags.size > 0) {
+                const removePlaceholders = [...deleteTags].map(() => '?').join(',');
+                const values = [id, ...deleteTags];
                 db.alter(/*SQL*/`
                     DELETE FROM snippet_tags
                     WHERE snippet_id = ? AND tag_id IN (${removePlaceholders})`,
-                [id, ...deleteTags]);
+                values);
             }
 
             // Add new tags that are now associated with the snippet
-            if (newTags.length > 0) {
-                const addPlaceholders = newTags.map(() => '(?, ?)').join(',');
-                const addParams = newTags.flatMap(tagId => [id, tagId]);
+            if (newTags.size > 0) {
+                const addPlaceholders = [...newTags].map(() => '(?, ?)').join(',');
+                const addParams = [...newTags].flatMap(tagId => [id, tagId]);
                 db.alter(/*SQL*/`
                     INSERT INTO snippet_tags (snippet_id, tag_id)
                     VALUES ${addPlaceholders}`,

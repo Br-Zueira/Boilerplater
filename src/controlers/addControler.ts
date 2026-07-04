@@ -59,13 +59,18 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
 
             // Add new tags that are now associated with the snippet
             if (tags.length > 0) {
-                const id = db.lastInsertId(); // Get the ID of the newly created snippet
-                const addPlaceholders = tags.map(() => '(?, ?)').join(',');
-                const addParams = tags.flatMap(tagId => [id, tagId]);
-                db.alter(/*SQL*/`
-                    INSERT INTO snippet_tags (snippet_id, tag_id)
-                    VALUES ${addPlaceholders}`,
-                addParams);
+                const id = db.query(/*SQL*/`SELECT last_insert_rowid()`)?.[0]?.values?.[0]?.[0] as number | undefined; // Get the ID of the newly created snippet
+                if (id) {
+                    const addPlaceholders = tags.map(() => '(?, ?)').join(',');
+                    const addParams = tags.flatMap(tagId => [id, tagId]);
+                    db.alter(/*SQL*/`
+                        INSERT INTO snippet_tags (snippet_id, tag_id)
+                        VALUES ${addPlaceholders}`,
+                    addParams);
+                } else {
+                    helpers.sendError("One or more tags couldn't be assigned to snippet", panel);
+                    return;
+                }
             }
 
             // Success message
@@ -137,6 +142,10 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
             // Success message
             db.save();
             helpers.sendStringCommand(`success`, `Language successfully created`, panel);
+            break;
+        }
+        default: {
+            helpers.sendError(`Error: Requested model '${model}' is invalid`, panel);
             break;
         }
     }
