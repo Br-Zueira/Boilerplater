@@ -10,7 +10,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		db = new database.dataBase(context);
 		await db.initialize();
 	} catch (error: any) {
-		vscode.window.showErrorMessage(`Failed to initialize database: ${error}`);
+		const message = `Boilerplater: Failed to initialize database: ${error}`;
+		vscode.window.showErrorMessage(message);
+		console.error(message);
 		return;
 	}
 

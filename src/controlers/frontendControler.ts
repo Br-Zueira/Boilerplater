@@ -58,7 +58,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
     panel.webview.html = layouts.edit(model, object, id, context, language, tags);
 }
 
-export function list(model: string, page: number, db: any, panel: any) {
+export function list(model: string, page: number = 1, db: any, panel: any) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages"];
     if (!validModels.includes(model)) {
