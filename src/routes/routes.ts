@@ -4,6 +4,7 @@ import * as editControler from '../controlers/editControler.js';
 import * as addControler from '../controlers/addControler.js';
 import * as frontendControler from '../controlers/frontendControler.js';
 import * as vscode from 'vscode';
+import { parseArgs } from 'util';
 
 export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
     switch (command) {
@@ -13,13 +14,13 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
         }
 
         case ("goToEdit"): {
-            frontendControler.edit(context, param, db, panel);
+            frontendControler.edit(context, param.model, param.id, db, panel);
             break;
         }	
 
         case ("goToManager"):
         case ("goToPage"): {
-            frontendControler.list(param, db, panel);
+            frontendControler.list(param.model, param.page, db, panel);
             break;
         }
         
