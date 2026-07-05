@@ -37,11 +37,13 @@ export function getInstanceContent(model: string, instance: any, db: any) {
     switch (model) {
         case ("snippets"): {
             const lang = db.getLanguage(instance);
+            const tags = getTags(instance, db);
             return /*HTML*/`
                 <p><strong>Title:</strong> ${instance.title}</p>
                 <p><strong>Description:</strong> ${instance.description}</p>
                 <p><strong>Snippet:</strong> ${instance.snippet}</p>
                 <p><strong>Language:</strong> ${lang}</p>
+                <p><strong>Tags:</strong> ${tags}</p>
             `;
         }
         case ("tags"): {
@@ -125,4 +127,8 @@ export function getEditableFields(model: string, object: any, language: any = un
             return /*HTML*/`<h1>INVALID MODEL</h1>`
         }
     }
+}
+
+function getTags(instance: any, db: any) {
+
 }
