@@ -42,6 +42,7 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
 
         case ("deleteModel"): {
             deleteControler.submitDelete(param.id, param.model, db, panel);
+            break;
         }
         
         // TomSelect/API routes
