@@ -11,18 +11,29 @@ export async function submitDelete(id: number, model: string, db: any, panel: an
     }
 
     // Warns user if they want to proceed with deleting and gives a chance to come back
-    const confirmation = await vscode.window.showWarningMessage(
-        `Are you sure you want to delete this ${model.slice(0, -1)}?`,
+    const modelSingular = model.slice(0, -1);
+    const confirmation = await vscode.window.showQuickPick(
+        [
+            {
+                label: "$(trash) Yes, I'll delete it", 
+                description: "I'm aware this action cannot be undone",
+                action: 'delete'
+            },
+
+            {
+                label: "$(circle-slash) No, I don't want to delete it", 
+                description: `I prefer to keep this ${modelSingular}`,
+                action: 'cancel'
+            }
+        ],
         {
-            modal: true,
-            detail: 'This action cannot be undone.'
+            placeHolder: `Are you sure you want to delete this ${modelSingular}?`,
+            ignoreFocusOut: true
         },
-        'Confirm',
-        'Cancel'
     )
 
     // Interrupts deleting if user cancels it
-    if (confirmation !== 'Confirm') return;
+    if (confirmation?.action !== 'delete') return;
 
     // Deleting the instance
     db.alter(/*SQL*/`DELETE FROM ${model} WHERE id = ?`, [id]);
