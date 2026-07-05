@@ -16,9 +16,7 @@ export function index() {
 }
 
 // Page to return generic list
-export function list(model: string, rawRows: any, page: number, totalPages: number, db: any) {
-    let data: any;
-    
+export function list(model: string, data: any, page: number, totalPages: number, db: any) {
     // Mounting the object list
     let list = "";
 
@@ -26,8 +24,7 @@ export function list(model: string, rawRows: any, page: number, totalPages: numb
     const modelSingular = model.slice(0, -1);
     const modelFirstUpper = model.charAt(0).toUpperCase() + model.slice(1);
 
-    if (rawRows.values && rawRows.values.length > 0) {
-        data = databaseHelpers.formatRows(rawRows.columns, rawRows.values);
+    if (data) {
         list = /*HTML*/`<ul>`;
         for (const instance of data) {
             list += /*HTML*/`<div>`;

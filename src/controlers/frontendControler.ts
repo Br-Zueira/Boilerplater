@@ -85,7 +85,15 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
     const queryResult = db.query(`SELECT * FROM ${model} LIMIT ? OFFSET ?`, [perPage, offset]);
     const rawRows = queryResult[0] || { columns: [], values: [] };
 
-    panel.webview.html = layouts.list(model, rawRows, page, totalPages, db);
+    let cleanRows: object | undefined;
+
+    if (rawRows && rawRows.columns && rawRows.values && rawRows.columns.length > 0 && rawRows.values.length > 0) {
+        cleanRows = databaseHelpers.formatRows(rawRows.columns, rawRows.values)[0];
+    } else {
+        cleanRows = undefined;
+    }
+
+    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db);
 }
 
 export function add(context: vscode.ExtensionContext, model: string, panel: any) {
