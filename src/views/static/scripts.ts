@@ -55,10 +55,10 @@ export function list(model: string) {
 export function edit(model: string, id: number) {
     return /*JavaScript*/`
         // Functions for the buttons on the page
-        function goToIndex() {
+        function goToManager() {
             vscode.postMessage({
-                command: "goToIndex",
-                payload: { dummy: "foo"}
+                command: "goToManager",
+                payload: { model: "${model}"}
             })
         }
             
