@@ -1,4 +1,3 @@
-import * as databaseHelpers from '../../helpers/databaseHelpers.js';
 import * as htmlHelpers from '../../helpers/htmlHelpers.js'
 import * as scripts from '../static/scripts.js'
 import * as css from "../static/css.js";

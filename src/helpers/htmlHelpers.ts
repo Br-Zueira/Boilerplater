@@ -1,4 +1,5 @@
 import * as css from '../views/static/css.js';
+import * as databaseHelpers from '../helpers/databaseHelpers.js';
 
 export function page404(message: string) {
     return boiler(/*HTML*/`
@@ -129,6 +130,48 @@ export function getEditableFields(model: string, object: any, language: any = un
     }
 }
 
-function getTags(instance: any, db: any) {
+function getTags(instance: any, db: any): string {
+    // Limit the number of tags displayed to avoid cluttering the UI
+    const quantity = 5;
 
+    // Get the tags associated with the snippet from the database
+    const tags = db.query(/*SQL*/`
+        SELECT t.*
+        FROM tags as t
+        INNER JOIN snippet_tags AS st
+            ON t.id = st.tag_id
+        WHERE st.snippet_id = ?
+        ORDER BY t.label ASC
+    `, [instance.id]) || [];
+
+    // If there are no tags, return "None"
+    if (!tags || tags.length === 0 || !tags[0].columns || !tags[0].values) {
+        return 'None';
+    }
+
+    // Html string to hold the tags
+    let htmlTags: string = "";
+
+    // Loop through the tags and add them to the htmlTags string, limiting the number of tags displayed to the quantity variable
+    for (let i = 0; i < tags.length; i++) {
+        // Get each tag from the tags array
+        const rawTag = tags[i];
+        const tag = databaseHelpers.formatRows(rawTag.columns, rawTag.values)[0];
+        
+        // Limit the length of the tag label to avoid cluttering the UI
+        const maxSize = 20;
+        if (tag.label.length > maxSize) {
+            tag.label = tag.label.substring(0, maxSize) + '...';
+        }
+
+        // If the current index is equal to the quantity variable, add a "more" tag to the htmlTags string and break the loop
+        if (i === quantity) {
+            htmlTags += /*HTML*/`<span class="tag">+${tags.length - quantity} more</span>`;
+            break;
+        }
+
+        // Add the tag to the htmlTags string
+        htmlTags += /*HTML*/`<span class="tag">${tag.label}</span>`
+    }
+    return htmlTags;
 }

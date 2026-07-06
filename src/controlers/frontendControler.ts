@@ -83,14 +83,14 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
 
     // Data
     const queryResult = db.query(`SELECT * FROM ${model} LIMIT ? OFFSET ?`, [perPage, offset]);
-    const rawRows = queryResult[0] || { columns: [], values: [] };
 
-    let cleanRows: object | undefined;
+    let cleanRows: Array<object> = [];
 
-    if (rawRows && rawRows.columns && rawRows.values && rawRows.columns.length > 0 && rawRows.values.length > 0) {
-        cleanRows = databaseHelpers.formatRows(rawRows.columns, rawRows.values)[0];
-    } else {
-        cleanRows = undefined;
+    if (queryResult && queryResult.length > 0 && queryResult[0].columns && queryResult[0].values) {
+        for (const row of queryResult) {
+            const formattedRow = databaseHelpers.formatRows(row.columns, row.values)[0];
+            cleanRows.push(formattedRow);
+        }
     }
 
     panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db);
