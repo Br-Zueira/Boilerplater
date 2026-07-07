@@ -142,31 +142,33 @@ function getTags(instance: any, db: any): string {
             ON t.id = st.tag_id
         WHERE st.snippet_id = ?
         ORDER BY t.label ASC
-    `, [instance.id]) || [];
+    `, [instance.id])?.[0] || [];
 
     // If there are no tags, return "None"
-    if (!tags || tags.length === 0 || !tags[0].columns || !tags[0].values) {
+    if (!tags || !tags.columns || !tags.values) {
         return 'None';
     }
+
+    // Formating of tags to a more usable format + tags amount
+    const formatedTags = databaseHelpers.formatRows(tags.columns, tags.values);
+    const tagNum = formatedTags.length;
+
+    // Max char size for each tag
+    const maxSize = 20;
 
     // Html string to hold the tags
     let htmlTags: string = "";
 
     // Loop through the tags and add them to the htmlTags string, limiting the number of tags displayed to the quantity variable
-    for (let i = 0; i < tags.length; i++) {
-        // Get each tag from the tags array
-        const rawTag = tags[i];
-        const tag = databaseHelpers.formatRows(rawTag.columns, rawTag.values)[0];
-        
+    for (const [i, tag] of formatedTags.entries()) {
         // Limit the length of the tag label to avoid cluttering the UI
-        const maxSize = 20;
         if (tag.label.length > maxSize) {
             tag.label = tag.label.substring(0, maxSize) + '...';
         }
 
         // If the current index is equal to the quantity variable, add a "more" tag to the htmlTags string and break the loop
         if (i === quantity) {
-            htmlTags += /*HTML*/`<span class="tag">+${tags.length - quantity} more</span>`;
+            htmlTags += /*HTML*/`<span class="tag">+${tagNum - quantity} more</span>`;
             break;
         }
 

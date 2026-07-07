@@ -32,23 +32,26 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             const rawSnippetTags = db.query(/*SQL*/
                 `SELECT * FROM snippet_tags 
                 WHERE snippet_id = ?`, [formData.id]
-            ) || [];
+            )?.[0] || [];
             
-            // Sets to hold the IDs of tags that are already associated, new tags to be added, and tags to be removed
+            // Sets to hold the IDs of tags that are already associated, new tags to be added, and tags to be removed 
             const existingTags = new Set<number>();
 
             const maintainTags = new Set<number>();
             const newTags = new Set<number>();
             const deleteTags = new Set<number>();
 
-            for (const row of rawSnippetTags) {
-                const mappedRow = databaseHelpers.formatRows(row.columns, row.values)[0];
-                existingTags.add(mappedRow.tag_id);
+            if (rawSnippetTags && rawSnippetTags.columns && rawSnippetTags.values) {
+                const mappedSnippetTags = databaseHelpers.formatRows(rawSnippetTags.columns, rawSnippetTags.values);
+
+                for (const row of mappedSnippetTags) {
+                    existingTags.add(row.tag_id);
+                }
             }
 
             // Looping through the tags sent in the form data to determine which tags are new, which are existing, and which should be deleted
             for (const rawTag of formData.tags) {
-                 // Sanitizing and validating the tag ID to ensure it's a number
+                // Sanitizing and validating the tag ID to ensure it's a number
                 const tagId = Number(rawTag)
 
                 if (!rawTag || rawTag.trim() === '' || Number.isNaN(tagId)) {

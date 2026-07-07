@@ -35,14 +35,12 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
         }
 
         // Get all tags assigned to this snippet
-        const snippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object.id]) || [];
+        const rawSnippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object.id])?.[0] || [];
 
         // Avoid null accessing property errors
-        if (snippet_tags && snippet_tags.length > 0 && snippet_tags[0].columns && snippet_tags[0].values) {
-            snippet_tags.forEach((element: any) => {
-                // Format model to a more usable format
-                const snippet_tag = databaseHelpers.formatRows(element.columns, element.values)[0];
-                
+        if (rawSnippet_tags && rawSnippet_tags.columns && rawSnippet_tags.values) {
+            const snippet_tags = databaseHelpers.formatRows(rawSnippet_tags.columns, rawSnippet_tags.values);
+            for (const snippet_tag of snippet_tags) {
                 // Get the tag from the snippet_tag
                 const tag = db.query(/*SQL*/`SELECT * FROM tags WHERE id = ?`, [snippet_tag.tag_id])?.[0] || [];
                 
@@ -51,7 +49,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
                     const formatedTag = databaseHelpers.formatRows(tag.columns, tag.values)[0];
                     tags.push(formatedTag);
                 }
-            });
+            }
         }
     }
 
