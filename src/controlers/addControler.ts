@@ -98,6 +98,10 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
                 ]);
             } catch (error) {
                 if (error instanceof Error) {
+                    if (error.message.includes('UNIQUE constraint failed')) {
+                        helpers.sendError(`Failed to create tag: A tag with the label "${label}" already exists`, panel);
+                        return;
+                    }
                     helpers.sendError(`Failed to create tag: ${error.message}`, panel);
                     return;
                 } else {
@@ -131,6 +135,10 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
                 ]);
             } catch (error) {
                 if (error instanceof Error) {
+                    if (error.message.includes('UNIQUE constraint failed')) {
+                        helpers.sendError(`Failed to create language: A language with the display name "${displayName}" already exists`, panel);
+                        return;
+                    }
                     helpers.sendError(`Failed to create language: ${error.message}`, panel);
                     return;
                 } else {

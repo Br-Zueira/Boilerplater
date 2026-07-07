@@ -93,9 +93,9 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
 
 export function add(context: vscode.ExtensionContext, model: string, panel: any) {
     // Validates the model
-    const validModels = ["snippets", "tags", "languages"];
+    const validModels = ["snippets", "tags"];
     if (!validModels.includes(model)) {
-        return htmlHelpers.page404(`Model "${model}" does not exist`);
+        return htmlHelpers.page404(`Model "${model}" does not exist or cannot be created`);
     }
     panel.webview.html = layouts.add(model, context);           
 }

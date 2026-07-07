@@ -61,7 +61,10 @@ export function list(model: string, data: any, page: number, totalPages: number,
 
         <!-- Like "Snippets:" -->
         <p>${modelFirstUpper}:</p>
-        ${list}
+
+        <div id="listContainer">
+            ${list}
+        </div>
 
         <!-- Footbar -->
         <p>Page ${page} of ${totalPages}</p>
@@ -91,14 +94,16 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
             <!-- The following function will return the necessary fields for each model -->
             ${htmlHelpers.getEditableFields(model, object, language, tags)}
 
-            <!-- Buttons to submit the form, cancel edition and delete the model -->
-            <button type="submit">Save ${modelSingular}</button>
-            <button type="button" onclick="goToManager()">Cancel edition</button>
-            ${deleteButton}
+            <footer>
+                <!-- Buttons to submit the form, cancel edition and delete the model -->
+                <button type="submit">Save ${modelSingular}</button>
+                <button type="button" onclick="goToManager()">Cancel edition</button>
+                ${deleteButton}
 
-            <!-- Error and success messages -->
-            <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
-            <p id="successMessage" role="alert" style="color: green; display: none;"></p>
+                <!-- Error and success messages -->
+                <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
+                <p id="successMessage" role="alert" style="color: green; display: none;"></p>
+            </footer>
         </form>
     `, scripts.edit(model, id),
     /*HTML*/`

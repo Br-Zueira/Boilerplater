@@ -16,7 +16,7 @@ export async function submitDelete(id: number, model: string, db: any, panel: an
         [
             {
                 label: "$(trash) Yes, I'll delete it", 
-                description: "I'm aware this action cannot be undone",
+                description: "I'm aware this action cannot be undone, and I want to proceed with deleting it",
                 action: 'delete'
             },
 
