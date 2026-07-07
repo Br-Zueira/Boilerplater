@@ -82,16 +82,13 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
     }
 
     // Data
-    const queryResult = db.query(`SELECT * FROM ${model} LIMIT ? OFFSET ?`, [perPage, offset]);
+    const queryResult = db.query(/*SQL*/`
+        SELECT * FROM ${model} 
+        LIMIT ? 
+        OFFSET ?
+    `, [perPage, offset])?.[0] || 0;
 
-    let cleanRows: Array<object> = [];
-
-    if (queryResult && queryResult.length > 0 && queryResult[0].columns && queryResult[0].values) {
-        for (const row of queryResult) {
-            const formattedRow = databaseHelpers.formatRows(row.columns, row.values)[0];
-            cleanRows.push(formattedRow);
-        }
-    }
+    const cleanRows = databaseHelpers.formatRows(queryResult.columns, queryResult.values);
 
     panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db);
 }

@@ -105,7 +105,9 @@ function saveDB(db: Database, context: vscode.ExtensionContext) {
 
 function getTotalPages(db: any, tableName: string, perPage: number = 20): number {
     // 1. Get total row count from the table
-    const countResult = db.exec(`SELECT COUNT(*) AS total FROM ${tableName}`);
+    const countResult = db.exec(/*SQL*/`
+        SELECT COUNT(*) AS total FROM ${tableName}
+    `);
     
     // Safely extract the number from sql.js array structure
     const totalItems = countResult[0]?.values[0][0] || 0;
