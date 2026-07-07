@@ -40,22 +40,22 @@ export function getInstanceContent(model: string, instance: any, db: any) {
             const lang = db.getLanguage(instance);
             const tags = getTags(instance, db);
             return /*HTML*/`
-                <p><strong>Title:</strong> ${instance.title}</p>
-                <p><strong>Description:</strong> ${instance.description}</p>
-                <p><strong>Snippet:</strong> ${instance.snippet}</p>
+                <p><strong>Title:</strong> ${limitCharSize(instance.title, 50)}</p>
+                <p><strong>Description:</strong> ${limitCharSize(instance.description, 100)}</p>
+                <p><strong>Snippet:</strong> ${limitCharSize(instance.snippet, 100)}</p>
                 <p><strong>Language:</strong> ${lang}</p>
                 <p><strong>Tags:</strong> ${tags}</p>
             `;
         }
         case ("tags"): {
             return /*HTML*/`
-                <p><strong>Label:</strong> ${instance.label}</p>
+                <p><strong>Label:</strong> ${limitCharSize(instance.label, 50)}</p>
             `;
         }
         case ("languages"): {
             return /*HTML*/`
-                <p><strong>Display name:</strong> ${instance.displayName}</p>
-                <p><strong>Internal name:</strong> ${instance.internalName}</p>
+                <p><strong>Display name:</strong> ${limitCharSize(instance.displayName, 50)}</p>
+                <p><strong>Internal name:</strong> ${limitCharSize(instance.internalName, 50)}</p>
             `;
         }
         default: {
@@ -163,7 +163,7 @@ function getTags(instance: any, db: any): string {
     for (const [i, tag] of formatedTags.entries()) {
         // Limit the length of the tag label to avoid cluttering the UI
         if (tag.label.length > maxSize) {
-            tag.label = tag.label.substring(0, maxSize) + '...';
+            tag.label = limitCharSize(tag.label, maxSize);
         }
 
         // If the current index is equal to the quantity variable, add a "more" tag to the htmlTags string and break the loop
@@ -176,4 +176,11 @@ function getTags(instance: any, db: any): string {
         htmlTags += /*HTML*/`<span class="tag">${tag.label}</span>`
     }
     return htmlTags;
+}
+
+function limitCharSize(str: string, maxSize: number): string {
+    if (str.length > maxSize) {
+        return str.substring(0, maxSize) + '...';
+    }
+    return str;
 }

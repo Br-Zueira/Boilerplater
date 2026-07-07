@@ -74,19 +74,29 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Updating the snippet in the database with the new values
-            db.alter(/*SQL*/`
-                UPDATE snippets SET title = ?, 
-                description = ?, 
-                snippet = ?, 
-                language_id = ?
-                WHERE id = ?`, 
-            [
-                title, 
-                description,
-                snippet,
-                languageId, 
-                id
-            ]);
+            try {
+                db.alter(/*SQL*/`
+                    UPDATE snippets SET title = ?, 
+                    description = ?, 
+                    snippet = ?, 
+                    language_id = ?
+                    WHERE id = ?`, 
+                [
+                    title, 
+                    description,
+                    snippet,
+                    languageId, 
+                    id
+                ]);
+            } catch (error) {
+                if (error instanceof Error) {
+                    helpers.sendError(`Failed to edit snippet: ${error.message}`, panel);
+                    return;
+                } else {
+                    helpers.sendError(`Failed to edit snippet: An unknown error occurred`, panel);
+                    return;
+                }
+            }
 
             // Delete tags that are no longer associated with the snippet
             if (deleteTags.size > 0) {
@@ -128,13 +138,27 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Updating the tag in the database with the new value
-            db.alter(/*SQL*/`
-                UPDATE tags SET label = ?
-                WHERE id = ?`, 
-            [
-                label, 
-                id
-            ]);
+            try {
+                db.alter(/*SQL*/`
+                    UPDATE tags SET label = ?
+                    WHERE id = ?`, 
+                [
+                    label, 
+                    id
+                ]);
+            } catch (error) {
+                if (error instanceof Error) {
+                    if (error.message.includes('UNIQUE constraint failed')) {
+                        helpers.sendError(`Failed to edit tag: A tag with the label "${label}" already exists`, panel);
+                        return;
+                    }
+                    helpers.sendError(`Failed to edit tag: ${error.message}`, panel);
+                    return;
+                } else {
+                    helpers.sendError(`Failed to edit tag: An unknown error occurred`, panel);
+                    return;
+                }
+            }
 
             // Success message
             db.save();
@@ -153,13 +177,27 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Updating the language in the database with the new value
-            db.alter(/*SQL*/`
-                UPDATE languages SET displayName = ?
-                WHERE id = ?`, 
-            [
-                displayName,
-                id
-            ]);
+            try {
+                db.alter(/*SQL*/`
+                    UPDATE languages SET displayName = ?
+                    WHERE id = ?`, 
+                [
+                    displayName,
+                    id
+                ]);
+            } catch (error) {
+                if (error instanceof Error) {
+                    if (error.message.includes('UNIQUE constraint failed')) {
+                        helpers.sendError(`Failed to edit language: A language with the display name "${displayName}" already exists`, panel);
+                        return;
+                    }
+                    helpers.sendError(`Failed to edit language: ${error.message}`, panel);
+                    return;
+                } else {
+                    helpers.sendError(`Failed to edit language: An unknown error occurred`, panel);
+                    return;
+                }
+            }
 
             // Success message
             db.save();
