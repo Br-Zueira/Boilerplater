@@ -49,6 +49,48 @@ export function list(model: string) {
                 payload: { model: model }
             })
         }
+
+        function search() {
+            // Get the search bar element
+            const searchBar = document.getElementById("searchBar");
+
+            // Debounce timeout variable to limit the number of search requests
+            let debounceTimeout;
+
+            // Function to emit the search message to the extension
+            function emitSearch(searchQuery) {
+                vscode.postMessage({
+                    command: "search",
+                    payload: { model: "${model}", searchQuery: searchQuery }
+                });
+            };
+
+            // Debounce the search input to avoid excessive calls
+            searchBar.addEventListener("input", (event) => {
+                const searchQuery = event.target.value.trim();
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => {
+                    emitSearch(searchQuery);
+                }, 300);
+            });
+
+            // Handle the "Enter" key press to trigger search immediately
+            searchBar.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    const searchQuery = event.target.value.trim();
+                    clearTimeout(debounceTimeout);
+                    emitSearch(searchQuery);
+                }
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", () => {
+                search();
+            });
+        } else {
+            search();
+        }
     `;
 }
 

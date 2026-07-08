@@ -56,6 +56,10 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
             break;
         }
 
+        case ("search"): {
+            frontendControler.search(param.model, param.page, param.query, db, panel);
+        }
+
         // Fallback for unrecognized routes
         default: {
             console.warn(`Boilerplater: Routes received an unrecognized command - "${command}" isn't recognized. Command ignored.`);

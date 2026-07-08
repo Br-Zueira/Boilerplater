@@ -88,7 +88,49 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
 
     const cleanRows = databaseHelpers.formatRows(queryResult.columns, queryResult.values);
 
-    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db);
+    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db, false, '');
+}
+
+export function search(model: string, page: number = 1, rawQuery: string = "", db: any, panel: any) {
+    // Ensure model is valid (Software development 101 - Never trust user input)
+    const validModels = ["snippets", "tags", "languages"];
+    if (!validModels.includes(model)) {
+        panel.webview.html = htmlHelpers.page404(`Model "${model}" does not exist`);
+        return;
+    }
+
+    // Ensure query is not empty
+    const query = databaseHelpers.sanitizeLike(rawQuery);
+    if (!query) {
+        return list(model, page, db, panel);
+    }
+
+    // This turns, for example, "python script" into ["%python%", "%script%"] to make a tokenized query
+    const parsedQuery = query.split(" ")
+                            .filter(word => word.trim() !== "")
+                            .map(word => `%${word}%`);
+    
+    // Raw query response
+    let results;
+
+    switch (model) {
+        case "snippets": {
+            /*SQL*/`AND (title LIKE ? OR description LIKE ? OR )`
+            results = db.query(/*SQL*/`
+                SELECT * FROM snippets WHERE 1=1    
+            `);
+            break;
+        }
+        case "tags": {
+            break;
+        }
+        case "languages": {
+            break;
+        }
+        default: {
+            return htmlHelpers.page404(`Model ${model} does not exist`);
+        }
+    }
 }
 
 export function add(context: vscode.ExtensionContext, model: string, panel: any) {
