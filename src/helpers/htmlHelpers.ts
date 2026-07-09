@@ -35,37 +35,42 @@ export function boiler(body: string, script?: string, head?: string) {
 }
 
 export function getInstanceContent(model: string, instance: any, db: any, isSearch: boolean = false) {
+    const limitSmall = 50;
+    const limitTag = 20;
+    const limitBig = 100;
     switch (model) {
         case ("snippets"): {
             let lang: string = ""; 
             let tags: string = ""; 
             if (isSearch) {
-                lang = instance.LangageName;
-                for (const tag of JSON.parse(instance.tagLabels)) {
-                    if (tag === null) continue;
-                    tags += /*HTML*/`<span class="tag">${tag}</span>`;
+                lang = instance.languageName;
+                const tagsArray = JSON.parse(instance.tagLabels);
+                if (tagsArray.length === 0 || tagsArray[0] === null) {
+                    tags = 'None'
+                } else {
+                    tags = tagsArray.flatMap((tag: string) => /*HTML*/`<span class="tag">${limitCharSize(tag, limitTag)}</span>`);
                 }
             } else {
                 lang = db.getLanguage(instance);
-                tags = getTags(instance, db);
+                tags = getTags(instance, db, limitTag);
             }
             return /*HTML*/`
-                <p><strong>Title:</strong> ${limitCharSize(instance.title, 50)}</p>
-                <p><strong>Description:</strong> ${limitCharSize(instance.description, 100)}</p>
-                <p><strong>Snippet:</strong> ${limitCharSize(instance.snippet, 100)}</p>
+                <p><strong>Title:</strong> ${limitCharSize(instance.title, limitSmall)}</p>
+                <p><strong>Description:</strong> ${limitCharSize(instance.description, limitBig)}</p>
+                <p><strong>Snippet:</strong> ${limitCharSize(instance.snippet, limitBig)}</p>
                 <p><strong>Language:</strong> ${lang}</p>
                 <p><strong>Tags:</strong> ${tags}</p>
             `;
         }
         case ("tags"): {
             return /*HTML*/`
-                <p><strong>Label:</strong> ${limitCharSize(instance.label, 50)}</p>
+                <p><strong>Label:</strong> ${limitCharSize(instance.label, limitSmall)}</p>
             `;
         }
         case ("languages"): {
             return /*HTML*/`
-                <p><strong>Display name:</strong> ${limitCharSize(instance.displayName, 50)}</p>
-                <p><strong>Internal name:</strong> ${limitCharSize(instance.internalName, 50)}</p>
+                <p><strong>Display name:</strong> ${limitCharSize(instance.displayName, limitSmall)}</p>
+                <p><strong>Internal name:</strong> ${limitCharSize(instance.internalName, limitSmall)}</p>
             `;
         }
         default: {
@@ -149,7 +154,7 @@ export function getEditableFields(model: string, object: any, language: any = un
     }
 }
 
-function getTags(instance: any, db: any): string {
+function getTags(instance: any, db: any, maxSize: number): string {
     // Limit the number of tags displayed to avoid cluttering the UI
     const quantity = 5;
 
@@ -172,18 +177,13 @@ function getTags(instance: any, db: any): string {
     const formatedTags = databaseHelpers.formatRows(tags.columns, tags.values);
     const tagNum = formatedTags.length;
 
-    // Max char size for each tag
-    const maxSize = 20;
-
     // Html string to hold the tags
     let htmlTags: string = "";
 
     // Loop through the tags and add them to the htmlTags string, limiting the number of tags displayed to the quantity variable
     for (const [i, tag] of formatedTags.entries()) {
         // Limit the length of the tag label to avoid cluttering the UI
-        if (tag.label.length > maxSize) {
-            tag.label = limitCharSize(tag.label, maxSize);
-        }
+        tag.label = limitCharSize(tag.label, maxSize);
 
         // If the current index is equal to the quantity variable, add a "more" tag to the htmlTags string and break the loop
         if (i === quantity) {
