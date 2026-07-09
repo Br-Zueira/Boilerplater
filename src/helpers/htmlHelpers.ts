@@ -34,11 +34,21 @@ export function boiler(body: string, script?: string, head?: string) {
     `;
 }
 
-export function getInstanceContent(model: string, instance: any, db: any) {
+export function getInstanceContent(model: string, instance: any, db: any, isSearch: boolean = false) {
     switch (model) {
         case ("snippets"): {
-            const lang = db.getLanguage(instance);
-            const tags = getTags(instance, db);
+            let lang: string = ""; 
+            let tags: string = ""; 
+            if (isSearch) {
+                lang = instance.LangageName;
+                for (const tag of JSON.parse(instance.tagLabels)) {
+                    if (tag === null) continue;
+                    tags += /*HTML*/`<span class="tag">${tag}</span>`;
+                }
+            } else {
+                lang = db.getLanguage(instance);
+                tags = getTags(instance, db);
+            }
             return /*HTML*/`
                 <p><strong>Title:</strong> ${limitCharSize(instance.title, 50)}</p>
                 <p><strong>Description:</strong> ${limitCharSize(instance.description, 100)}</p>

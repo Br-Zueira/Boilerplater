@@ -23,7 +23,7 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
     const modelSingular = model.slice(0, -1);
     const modelFirstUpper = model.charAt(0).toUpperCase() + model.slice(1);
 
-    if (data) {
+    if (data && data.length > 0) {
         // If data is found, display it in a list
         list = /*HTML*/`<ul>`;
 
@@ -31,7 +31,7 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
         for (const instance of data) {
             // Get the instance content using the helper function
             list += /*HTML*/`<div>`;
-                list += htmlHelpers.getInstanceContent(model, instance, db);
+                list += htmlHelpers.getInstanceContent(model, instance, db, isSearch);
                 list += /*HTML*/`<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
             list += /*HTML*/`</div>`;
         }

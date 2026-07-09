@@ -56,8 +56,10 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
             break;
         }
 
+        // Search engine
         case ("search"): {
-            frontendControler.search(param.model, param.page, param.query, db, panel);
+            frontendControler.search(param.model, param.page, param.searchQuery, db, panel);
+            break;
         }
 
         // Fallback for unrecognized routes

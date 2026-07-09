@@ -113,24 +113,96 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
     // Raw query response
     let results;
 
+    // Query cap so search doesn't overload either webview or database even if it's full
+    const limit = 100;
+
     switch (model) {
         case "snippets": {
-            /*SQL*/`AND (title LIKE ? OR description LIKE ? OR )`
+            // This template is what allows the tokenized query to search for every field
+            const placeholderTemplate = /*SQL*/`
+                AND (
+                    s.title LIKE ? ESCAPE '\\'
+                    OR s.description LIKE ? ESCAPE '\\'
+                    OR s.snippet LIKE ? ESCAPE '\\'
+                    OR l.displayName LIKE ? ESCAPE '\\'
+                    OR l.internalName LIKE ? ESCAPE '\\'
+                    OR t.label LIKE ? ESCAPE '\\'
+                )
+            `;
+
+            // The template is repeated for every token in the array so every token can be searched in every column
+            const placeholder = parsedQuery.flatMap(w => placeholderTemplate).join(' ');
+
+            // Every token is repeated the exact same amount of placeholders 
+            const values = parsedQuery.flatMap(w => Array(6).fill(w));
+
+            // The actual query
             results = db.query(/*SQL*/`
-                SELECT * FROM snippets WHERE 1=1    
-            `);
+                SELECT s.*,
+                    l.displayName AS languageName,
+                    JSON_GROUP_ARRAY(t.label) AS tagLabels
+                FROM snippets AS s
+                -- Inner join, as this is a required field
+                INNER JOIN languages AS l ON s.language_id = l.id
+                -- Left join, as those are optional fields
+                LEFT JOIN snippet_tags AS st ON s.id = st.snippet_id
+                LEFT JOIN tags AS t ON st.tag_id = t.id
+                WHERE 1=1
+                ${placeholder}
+                GROUP BY s.id
+                LIMIT ?
+            `, [...values, limit])?.[0] || [];
             break;
         }
         case "tags": {
+            // This template is what allows the tokenized query to search for every field
+            const placeholderTemplate = /*SQL*/`AND label LIKE ? ESCAPE '\\'`;
+
+            // The template is repeated for every token in the array so every token can be searched in every column
+            const placeholder = parsedQuery.flatMap(w => placeholderTemplate).join(' ');
+
+            // The actual query
+            results = db.query(/*SQL*/`
+                SELECT * FROM tags
+                WHERE 1=1
+                ${placeholder} 
+                LIMIT ?   
+            `, [...parsedQuery, limit])?.[0] || [];
             break;
         }
         case "languages": {
+            // This template is what allows the tokenized query to search for every field
+            const placeholderTemplate = /*SQL*/`
+                AND (
+                    displayName LIKE ? ESCAPE '\\'
+                    OR internalName LIKE ? ESCAPE '\\'
+                )
+            `;
+
+            // The template is repeated for every token in the array so every token can be searched in every column
+            const placeholder = parsedQuery.flatMap(w => placeholderTemplate);
+
+            // Every token is repeated the exact same amount of placeholders 
+            const values = parsedQuery.flatMap(w => Array(2).fill(w));
+
+            // The actual query
+            results = db.query(/*SQL*/`
+                SELECT * FROM languages
+                WHERE 1=1
+                ${placeholder}
+                LIMIT ?
+            `, [...values, limit])?.[0] || [];
             break;
         }
         default: {
-            return htmlHelpers.page404(`Model ${model} does not exist`);
+            panel.webview.html = htmlHelpers.page404(`Model ${model} does not exist`);
+            return;
         }
     }
+
+    const formatedResult = databaseHelpers.formatRows(results?.columns || [], results?.values || []);
+
+    panel.webview.html = layouts.list(model, formatedResult, page, db.getPages(model), db, true, rawQuery);
 }
 
 export function add(context: vscode.ExtensionContext, model: string, panel: any) {

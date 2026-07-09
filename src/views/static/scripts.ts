@@ -50,12 +50,12 @@ export function list(model: string) {
             })
         }
 
+        // Debounce timeout variable to limit the number of search requests
+        let debounceTimeout;
+
         function search() {
             // Get the search bar element
             const searchBar = document.getElementById("searchBar");
-
-            // Debounce timeout variable to limit the number of search requests
-            let debounceTimeout;
 
             // Function to emit the search message to the extension
             function emitSearch(searchQuery) {
@@ -67,7 +67,7 @@ export function list(model: string) {
 
             // Debounce the search input to avoid excessive calls
             searchBar.addEventListener("input", (event) => {
-                const searchQuery = event.target.value.trim();
+                const searchQuery = searchBar.value.trim();
                 clearTimeout(debounceTimeout);
                 debounceTimeout = setTimeout(() => {
                     emitSearch(searchQuery);
@@ -77,7 +77,7 @@ export function list(model: string) {
             // Handle the "Enter" key press to trigger search immediately
             searchBar.addEventListener("keypress", (event) => {
                 if (event.key === "Enter") {
-                    const searchQuery = event.target.value.trim();
+                    const searchQuery = searchBar.value.trim();
                     clearTimeout(debounceTimeout);
                     emitSearch(searchQuery);
                 }
@@ -85,9 +85,7 @@ export function list(model: string) {
         }
 
         if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", () => {
-                search();
-            });
+            document.addEventListener("DOMContentLoaded", search);
         } else {
             search();
         }
