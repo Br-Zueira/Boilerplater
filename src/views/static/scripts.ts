@@ -20,8 +20,8 @@ export function index() {
     `;
 }
 
-export function list(model: string) {
-    return /*JavaScript*/`            
+export function list(model: string, [cursorStart, cursorEnd]: [number, number] = [0, 0]) {
+    return /*JavaScript*/`
         function goToPage(page) {
             vscode.postMessage({
                 command: "goToPage",
@@ -50,36 +50,48 @@ export function list(model: string) {
             })
         }
 
-        // Debounce timeout variable to limit the number of search requests
-        let debounceTimeout;
-
+        
         function search() {
+            // Debounce timeout variable to limit the number of search requests
+            let debounceTimeout;
+            
             // Get the search bar element
             const searchBar = document.getElementById("searchBar");
+            searchBar.focus();
+            searchBar.setSelectionRange(${cursorStart}, ${cursorEnd});
 
             // Function to emit the search message to the extension
-            function emitSearch(searchQuery) {
+            function emitSearch(searchQuery, bar) {
+                // Recover cursor position
+                const start = bar.selectionStart ?? 0;
+                const end = bar.selectionEnd ?? 0;
                 vscode.postMessage({
                     command: "search",
-                    payload: { model: "${model}", searchQuery: searchQuery }
+                    payload: { model: "${model}", searchQuery: searchQuery, cursorPos: [start, end] }
                 });
             };
 
-            // Debounce the search input to avoid excessive calls
-            searchBar.addEventListener("input", (event) => {
-                const searchQuery = searchBar.value.trim();
-                clearTimeout(debounceTimeout);
-                debounceTimeout = setTimeout(() => {
-                    emitSearch(searchQuery);
-                }, 300);
-            });
-
             // Handle the "Enter" key press to trigger search immediately
-            searchBar.addEventListener("keypress", (event) => {
+            searchBar.addEventListener("keydown", (event) => {
+                // Get whatever is typed in searchBar and trims it
+
+                // Handle the "Enter" key press to trigger search immediately
                 if (event.key === "Enter") {
-                    const searchQuery = searchBar.value.trim();
+                    const searchQuery = event.target.value.trim();
                     clearTimeout(debounceTimeout);
-                    emitSearch(searchQuery);
+                    emitSearch(searchQuery, event.target);
+                }
+
+                // Debounce the search input to avoid excessive calls
+                // /^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]^$/u is a regex query and means 
+                // "Allow every latin, numeric, punctuation, symbol or space char. Use unicode"
+                // The other sentences are to let backspace and delete keys to also fire a search
+                if (/^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]$/u.test(event.key) || event.key === "Backspace" || event.key === "Delete") {
+                    clearTimeout(debounceTimeout);
+                    debounceTimeout = setTimeout(() => {
+                        const searchQuery = event.target.value.trim();
+                        emitSearch(searchQuery, event.target);
+                    }, 300);
                 }
             });
         }

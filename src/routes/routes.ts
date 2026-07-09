@@ -58,7 +58,7 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
 
         // Search engine
         case ("search"): {
-            frontendControler.search(param.model, param.page, param.searchQuery, db, panel);
+            frontendControler.search(param.model, param.page, param.searchQuery, db, panel, param.cursorPos);
             break;
         }
 

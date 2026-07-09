@@ -15,7 +15,7 @@ export function index() {
 }
 
 // Page to return generic list
-export function list(model: string, data: any, page: number = 1, totalPages: number, db: any, isSearch: boolean = false, query: string = "") {
+export function list(model: string, data: any, page: number = 1, totalPages: number, db: any, isSearch: boolean = false, query: string = "", cursorPos: [number, number] = [0, 0]) {
     // Mounting the object list
     let list = "";
 
@@ -90,7 +90,7 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
 
         <!-- Footbar -->
         ${footbar}
-    `, scripts.list(model));
+    `, scripts.list(model, cursorPos));
 }
 
 // Generic model editing view

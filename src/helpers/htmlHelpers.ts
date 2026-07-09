@@ -46,7 +46,7 @@ export function getInstanceContent(model: string, instance: any, db: any, isSear
                 lang = instance.languageName;
                 const tagsArray = JSON.parse(instance.tagLabels);
                 if (tagsArray.length === 0 || tagsArray[0] === null) {
-                    tags = 'None'
+                    tags = 'None';
                 } else {
                     tags = tagsArray.flatMap((tag: string) => /*HTML*/`<span class="tag">${limitCharSize(tag, limitTag)}</span>`);
                 }
@@ -149,7 +149,7 @@ export function getEditableFields(model: string, object: any, language: any = un
             `;
         }
         default: {
-            return /*HTML*/`<h1>INVALID MODEL</h1>`
+            return /*HTML*/`<h1>INVALID MODEL</h1>`;
         }
     }
 }

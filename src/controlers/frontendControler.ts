@@ -91,7 +91,7 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
     panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db, false, '');
 }
 
-export function search(model: string, page: number = 1, rawQuery: string = "", db: any, panel: any) {
+export function search(model: string, page: number = 1, rawQuery: string = "", db: any, panel: any, cursorPos: [number, number] = [0, 0]) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages"];
     if (!validModels.includes(model)) {
@@ -202,7 +202,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
 
     const formatedResult = databaseHelpers.formatRows(results?.columns || [], results?.values || []);
 
-    panel.webview.html = layouts.list(model, formatedResult, page, db.getPages(model), db, true, rawQuery);
+    panel.webview.html = layouts.list(model, formatedResult, page, db.getPages(model), db, true, rawQuery, cursorPos);
 }
 
 export function add(context: vscode.ExtensionContext, model: string, panel: any) {
