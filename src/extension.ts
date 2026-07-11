@@ -4,22 +4,16 @@ import * as pickupTextControler from './controlers/pickupTextControler.js'
 import * as openWebViewControler from './controlers/openWebViewControler.js'
 
 export async function activate(context: vscode.ExtensionContext) {
-	const initialized = await state.initialize(context);
-	if (!initialized) return;
-
-	// Update it whenever the user changes files
-	vscode.window.onDidChangeActiveTextEditor(editor => {
-		// Only update if the new active view is a real text document, not our webview
-		if (editor) {
-			state.lastActiveEditor = editor;
-		}
-	});
+	// Initializes database and saves a context reference
+	const success = await state.initialize(context);
+	if (!success) return;
 
 	// Function to save new snippets via highlighting and shortcut
 	const pickupText = vscode.commands.registerCommand('boilerplater.pickupText', async () => {
 		await pickupTextControler.pickupTextControler();
 	});
 
+	// Function to initialize the webview and the routes
 	const openWebView = vscode.commands.registerCommand('boilerplater.openWebView', async () => {
 		await openWebViewControler.openWebViewControler();
 	})

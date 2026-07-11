@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as databaseHelpers from '../helpers/databaseHelpers';
 import { state } from './stateControler.js';
 
-export function paste(is_edit_view: boolean = false, id: number = 0, rawSnippet: string = ''){
+export async function paste(is_edit_view: boolean = false, id: number = 0, rawSnippet: string = ''){
     let snippet: string = ''; 
 
     if (is_edit_view) {
@@ -25,14 +25,21 @@ export function paste(is_edit_view: boolean = false, id: number = 0, rawSnippet:
         return;
     }
 
+    // Had to add a new reference to it to shut up compiler :) (dont ask me about tsc logic)
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-        vscode.window.showErrorMessage('You need to be in an editor to paste a snippet');
+        vscode.window.showErrorMessage('You need to be in an editor to paste a snippet (try to focus your cursor in the file)');
         return;
-    }
+    };
 
-    editor.edit(editBuilder => {
+    // Actually pasting the snippet
+    const success = await editor.edit(editBuilder => {
         editBuilder.replace(editor.selection, snippet);
-        vscode.window.setStatusBarMessage('Snippet pasted successfully', 3000);
     });
+
+    if (success) {
+        vscode.window.setStatusBarMessage('Snippet pasted successfully', 3000);
+    } else {
+        vscode.window.showErrorMessage('Snippet failed to paste');
+    }
 }

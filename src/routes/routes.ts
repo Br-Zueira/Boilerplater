@@ -63,6 +63,7 @@ export function routes(param: any, panel: vscode.WebviewPanel, command: string) 
             break;
         }
 
+        // Paste the snippet into the editor (THE REASON THIS EXTENSION EXISTS)
         case ("pasteSnippet"): {
             pasteControler.paste(param.is_edit_view, param.id, param.snippet);
             break;
@@ -70,7 +71,7 @@ export function routes(param: any, panel: vscode.WebviewPanel, command: string) 
 
         // Fallback for unrecognized routes
         default: {
-            console.warn(`Boilerplater: Routes received an unrecognized command - "${command}" isn't recognized. Command ignored.`);
+            console.error(`Boilerplater: Routes received an unrecognized command - "${command}" isn't recognized. Command ignored.`);
             break;
         }
     }

@@ -4,7 +4,7 @@ import { state } from './stateControler.js';
 
 export async function pickupTextControler() {
     // Refers to the open code editor/file (such as this one right now!)
-    const editor = state.lastActiveEditor;
+    const editor = vscode.window.activeTextEditor;
     if (!editor) {
         vscode.window.showErrorMessage('Open a file first!');
         return;

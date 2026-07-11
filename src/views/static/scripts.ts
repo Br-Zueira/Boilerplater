@@ -25,7 +25,7 @@ export function list(model: string, [cursorStart, cursorEnd]: [number, number] =
         function goToPage(page) {
             vscode.postMessage({
                 command: "goToPage",
-                payload: { model: "${model}", page: page}
+                payload: { model: "${model}", page: page }
             })
         }
 
@@ -118,7 +118,7 @@ export function edit(model: string, id: number) {
         function goToManager() {
             vscode.postMessage({
                 command: "goToManager",
-                payload: { model: "${model}"}
+                payload: { model: "${model}" }
             })
         }
             
@@ -135,7 +135,7 @@ export function edit(model: string, id: number) {
             const snippet = snippetField.value.trim();
             vscode.postMessage({
                 command: "pasteSnippet",
-                payload: { is_edit_view: true, snippet: snippet};
+                payload: { is_edit_view: true, snippet: snippet }
             })
         }
 

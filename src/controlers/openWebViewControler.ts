@@ -8,7 +8,7 @@ export async function openWebViewControler() {
     const panel = vscode.window.createWebviewPanel(
         'boilerplater.managerView', // Internal name
         'Boilerplater WebView', // Display name
-        vscode.ViewColumn.One, // How to display the panel
+        vscode.ViewColumn.Beside, // How to display the panel
         {
             enableScripts: true, // Important: lets JavaScript to be executed inside the panel
             retainContextWhenHidden: true // Panel is not killed when closed

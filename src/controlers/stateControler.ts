@@ -4,7 +4,6 @@ import * as database from '../database/database.js';
 export class state {
     public static db: database.dataBase;
     public static context: vscode.ExtensionContext;
-    public static lastActiveEditor: vscode.TextEditor | undefined;
     
     public static async initialize(newContext: vscode.ExtensionContext): Promise<boolean> {
         // Initializing context
@@ -21,8 +20,7 @@ export class state {
             return false;
         }
 
-        // initialized last active editor
-        this.lastActiveEditor = vscode.window.activeTextEditor;
+        // Confirm that everything went fine
         return true;
     }
 };
