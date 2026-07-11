@@ -50,6 +50,12 @@ export function list(model: string, [cursorStart, cursorEnd]: [number, number] =
             })
         }
 
+        function pasteSnippet(id) {
+            vscode.postMessage({
+                command: "pasteSnippet",
+                payload: { is_edit_view: false, id: id }
+            })
+        }
         
         function search() {
             // Debounce timeout variable to limit the number of search requests
@@ -120,6 +126,16 @@ export function edit(model: string, id: number) {
             vscode.postMessage({
                 command: "deleteModel",
                 payload: { model: "${model}", id: ${id} }
+            })
+        }
+
+        function pasteSnippet() {
+            const snippetField = document.getElementById("snippetField");
+            if (!snippetField) return;
+            const snippet = snippetField.value.trim();
+            vscode.postMessage({
+                command: "pasteSnippet",
+                payload: { is_edit_view: true, snippet: snippet};
             })
         }
 

@@ -3,6 +3,7 @@ import * as editControler from '../controlers/editControler.js';
 import * as addControler from '../controlers/addControler.js';
 import * as frontendControler from '../controlers/frontendControler.js';
 import * as deleteControler from '../controlers/deleteControler.js';
+import * as pasteControler from '../controlers/pasteControler.js';
 import * as vscode from 'vscode';
 
 export function routes(param: any, panel: any, command: any, db: any, context: vscode.ExtensionContext) {
@@ -59,6 +60,11 @@ export function routes(param: any, panel: any, command: any, db: any, context: v
         // Search engine
         case ("search"): {
             frontendControler.search(param.model, param.page, param.searchQuery, db, panel, param.cursorPos);
+            break;
+        }
+
+        case ("pasteSnippet"): {
+            pasteControler.paste(param.is_edit_view, param.id, param.snippet, db);
             break;
         }
 

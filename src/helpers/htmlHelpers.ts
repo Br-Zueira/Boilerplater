@@ -112,7 +112,7 @@ export function getEditableFields(model: string, object: any, language: any = un
                 </label>
                 <label>
                     <h2>Snippet:</h2>
-                    <textarea name="snippet" required>${object.snippet || ''}</textarea>
+                    <textarea id="snippetField" name="snippet" required>${object.snippet || ''}</textarea>
                 </label>
                 <div>
                     <label for="tagSelector">Tags</label>

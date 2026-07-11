@@ -1,28 +1,27 @@
 import * as vscode from 'vscode';
-import * as database from './database/database.js';
+import { state } from './controlers/stateControler.js';
 import * as pickupTextControler from './controlers/pickupTextControler.js'
 import * as openWebViewControler from './controlers/openWebViewControler.js'
 
 export async function activate(context: vscode.ExtensionContext) {
-	// Setting database up
-	let db: any;
-	try {
-		db = new database.dataBase(context);
-		await db.initialize();
-	} catch (error: any) {
-		const message = `Boilerplater: Failed to initialize database: ${error}`;
-		vscode.window.showErrorMessage(message);
-		console.error(message);
-		return;
-	}
+	const initialized = await state.initialize(context);
+	if (!initialized) return;
+
+	// Update it whenever the user changes files
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		// Only update if the new active view is a real text document, not our webview
+		if (editor) {
+			state.lastActiveEditor = editor;
+		}
+	});
 
 	// Function to save new snippets via highlighting and shortcut
 	const pickupText = vscode.commands.registerCommand('boilerplater.pickupText', async () => {
-		await pickupTextControler.pickupTextControler(db);
+		await pickupTextControler.pickupTextControler();
 	});
 
 	const openWebView = vscode.commands.registerCommand('boilerplater.openWebView', async () => {
-		await openWebViewControler.openWebViewControler(context, db);
+		await openWebViewControler.openWebViewControler();
 	})
 
 	context.subscriptions.push(pickupText, openWebView);

@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as helpers from '../helpers/helpers.js';
+import { state } from './stateControler.js';
 
-export async function pickupTextControler(db: any) {
+export async function pickupTextControler() {
     // Refers to the open code editor/file (such as this one right now!)
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-        vscode.window.showWarningMessage('Open a file first!');
+        vscode.window.showErrorMessage('Open a file first!');
         return;
     }
 
@@ -13,7 +14,7 @@ export async function pickupTextControler(db: any) {
     const selection = editor.selection;
     const highlightedCode = editor.document.getText(selection);
     if (!highlightedCode || highlightedCode.trim() === "") {
-        vscode.window.showWarningMessage('Please highlight some code first!');
+        vscode.window.showErrorMessage('Please highlight some code first!');
         return;
     }
 
@@ -61,12 +62,8 @@ export async function pickupTextControler(db: any) {
         db.query(/*SQL*/`INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)`, [title, description, highlightedCode, lId]);
         db.save();
     } catch (error: any) {
-        // If the error is related to duplicates of unique-only values
-        if (error.message && error.message.includes('UNIQUE constraint failed')) {
-            vscode.window.showWarningMessage('You tried to use an already existing title');
-            return;
-        } else {
-            vscode.window.showWarningMessage(`Error: ${error}`);
+        if (error.message) {
+            vscode.window.showErrorMessage(`Error: ${error.message}`);
             return;
         }
     }

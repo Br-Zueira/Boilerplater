@@ -33,6 +33,9 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
             list += /*HTML*/`<div>`;
                 list += htmlHelpers.getInstanceContent(model, instance, db, isSearch);
                 list += /*HTML*/`<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
+                if (model === "snippets") {
+                    list += /*HTML*/`<button onclick="pasteSnippet(${instance.id})">Paste snippet</button>`
+                }
             list += /*HTML*/`</div>`;
         }
         list += /*HTML*/`</ul>`
@@ -101,6 +104,9 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
     // String formating
     const modelSingular = model.slice(0, -1);
 
+    // Only snippets have a button to paste them
+    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
+
     // Return the HTML page
     return htmlHelpers.boiler(/*HTML*/`
         <!-- Like "Edit snippet" -->
@@ -118,6 +124,7 @@ export function edit(model: string, object: any, id: number, context: vscode.Ext
             <footer>
                 <!-- Buttons to submit the form, cancel edition and delete the model -->
                 <button type="submit">Save ${modelSingular}</button>
+                ${pasteButton}
                 <button type="button" onclick="goToManager()">Cancel edition</button>
                 ${deleteButton}
 
