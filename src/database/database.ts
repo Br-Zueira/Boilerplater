@@ -2,18 +2,15 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import initSqlJs, { Database } from 'sql.js';
+import { state } from '../controlers/stateControler.js';
 
 export class dataBase {
-    constructor(context: vscode.ExtensionContext) {
-        this.context = context;
-    }
-
     public async initialize(): Promise<void> {
-        this.db = await sqlInit(this.context);
+        this.db = await sqlInit(state.context);
     }
 
     public save() {
-        saveDB(this.db, this.context);
+        saveDB(this.db, state.context);
     }
 
     public getPages(table: string, perPage: number = 20): number {
@@ -33,7 +30,6 @@ export class dataBase {
     }
 
     private db: any;
-    private context: vscode.ExtensionContext;
 }
 
 export interface snippets {

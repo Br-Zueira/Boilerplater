@@ -1,7 +1,8 @@
 import * as helpers from '../helpers/helpers.js'
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import { state } from './stateControler.js';
 
-export function submitEdit(model: string, id: number, formData: any, db: any, panel: any) {
+export function submitEdit(model: string, id: number, formData: any, panel: any) {
     // Validating model
     const validModels = ['snippets', 'tags', 'languages'];
     if (!validModels.includes(model)) {
@@ -29,7 +30,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Get the current tags associated with the snippet from the database
-            const rawSnippetTags = db.query(/*SQL*/
+            const rawSnippetTags = state.db.query(/*SQL*/
                 `SELECT * FROM snippet_tags 
                 WHERE snippet_id = ?`, [formData.id]
             )?.[0] || [];
@@ -75,7 +76,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
 
             // Updating the snippet in the database with the new values
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     UPDATE snippets SET title = ?, 
                     description = ?, 
                     snippet = ?, 
@@ -102,7 +103,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             if (deleteTags.size > 0) {
                 const removePlaceholders = [...deleteTags].map(() => '?').join(',');
                 const values = [id, ...deleteTags];
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     DELETE FROM snippet_tags
                     WHERE snippet_id = ? AND tag_id IN (${removePlaceholders})`,
                 values);
@@ -112,7 +113,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             if (newTags.size > 0) {
                 const addPlaceholders = [...newTags].map(() => '(?, ?)').join(',');
                 const addParams = [...newTags].flatMap(tagId => [id, tagId]);
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     INSERT INTO snippet_tags (snippet_id, tag_id)
                     VALUES ${addPlaceholders}`,
                 addParams);
@@ -122,7 +123,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             const showModel = model[0].toUpperCase() + model.slice(1, -1);
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `${showModel} successfully edited`, panel);
             break;
         }
@@ -139,7 +140,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
 
             // Updating the tag in the database with the new value
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     UPDATE tags SET label = ?
                     WHERE id = ?`, 
                 [
@@ -161,7 +162,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `Tag successfully edited`, panel);
             break;
         }
@@ -178,7 +179,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
 
             // Updating the language in the database with the new value
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     UPDATE languages SET displayName = ?
                     WHERE id = ?`, 
                 [
@@ -200,7 +201,7 @@ export function submitEdit(model: string, id: number, formData: any, db: any, pa
             }
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `Language successfully edited`, panel);
             break;
         }

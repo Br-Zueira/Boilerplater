@@ -16,14 +16,14 @@ export async function getInput(prompt: string, placeHolder: string, ignoreFocusO
     return input.trim();
 }
 
-export function sendError(error: string, panel: any) {
+export function sendError(error: string, panel: vscode.WebviewPanel) {
     panel.webview.postMessage({
         command: 'error',
         payload: {error}
     });
 }
 
-export function sendStringCommand(command: string, string: string, panel: any) {
+export function sendStringCommand(command: string, string: string, panel: vscode.WebviewPanel) {
     panel.webview.postMessage({
         command,
         payload: {string}

@@ -12,7 +12,7 @@ export class state {
         
         // Initializing database
         try {
-            this.db = new database.dataBase(newContext);
+            this.db = new database.dataBase();
             await this.db.initialize();
         } catch (error: any) {
             const message = `Boilerplater: Failed to initialize database: ${error}`;

@@ -1,8 +1,9 @@
 import * as frontendControler from './frontendControler.js';
 import * as helpers from '../helpers/helpers.js';
+import { state } from './stateControler.js';
 import * as vscode from 'vscode';
 
-export async function submitDelete(id: number, model: string, db: any, panel: any) {
+export async function submitDelete(id: number, model: string, panel: any) {
     // Model validation
     const validModels = ["snippets", "tags"];
     if (!validModels.includes(model)) {
@@ -36,8 +37,8 @@ export async function submitDelete(id: number, model: string, db: any, panel: an
     if (confirmation?.action !== 'delete') return;
 
     // Deleting the instance
-    db.alter(/*SQL*/`DELETE FROM ${model} WHERE id = ?`, [id]);
+    state.db.alter(/*SQL*/`DELETE FROM ${model} WHERE id = ?`, [id]);
 
     // Redirect to avoid form resubmition
-    frontendControler.list(model, 1, db, panel);
+    frontendControler.list(model, 1, panel);
 }

@@ -1,7 +1,8 @@
 import * as helpers from '../helpers/helpers.js'
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import { state } from './stateControler.js';
 
-export function submitAdd(model: string, formData: any, db: any, panel: any) {
+export function submitAdd(model: string, formData: any, panel: any) {
     // Validating model
     const validModels = ['snippets', 'tags', 'languages'];
     if (!validModels.includes(model)) {
@@ -39,7 +40,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
 
             // Creating the snippet in the database
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     INSERT INTO snippets (description, title, snippet, language_id) VALUES (?, ?, ?, ?)`,
                 [
                     title, 
@@ -59,11 +60,11 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
 
             // Add new tags that are now associated with the snippet
             if (tags.length > 0) {
-                const id = db.query(/*SQL*/`SELECT last_insert_rowid()`)?.[0]?.values?.[0]?.[0] as number | undefined; // Get the ID of the newly created snippet
+                const id = state.db.query(/*SQL*/`SELECT last_insert_rowid()`)?.[0]?.values?.[0]?.[0] as number | undefined; // Get the ID of the newly created snippet
                 if (id) {
                     const addPlaceholders = tags.map(() => '(?, ?)').join(',');
                     const addParams = tags.flatMap(tagId => [id, tagId]);
-                    db.alter(/*SQL*/`
+                    state.db.alter(/*SQL*/`
                         INSERT INTO snippet_tags (snippet_id, tag_id)
                         VALUES ${addPlaceholders}`,
                     addParams);
@@ -74,7 +75,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
             }
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `Snippet successfully created`, panel);
             break;
         }
@@ -91,7 +92,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
 
             // Creating the tag in the database
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     INSERT INTO tags (label) VALUES (?)`,
                 [
                     label
@@ -111,7 +112,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
             }
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `Tag successfully created`, panel);
             break;
         }
@@ -128,7 +129,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
 
             // Creating the language in the database
             try {
-                db.alter(/*SQL*/`
+                state.db.alter(/*SQL*/`
                     INSERT INTO languages (displayName) VALUES (?)`,
                 [
                     displayName
@@ -148,7 +149,7 @@ export function submitAdd(model: string, formData: any, db: any, panel: any) {
             }
 
             // Success message
-            db.save();
+            state.db.save();
             helpers.sendStringCommand(`success`, `Language successfully created`, panel);
             break;
         }

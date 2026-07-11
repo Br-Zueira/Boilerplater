@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode'
+import { state } from '../../controlers/stateControler.js';
 
 // TomSelect Js
-export function getTomSelectLibJs(context: vscode.ExtensionContext): string {
-    const tomSelectLibJsPath = path.join(context.extensionPath, 'node_modules', 'tom-select', 'dist', 'js', 'tom-select.complete.js');
+export function getTomSelectLibJs(): string {
+    const tomSelectLibJsPath = path.join(state.context.extensionPath, 'node_modules', 'tom-select', 'dist', 'js', 'tom-select.complete.js');
     return fs.readFileSync(tomSelectLibJsPath, 'utf8');
 }
 

@@ -1,5 +1,6 @@
 import * as css from '../views/static/css.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import { state } from '../controlers/stateControler.js';
 
 export function page404(message: string) {
     return boiler(/*HTML*/`
@@ -34,7 +35,7 @@ export function boiler(body: string, script?: string, head?: string) {
     `;
 }
 
-export function getInstanceContent(model: string, instance: any, db: any, isSearch: boolean = false) {
+export function getInstanceContent(model: string, instance: any, isSearch: boolean = false) {
     const limitSmall = 50;
     const limitTag = 20;
     const limitBig = 100;
@@ -51,8 +52,8 @@ export function getInstanceContent(model: string, instance: any, db: any, isSear
                     tags = tagsArray.flatMap((tag: string) => /*HTML*/`<span class="tag">${limitCharSize(tag, limitTag)}</span>`);
                 }
             } else {
-                lang = db.getLanguage(instance);
-                tags = getTags(instance, db, limitTag);
+                lang = state.db.getLanguage(instance);
+                tags = getTags(instance, limitTag);
             }
             return /*HTML*/`
                 <p><strong>Title:</strong> ${limitCharSize(instance.title, limitSmall)}</p>
@@ -154,12 +155,12 @@ export function getEditableFields(model: string, object: any, language: any = un
     }
 }
 
-function getTags(instance: any, db: any, maxSize: number): string {
+function getTags(instance: any, maxSize: number): string {
     // Limit the number of tags displayed to avoid cluttering the UI
     const quantity = 5;
 
     // Get the tags associated with the snippet from the database
-    const tags = db.query(/*SQL*/`
+    const tags = state.db.query(/*SQL*/`
         SELECT t.*
         FROM tags as t
         INNER JOIN snippet_tags AS st

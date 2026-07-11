@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import * as layouts from '../views/templates/layouts.js';
 import * as routes from '../routes/routes.js';
+import { state } from './stateControler.js'; 
 
-export async function openWebViewControler(context: vscode.ExtensionContext, db: any) {
+export async function openWebViewControler() {
     // Create web panel
     const panel = vscode.window.createWebviewPanel(
         'boilerplater.managerView', // Internal name
@@ -20,9 +21,9 @@ export async function openWebViewControler(context: vscode.ExtensionContext, db:
     // Sets up panel-backend connection
     panel.webview.onDidReceiveMessage(
         async (message) => {
-            routes.routes(message.payload, panel, message.command, db, context);
+            routes.routes(message.payload, panel, message.command);
         },
         undefined,
-        context.subscriptions
+        state.context.subscriptions
     );
 }

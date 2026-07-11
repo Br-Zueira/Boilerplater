@@ -1,12 +1,8 @@
 import * as vscode from 'vscode';
 import * as databaseHelpers from '../helpers/databaseHelpers';
+import { state } from './stateControler.js';
 
-export function paste(
-    is_edit_view: boolean = false, 
-    id: number = 0, 
-    rawSnippet: string = '', 
-    db: any, 
-){
+export function paste(is_edit_view: boolean = false, id: number = 0, rawSnippet: string = ''){
     let snippet: string = ''; 
 
     if (is_edit_view) {
@@ -16,7 +12,7 @@ export function paste(
             vscode.window.showErrorMessage("Invalid snippet id, couldn't paste it");
             return;
         }
-        const dbSnippet = db.query(/*SQL*/`
+        const dbSnippet = state.db.query(/*SQL*/`
             SELECT * FROM snippets
             WHERE id = ?
         `, [id])?.[0] || [];
