@@ -71,25 +71,26 @@ export function list(model: string, [cursorStart, cursorEnd]: [number, number] =
                 });
             };
 
-            // Handle the "Enter" key press to trigger search immediately
             searchBar.addEventListener("keydown", (event) => {
-                // Get whatever is typed in searchBar and trims it
-
                 // Handle the "Enter" key press to trigger search immediately
                 if (event.key === "Enter") {
-                    const searchQuery = event.target.value.trim();
+                    const searchQuery = event.target.value;
                     clearTimeout(debounceTimeout);
                     emitSearch(searchQuery, event.target);
+                    return;
                 }
 
-                // Debounce the search input to avoid excessive calls
-                // /^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]^$/u is a regex query and means 
-                // "Allow every latin, numeric, punctuation, symbol or space char. Use unicode"
-                // The other sentences are to let backspace and delete keys to also fire a search
-                if (/^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]$/u.test(event.key) || event.key === "Backspace" || event.key === "Delete") {
+                // /^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Zs}]$/u is a regex query and means 
+                // "Allow every letter, numeric, punctuation, symbol or space char. Use unicode"
+                const isPrintableChar = /^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Zs}]$/u.test(event.key);
+
+                // Only typing related keys can fire the query
+                if (isPrintableChar || event.key === "Backspace" || event.key === "Delete") {
+                    const searchQuery = event.target.value;
                     clearTimeout(debounceTimeout);
+
+                    // Debounce the search input to avoid excessive calls
                     debounceTimeout = setTimeout(() => {
-                        const searchQuery = event.target.value.trim();
                         emitSearch(searchQuery, event.target);
                     }, 300);
                 }
