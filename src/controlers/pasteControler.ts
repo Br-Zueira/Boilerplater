@@ -32,14 +32,85 @@ export async function paste(is_edit_view: boolean = false, id: number = 0, rawSn
         return;
     };
 
+    // Placeholder managment
+    const parsedSnippet = BPTemplater(snippet);
+    
     // Actually pasting the snippet
-    const success = await editor.edit(editBuilder => {
-        editBuilder.replace(editor.selection, snippet);
+    editor.insertSnippet(new vscode.SnippetString(parsedSnippet));
+
+    // Confirms to user if snippet was actually pasted
+    vscode.window.setStatusBarMessage('Snippet pasted successfully', 3000);
+}
+
+function BPTemplater(snippet: string): string {
+    // Match anything inside [% ... %]
+    const placeholderRegex = /\[%(.*?)%\]/g;
+    const evaluated = snippet.replace(placeholderRegex, (match, jsExpression) => {
+        try {
+            const expression = new Function(`return ${jsExpression};`);
+            return String(expression());
+        } catch (err) {
+            const error = `Error: couldn't evaluate '${jsExpression}`;
+            vscode.window.showWarningMessage(error);
+            if (err instanceof Error) {
+                console.warn(error + ` - ${err.message}`);
+            } else {
+                console.warn(error + ` - Unknown error`);
+            }
+            return match;
+        }
     });
 
-    if (success) {
-        vscode.window.setStatusBarMessage('Snippet pasted successfully', 3000);
-    } else {
-        vscode.window.showErrorMessage('Snippet failed to paste');
-    }
+    // Escape dollar signs so Vscode parser take them as literal strings
+    const escaped = evaluated.replace(/\$/g, () => '\\$');
+
+    // Match tab-stops inside [# ... #]
+    // Can be either 
+    // [# index #] Or
+    // [# index | defaultValue #]
+    const tabstopRegex = /\[#(.*?)#\]/g;
+
+    // Custom tabstop processor
+    // A tabstop lets user insert syntax like '$0' and '$1', 
+    // then navigate through them with tab and change each one easily,
+    // and it can have a default value to be insert like '$0:Main'
+    const tabStopped = escaped.replace(tabstopRegex, (match, tabstop) => {
+        // Optional sign to have both index (required) and default value (optional)
+        const separator = tabstop.indexOf("|");
+
+        // Index is is a number that ends up like '$i', where i = index, 
+        // while (optional) defaultValue is a string
+        // It ends up like '$i:defaultValue' (or only '$i' if no default value)
+        let index: string = "";
+        let defaultValue: string = "";
+
+        // If default value sign '|' is found
+        if (separator > -1) {
+            // Half before separator (number)
+            index = tabstop.slice(0, separator).trim();
+
+            // Half after separator (string)
+            defaultValue = ':' + tabstop.slice(separator + 1).trim();
+            if (!defaultValue) {
+                const error = `Error at '${match}' Default value sign '|' was put, but no default value specified`;
+                vscode.window.showWarningMessage(error);
+                console.warn(error);
+                return match;
+            }
+        } else {
+            // The whole thing is only index
+            index = tabstop;
+        }
+
+        // Index must be a number, and this verifies it
+        if (!index || isNaN(Number(index))) {
+            const error = `Invalid tabstop: '${match}' tabstop index is missing or isn't a number`
+            vscode.window.showWarningMessage(error);
+            console.warn(error);
+            return match;
+        }
+
+        return `$${index}${defaultValue}`
+    });
+    return tabStopped;
 }
