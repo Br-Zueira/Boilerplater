@@ -80,17 +80,18 @@ export function list(model: string, [cursorStart, cursorEnd]: [number, number] =
                     return;
                 }
 
-                // /^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Zs}]$/u is a regex query and means 
-                // "Allow every letter, numeric, punctuation, symbol or space char. Use unicode"
-                const isPrintableChar = /^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Zs}]$/u.test(event.key);
+                // Every printable char have a length of 1, 
+                // While non printable chars have more
+                const isPrintableChar = event.key.length === 1;
 
                 // Only typing related keys can fire the query
                 if (isPrintableChar || event.key === "Backspace" || event.key === "Delete") {
-                    const searchQuery = event.target.value;
+                    const bar = event.target;
                     clearTimeout(debounceTimeout);
 
                     // Debounce the search input to avoid excessive calls
                     debounceTimeout = setTimeout(() => {
+                        const searchQuery = bar.value;
                         emitSearch(searchQuery, event.target);
                     }, 300);
                 }
