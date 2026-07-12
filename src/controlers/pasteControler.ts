@@ -34,7 +34,7 @@ export async function paste(is_edit_view: boolean = false, id: number = 0, rawSn
     };
 
     // Placeholder managment
-    const parsedSnippet = BPTemplater(snippet);
+    const parsedSnippet = await BPTemplater(snippet);
     
     // Actually pasting the snippet
     editor.insertSnippet(new vscode.SnippetString(parsedSnippet));
@@ -43,17 +43,20 @@ export async function paste(is_edit_view: boolean = false, id: number = 0, rawSn
     vscode.window.setStatusBarMessage('Snippet pasted successfully', 3000);
 }
 
-function BPTemplater(snippet: string): string {
+async function BPTemplater(snippet: string): Promise<string> {
+    const clipboard = await vscode.env.clipboard.readText() || '';
+
     // Match anything inside [% ... %]
     const placeholderRegex = /\[%(.*?)%\]/g;
     const evaluated = snippet.replace(placeholderRegex, (match, jsExpression) => {
         try {
             // Evaluates the JavaScript expressions
-            const expression = new Function(`return ${jsExpression};`);
-            return String(expression());
+            const vars = new templaterVariables(clipboard);
+            const expression = new Function(...vars.getVars(), `return ${jsExpression};`);
+            return String(expression(...vars.getValues()));
         } catch (err) {
             // If anything goes wrong, shows it to user
-            const error = `Error: couldn't evaluate '${jsExpression}`;
+            const error = `Error: couldn't evaluate "${jsExpression.trim()}"`;
             vscode.window.showWarningMessage(error);
             if (err instanceof Error) {
                 console.warn(error + ` - ${err.message}`);
@@ -95,7 +98,7 @@ function BPTemplater(snippet: string): string {
             // Half after separator (string)
             defaultValue = ':' + tabstop.slice(separator + 1).trim();
             if (!defaultValue) {
-                const error = `Error at '${match}' Default value sign '|' was put, but no default value specified`;
+                const error = `Error at "${match}": Default value sign '|' was put, but no default value specified`;
                 vscode.window.showWarningMessage(error);
                 console.warn(error);
                 return match;
@@ -107,7 +110,7 @@ function BPTemplater(snippet: string): string {
 
         // Index must be a number, and this verifies it
         if (!index || isNaN(Number(index))) {
-            const error = `Invalid tabstop: '${match}' tabstop index is missing or isn't a number`
+            const error = `Invalid tabstop: "${match}" tabstop index is missing or isn't a number`
             vscode.window.showWarningMessage(error);
             console.warn(error);
             return match;
@@ -119,18 +122,60 @@ function BPTemplater(snippet: string): string {
 }
 
 class templaterVariables {
-    public vars: Record<string, string> = {
+    private vars: Record<string, string> = {
         BP_FILENAME: '',
-        BP_FILENAME_EXT: ''
+        BP_FILENAME_EXT: '',
+        BP_EXT: '',
+        BP_DIRECTORY_NAME: '',
+        BP_WORKSPACE_NAME: '',
+
+        BP_YEAR: '',
+        BP_MONTH: '',
+        BP_DAY: '',
+
+        BP_SELECTED_TEXT: '',
+        BP_CLIPBOARD: ''
     }
 
-    constructor() {
+    // Explicitly override global access points to prevent malicious scripts
+    private forbiddenKeys = ['vscode', 'process', 'global', 'require'];
+    private forbiddenValues = this.forbiddenKeys.map(() => undefined);
+
+    // Get the variable names
+    public getVars(): string[] {
+        return [...Object.keys(this.vars), ...this.forbiddenKeys];
+    }
+
+    // Get the variable values
+    public getValues(): (string | undefined)[] {
+        return [...Object.values(this.vars), ...this.forbiddenValues];
+    }
+
+    // Only gets the clipboard text from outside because vscode.env.clipboard.readText() is an async function
+    constructor(clipboard: string = '') {
+        // Standard variables
         const editor = vscode.window.activeTextEditor;
         const document = editor?.document;
         const fullPath = document?.fileName || 'untitled.txt';
         const ext = path.extname(fullPath);
+        const workspaceFolder = document ? vscode.workspace.getWorkspaceFolder(document.uri) : undefined;
 
-        this.vars.BP_FILENAME_EXT = path.basename(fullPath);
         this.vars.BP_FILENAME = path.basename(fullPath, ext);
+        this.vars.BP_FILENAME_EXT = path.basename(fullPath);
+        this.vars.BP_EXT = ext;
+        this.vars.BP_DIRECTORY_NAME = path.dirname(fullPath);
+        this.vars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : 'Undefined workspace';
+
+        // Date and time variables
+        const now = new Date();
+        this.vars.BP_YEAR = String(now.getFullYear());
+        this.vars.BP_MONTH = String(now.getMonth() + 1).padStart(2, '0');
+        this.vars.BP_DATE = String(now.getDate()).padStart(2, '0');
+
+        // Selected variable
+        this.vars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
+        
+        // Clipboard var
+        this.vars.BP_CLIPBOARD = clipboard 
     }
 }
