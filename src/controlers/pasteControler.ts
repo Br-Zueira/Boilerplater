@@ -96,7 +96,7 @@ async function BPTemplater(snippet: string): Promise<string> {
             index = tabstop.slice(0, separator).trim();
 
             // Half after separator (string)
-            defaultValue = ':' + tabstop.slice(separator + 1).trim();
+            defaultValue = tabstop.slice(separator + 1).trim();
             if (!defaultValue) {
                 const error = `Error at "${match}": Default value sign '|' was put, but no default value specified`;
                 vscode.window.showWarningMessage(error);
@@ -116,7 +116,13 @@ async function BPTemplater(snippet: string): Promise<string> {
             return match;
         }
 
-        return `$${index}${defaultValue}`
+        if (defaultValue) {
+            // "${index:defaultValye}"
+            return "${" + index + ":" + defaultValue + "}";
+        } else {
+            // "$index"
+            return `$${index}`;
+        }
     });
     return tabStopped;
 }
