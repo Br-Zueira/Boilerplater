@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path'; 
 import * as databaseHelpers from '../helpers/databaseHelpers';
 import { state } from './stateControler.js';
 
@@ -47,9 +48,11 @@ function BPTemplater(snippet: string): string {
     const placeholderRegex = /\[%(.*?)%\]/g;
     const evaluated = snippet.replace(placeholderRegex, (match, jsExpression) => {
         try {
+            // Evaluates the JavaScript expressions
             const expression = new Function(`return ${jsExpression};`);
             return String(expression());
         } catch (err) {
+            // If anything goes wrong, shows it to user
             const error = `Error: couldn't evaluate '${jsExpression}`;
             vscode.window.showWarningMessage(error);
             if (err instanceof Error) {
@@ -113,4 +116,21 @@ function BPTemplater(snippet: string): string {
         return `$${index}${defaultValue}`
     });
     return tabStopped;
+}
+
+class templaterVariables {
+    public vars: Record<string, string> = {
+        BP_FILENAME: '',
+        BP_FILENAME_EXT: ''
+    }
+
+    constructor() {
+        const editor = vscode.window.activeTextEditor;
+        const document = editor?.document;
+        const fullPath = document?.fileName || 'untitled.txt';
+        const ext = path.extname(fullPath);
+
+        this.vars.BP_FILENAME_EXT = path.basename(fullPath);
+        this.vars.BP_FILENAME = path.basename(fullPath, ext);
+    }
 }
