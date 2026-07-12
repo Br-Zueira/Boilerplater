@@ -166,11 +166,21 @@ class templaterVariables {
         const ext = path.extname(fullPath);
         const workspaceFolder = document ? vscode.workspace.getWorkspaceFolder(document.uri) : undefined;
 
+        // This comments are examples of the output model of each function
+        // script
         this.vars.BP_FILENAME = path.basename(fullPath, ext);
+
+        // script.ts
         this.vars.BP_FILENAME_EXT = path.basename(fullPath);
+
+        // .ts
         this.vars.BP_EXT = ext;
+
+        // /home/user/vscode/my-project
         this.vars.BP_DIRECTORY_NAME = path.dirname(fullPath);
-        this.vars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : 'Undefined workspace';
+
+        // my-project
+        this.vars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : '';
 
         // Date and time variables
         const now = new Date();

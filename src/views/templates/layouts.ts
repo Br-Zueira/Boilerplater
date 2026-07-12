@@ -10,6 +10,8 @@ export function index() {
         <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
         <button id="tagBtn" onclick="goToManager('tags')">Manage tags</button>
         <button id="langBtn" onclick="goToManager('languages')">Manage languages</button>
+
+        <p>Br-Zueira's Boilerplater is an extenion that avoids rewriting boilerplate and makes snippet managment very intuitive and integrated into Vscode</p>
     `, scripts.index());
 }
 
