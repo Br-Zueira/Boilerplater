@@ -144,7 +144,7 @@ class templaterVariables {
     }
 
     // Explicitly override global access points to prevent malicious scripts
-    private forbiddenKeys = ['vscode', 'process', 'global', 'require'];
+    private forbiddenKeys = ['global', 'globalThis', 'process', 'require'];
     private forbiddenValues = this.forbiddenKeys.map(() => undefined);
 
     // Get the variable names
