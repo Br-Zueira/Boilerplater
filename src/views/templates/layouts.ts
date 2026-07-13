@@ -11,26 +11,28 @@ export function index() {
         <button id="tagBtn" onclick="goToManager('tags')">Manage tags</button>
         <button id="langBtn" onclick="goToManager('languages')">Manage languages</button>
 
-        <p>Br-Zueira's Boilerplater is an extenion that avoids rewriting boilerplate and makes snippet managment very intuitive and integrated into Vscode.
-        Go to a manager to either see, create, edit or delete snippets, tags or languages. In snippets, you can paste them directly into the document cursor.
-        To make it more powerful and automatic, it contains a template syntax, which is:
-        [% ... %] => Can execute JavaScript code, specially for string manipulation, and access the following variables:
-            BP_FILENAME: file name without extension ("file" format)
-            BP_FILENAME_EXT: file name with extension ("file.ext" format)
-            BP_EXT: file extension (".ext" format)
-            BP_DIRECTORY_NAME: file absolute path ("path/to/parent-folder" format)
-            BP_WORKSPACE_NAME: file parent folder ("parent-folder" format)
+        <p>Br-Zueira's Boilerplater is an extenion that avoids rewriting boilerplate and makes snippet managment very intuitive and integrated into Vscode.<p>
 
-            BP_YEAR: current year ("XXXX" format)
-            BP_MONTH: current month ("XX" format)
-            BP_DAY: current day ("XX" format)
+        <p>To save a new snippet, highlight a string in document and use the Boilerplater shortcut (default: ctrl+u; cmd+u in mac).
+        Go to a manager to either see, create, edit or delete snippets, tags or languages. In snippets, you can paste them directly into the document cursor.</p>
 
-            BP_SELECTED_TEXT: the string highlighted by cursor in document (or empty string if nothing highlighted)
-            BP_CLIPBOARD: the last string copied to clipboard (or empty string if clipboard is empty)
-        [# ... #] => Syntax for Vscode tabstop, can be either:
-            [# index #]: index is a number that identifies the tabstops order and groups (multiple tabstops with same index will hare the exact same value)
-            [# index | default #]: default is a string to be used if user skips tabstop
-        To save a new snippet, highlight a string in document and use the Boilerplater shortcut (default: ctrl+u; cmd+u in mac)
+        <p>To make it more powerful and automatic, it contains a template syntax, which is:<br>
+            [% ... %] => Can execute JavaScript code, specially for string manipulation, and access the following variables:<br>
+                <strong>BP_FILENAME:</strong> file name without extension ("file" format)<br>
+                <strong>BP_FILENAME_EXT:</strong> file name with extension ("file.ext" format)<br>
+                <strong>BP_EXT:</strong> file extension (".ext" format)<br>
+                <strong>BP_DIRECTORY_NAME:</strong> file absolute path ("path/to/parent-folder" format, or "." if file is new and unsaved)<br>
+                <strong>BP_WORKSPACE_NAME:</strong> file parent folder ("parent-folder" format, or empty string if file is new and unsaved)<br>
+                <strong>BP_YEAR:</strong> current year ("XXXX" format)<br>
+                <strong>BP_MONTH:</strong> current month ("XX" format)<br>
+                <strong>BP_DAY:</strong> current day ("XX" format)<br>
+                <strong>BP_SELECTED_TEXT:</strong> the string highlighted by cursor in document (or empty string if nothing highlighted)<br>
+                <strong>BP_CLIPBOARD:</strong> the last string copied to clipboard (or empty string if clipboard is empty)<br>
+            [# ... #] => Syntax for Vscode tabstop, can be either:<br>
+                [# index #]: index is a number that identifies the tabstops order and groups (multiple tabstops with same index will hare the exact same value)<br>
+                [# index | default #]: default is a string to be used if user skips tabstop <br>
+            Note: JavaScript templates ( [% %] ) are evaluated first than tabspace templates ( [# #] ), 
+            and it's possible to put JS templates inside tabspace templates
         </p>
     `, scripts.index());
 }
