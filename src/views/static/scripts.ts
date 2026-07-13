@@ -269,11 +269,75 @@ export function edit(model: string, id: number) {
             });
         }
 
+        function setTextArea() {
+            const textarea = document.getElementById("snippetField");
+            if (!textarea) return;
+
+            textarea.addEventListener('keydown', (e) => {
+                // Setup so tab indents instead of jumping through HTML
+                if (e.key === 'Tab') {
+                    // Avoids tab from jumping to HTML elements
+                    e.preventDefault();
+
+                    // Inserts 4 blank spaces at cursor position
+                    document.execCommand('insertText', false, '    ');
+                }
+
+                // List of pairs to be auto closed
+                const pairs = {
+                    '(': ')',
+                    '[': ']',
+                    '{': '}',
+                    '"': '"', 
+                    "'": "'",
+                    "%": "%",
+                    "#": "#"
+                }
+
+                // Auto closes (), {}, [], "" and ''
+                if (pairs[e.key]) {
+                    // Prevents chromium of just inserting the char
+                    e.preventDefault();
+
+                    // Catches cursor pos
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+
+                    // The opposing character to the typed one
+                    const endChar = pairs[e.key];
+
+                    // Gets highlighted text, empty string if no selected text
+                    const highlighted = textarea.value.substring(start, end);
+
+                    // Amount of characters to advance over with cursor
+                    let jump = 0;
+
+                    // Differenciates between auto insert for placeholder syntax and normal auto insert
+                    if (["%", "#"].includes(e.key)) {
+                        // Specific auto insert for the placeholder syntax
+                        if (textarea.value.substring(start - 1, start) === "[")  {
+                            document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar + ']');
+                            jump = 2; // Jumps the placed char + the space, ends up like "[% I'm highlighted! %]"
+                        }
+                    } else {
+                        // Puts the processed text in place
+                        document.execCommand('insertText', false, e.key + highlighted + endChar);
+                        jump = 1; // Jumps the inserted key, ends up like "(I'm highlighted!)"
+                    }
+
+                    // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
+                    textarea.selectionStart = start + jump;
+                    textarea.selectionEnd = end + jump;
+                }
+            });
+        }
+
         // Load the TomSelect and setup the form when the DOM is fully loaded
         function loadPage() {
             loadTomSelect();
             setupForm();
             setupMessageListener();
+            setTextArea();
         }
 
         if (document.readyState === "loading") {
