@@ -199,6 +199,12 @@ function getTags(instance: any, maxSize: number): string {
 }
 
 function limitCharSize(str: string, maxSize: number): string {
+    // Safeguard to avoid property accessing errors
+    if (!str || typeof(str) !== 'string') {
+        return '';
+    }
+
+    // Cuts the string if needed
     if (str.length > maxSize) {
         return str.substring(0, maxSize) + '...';
     }
