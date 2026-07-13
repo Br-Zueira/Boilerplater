@@ -56,13 +56,14 @@ async function BPTemplater(snippet: string): Promise<string> {
             return String(expression(...vars.getValues()));
         } catch (err) {
             // If anything goes wrong, shows it to user
-            const error = `Error: couldn't evaluate "${jsExpression.trim()}"`;
-            vscode.window.showWarningMessage(error);
+            let error = `Error: couldn't evaluate "${jsExpression.trim()}"`;
             if (err instanceof Error) {
-                console.warn(error + ` - ${err.message}`);
+                error += ` - ${err.message}`;
             } else {
-                console.warn(error + ` - Unknown error`);
+                error += " - Unknown Error"
             }
+            vscode.window.showWarningMessage(error);
+            console.warn(error);
             return match;
         }
     });
@@ -105,7 +106,7 @@ async function BPTemplater(snippet: string): Promise<string> {
             }
         } else {
             // The whole thing is only index
-            index = tabstop;
+            index = tabstop.trim();
         }
 
         // Index must be a number, and this verifies it
