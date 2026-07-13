@@ -315,14 +315,18 @@ export function edit(model: string, id: number) {
                     // Differenciates between auto insert for placeholder syntax and normal auto insert
                     if (["%", "#"].includes(e.key)) {
                         // Specific auto insert for the placeholder syntax
-                        if (textarea.value.substring(start - 1, start) === "[")  {
-                            document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar + ']');
-                            jump = 2; // Jumps the placed char + the space, ends up like "[% I'm highlighted! %]"
+                        // If inside template syntax, activate the auto insert, else just insert the char normaly
+                        if (textarea.value.substring(start - 1, start) === "[" /*If last char is "["*/)  {
+                            // Ends up like "[% I'm highlighted! %]"
+                            document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar);
+                            jump = 2; // Jumps the placed char + the space
+                        } else {
+                            document.execCommand('insertText', false, e.key);
                         }
                     } else {
-                        // Puts the processed text in place
+                        // Puts the processed text in place, ends up like "(I'm highlighted!)"
                         document.execCommand('insertText', false, e.key + highlighted + endChar);
-                        jump = 1; // Jumps the inserted key, ends up like "(I'm highlighted!)"
+                        jump = 1; // Jumps the inserted key
                     }
 
                     // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
