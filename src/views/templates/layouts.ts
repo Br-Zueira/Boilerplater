@@ -168,6 +168,9 @@ export function add(model: string) {
     // String formating
     const modelSingular = model.slice(0, -1);
 
+    // Only snippets have a button to paste them
+    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
+
     // Return the HTML page
     return htmlHelpers.boiler(/*HTML*/`
         <!-- Like "Create new snippet" -->
@@ -183,7 +186,8 @@ export function add(model: string) {
 
             <!-- Buttons to submit the form and cancel creation -->
             <button type="submit">Create ${modelSingular}</button>
-            <button type="button" onclick="goToIndex()">Cancel creation</button>
+            ${pasteButton}
+            <button type="button" onclick="goToManager()">Cancel creation</button>
 
             <!-- Error and success messages -->
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>

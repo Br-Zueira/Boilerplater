@@ -8,6 +8,200 @@ export function getTomSelectLibJs(): string {
     return fs.readFileSync(tomSelectLibJsPath, 'utf8');
 }
 
+const editAndAdd = /*JavaScript*/`
+    function pasteSnippet() {
+        const snippetField = document.getElementById("snippetField");
+        if (!snippetField) return;
+        const snippet = snippetField.value.trim();
+        vscode.postMessage({
+            command: "pasteSnippet",
+            payload: { is_edit_view: true, snippet: snippet }
+        })
+    }
+
+    // TomSelect part (for snippet editing)
+    const activeCallbacks = {
+        tags: null,
+        languages: null
+    };
+
+    function loadTomSelect() {
+        const tagSelector = document.getElementById("tagSelector");
+        const languageSelector = document.getElementById("languageSelector");
+        if (!tagSelector || !languageSelector) {
+            return;
+        }
+
+        const tagTom = new TomSelect(tagSelector, {
+            valueField: 'id',
+            labelField: 'label',
+            searchField: 'label',
+            plugins: {
+                'remove_button': {
+                    title: 'Remove this tag'
+                }, 
+                'no_backspace_delete': {}, 
+                'checkbox_options': {}
+            },
+            load: function(query, callback) {
+                activeCallbacks.tags = callback;
+                vscode.postMessage({
+                    command: 'searchTags',
+                    payload: { searchQuery: query }
+                });
+            }
+        });
+
+        const languageTom = new TomSelect(languageSelector, {
+            valueField: 'id',
+            labelField: 'displayName',
+            searchField: 'displayName',
+            plugins: {
+                'no_backspace_delete': {}, 
+            },
+            load: function(query, callback) {
+                activeCallbacks.languages = callback;
+                vscode.postMessage({
+                    command: 'searchLanguages',
+                    payload: { searchQuery: query }
+                });
+            }
+        });
+    }
+
+    // Bridge between the webview and the extension
+    function setupMessageListener() {
+        window.addEventListener("message", (event) => {
+            const message = event.data;
+            switch (message.command) {
+                case "receiveTags": {
+                    if (activeCallbacks.tags) {
+                        activeCallbacks.tags(message.payload.tags);
+                        activeCallbacks.tags = null;
+                    }
+                    break;
+                }
+                case "receiveLanguages": {
+                    if (activeCallbacks.languages) {
+                        activeCallbacks.languages(message.payload.languages);
+                        activeCallbacks.languages = null;
+                    }
+                    break;
+                }
+                case "error": {
+                    const errorMessageElement = document.getElementById("errorMessage");
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = message.payload.error;
+                        errorMessageElement.style.display = "block";
+                    }
+                    const successMessageElement = document.getElementById("successMessage");
+                    if (successMessageElement) {
+                        successMessageElement.textContent = '';
+                        successMessageElement.style.display = "none";
+                    }
+                    break;
+                }
+                case "success": {
+                    const successMessageElement = document.getElementById("successMessage");
+                    if (successMessageElement) {
+                        successMessageElement.textContent = message.payload.string;
+                        successMessageElement.style.display = "block";
+                    }
+                    const errorMessageElement = document.getElementById("errorMessage");
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = '';
+                        errorMessageElement.style.display = "none";
+                    }
+                    break;
+                }
+            }
+        });
+    }
+
+    function setTextArea() {
+        const textarea = document.getElementById("snippetField");
+        if (!textarea) return;
+
+        textarea.addEventListener('keydown', (e) => {
+            // Setup so tab indents instead of jumping through HTML
+            if (e.key === 'Tab') {
+                // Avoids tab from jumping to HTML elements
+                e.preventDefault();
+
+                // Inserts 4 blank spaces at cursor position
+                document.execCommand('insertText', false, '    ');
+            }
+
+            // List of pairs to be auto closed
+            const pairs = {
+                '(': ')',
+                '[': ']',
+                '{': '}',
+                '"': '"', 
+                "'": "'",
+                "%": "%",
+                "#": "#"
+            }
+
+            // Auto closes (), {}, [], "" and ''
+            if (pairs[e.key]) {
+                // Prevents chromium of just inserting the char
+                e.preventDefault();
+
+                // Catches cursor pos
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+
+                // The opposing character to the typed one
+                const endChar = pairs[e.key];
+
+                // Gets highlighted text, empty string if no selected text
+                const highlighted = textarea.value.substring(start, end);
+
+                // Amount of characters to advance over with cursor
+                let jump = 0;
+
+                // Differenciates between auto insert for placeholder syntax and normal auto insert
+                if (["%", "#"].includes(e.key)) {
+                    // Specific auto insert for the placeholder syntax
+                    // If inside template syntax, activate the auto insert, else just insert the char normaly
+                    if (textarea.value.substring(start - 1, start) === "[" /*If last char is "["*/)  {
+                        // Ends up like "[% I'm highlighted! %]"
+                        document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar);
+                        jump = 2; // Jumps the placed char + the space
+                    } else {
+                        // Places the char as usual
+                        document.execCommand('insertText', false, e.key);
+                        jump = 1;
+                    }
+                } else {
+                    // Puts the processed text in place, ends up like "(I'm highlighted!)"
+                    document.execCommand('insertText', false, e.key + highlighted + endChar);
+                    jump = 1; // Jumps the inserted key
+                }
+
+                // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
+                textarea.selectionStart = start + jump;
+                textarea.selectionEnd = end + jump;
+            }
+        });
+
+        // Load the TomSelect and setup the form when the DOM is fully loaded
+        function loadPage() {
+            loadTomSelect();
+            setupForm();
+            setupMessageListener();
+            setTextArea();
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadPage);
+    } else {
+        loadPage();
+    }
+`;
+
 export function index() {
     return /*JavaScript*/`
         // Function to abstract the page swapping message call
@@ -129,115 +323,6 @@ export function edit(model: string, id: number) {
             })
         }
 
-        function pasteSnippet() {
-            const snippetField = document.getElementById("snippetField");
-            if (!snippetField) return;
-            const snippet = snippetField.value.trim();
-            vscode.postMessage({
-                command: "pasteSnippet",
-                payload: { is_edit_view: true, snippet: snippet }
-            })
-        }
-
-        // TomSelect part (for snippet editing)
-        const activeCallbacks = {
-            tags: null,
-            languages: null
-        };
-
-        function loadTomSelect() {
-            const tagSelector = document.getElementById("tagSelector");
-            const languageSelector = document.getElementById("languageSelector");
-            if (!tagSelector || !languageSelector) {
-                return;
-            }
-
-            const tagTom = new TomSelect(tagSelector, {
-                valueField: 'id',
-                labelField: 'label',
-                searchField: 'label',
-                plugins: {
-                    'remove_button': {
-                        title: 'Remove this tag'
-                    }, 
-                    'no_backspace_delete': {}, 
-                    'checkbox_options': {}
-                },
-                load: function(query, callback) {
-                    activeCallbacks.tags = callback;
-                    vscode.postMessage({
-                        command: 'searchTags',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
-
-            const languageTom = new TomSelect(languageSelector, {
-                valueField: 'id',
-                labelField: 'displayName',
-                searchField: 'displayName',
-                plugins: {
-                    'no_backspace_delete': {}, 
-                },
-                load: function(query, callback) {
-                    activeCallbacks.languages = callback;
-                    vscode.postMessage({
-                        command: 'searchLanguages',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
-        }
-
-        // Bridge between the webview and the extension
-        function setupMessageListener() {
-            window.addEventListener("message", (event) => {
-                const message = event.data;
-                switch (message.command) {
-                    case "receiveTags": {
-                        if (activeCallbacks.tags) {
-                            activeCallbacks.tags(message.payload.tags);
-                            activeCallbacks.tags = null;
-                        }
-                        break;
-                    }
-                    case "receiveLanguages": {
-                        if (activeCallbacks.languages) {
-                            activeCallbacks.languages(message.payload.languages);
-                            activeCallbacks.languages = null;
-                        }
-                        break;
-                    }
-                    case "error": {
-                        const errorMessageElement = document.getElementById("errorMessage");
-                        if (errorMessageElement) {
-                            errorMessageElement.textContent = message.payload.error;
-                            errorMessageElement.style.display = "block";
-                        }
-                        const successMessageElement = document.getElementById("successMessage");
-                        if (successMessageElement) {
-                            successMessageElement.textContent = '';
-                            successMessageElement.style.display = "none";
-                        }
-                        break;
-                    }
-                    case "success": {
-                        const successMessageElement = document.getElementById("successMessage");
-                        if (successMessageElement) {
-                            successMessageElement.textContent = message.payload.string;
-                            successMessageElement.style.display = "block";
-                        }
-                        const errorMessageElement = document.getElementById("errorMessage");
-                        if (errorMessageElement) {
-                            errorMessageElement.textContent = '';
-                            errorMessageElement.style.display = "none";
-                        }
-                        break;
-                    }
-                }
-            });
-        }
-
         // Form submission part
         function setupForm() {
             const editForm = document.getElementById("editForm");
@@ -268,199 +353,18 @@ export function edit(model: string, id: number) {
                 });
             });
         }
-
-        function setTextArea() {
-            const textarea = document.getElementById("snippetField");
-            if (!textarea) return;
-
-            textarea.addEventListener('keydown', (e) => {
-                // Setup so tab indents instead of jumping through HTML
-                if (e.key === 'Tab') {
-                    // Avoids tab from jumping to HTML elements
-                    e.preventDefault();
-
-                    // Inserts 4 blank spaces at cursor position
-                    document.execCommand('insertText', false, '    ');
-                }
-
-                // List of pairs to be auto closed
-                const pairs = {
-                    '(': ')',
-                    '[': ']',
-                    '{': '}',
-                    '"': '"', 
-                    "'": "'",
-                    "%": "%",
-                    "#": "#"
-                }
-
-                // Auto closes (), {}, [], "" and ''
-                if (pairs[e.key]) {
-                    // Prevents chromium of just inserting the char
-                    e.preventDefault();
-
-                    // Catches cursor pos
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-
-                    // The opposing character to the typed one
-                    const endChar = pairs[e.key];
-
-                    // Gets highlighted text, empty string if no selected text
-                    const highlighted = textarea.value.substring(start, end);
-
-                    // Amount of characters to advance over with cursor
-                    let jump = 0;
-
-                    // Differenciates between auto insert for placeholder syntax and normal auto insert
-                    if (["%", "#"].includes(e.key)) {
-                        // Specific auto insert for the placeholder syntax
-                        // If inside template syntax, activate the auto insert, else just insert the char normaly
-                        if (textarea.value.substring(start - 1, start) === "[" /*If last char is "["*/)  {
-                            // Ends up like "[% I'm highlighted! %]"
-                            document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar);
-                            jump = 2; // Jumps the placed char + the space
-                        } else {
-                            // Places the char as usual
-                            document.execCommand('insertText', false, e.key);
-                            jump = 1;
-                        }
-                    } else {
-                        // Puts the processed text in place, ends up like "(I'm highlighted!)"
-                        document.execCommand('insertText', false, e.key + highlighted + endChar);
-                        jump = 1; // Jumps the inserted key
-                    }
-
-                    // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
-                    textarea.selectionStart = start + jump;
-                    textarea.selectionEnd = end + jump;
-                }
-            });
-        }
-
-        // Load the TomSelect and setup the form when the DOM is fully loaded
-        function loadPage() {
-            loadTomSelect();
-            setupForm();
-            setupMessageListener();
-            setTextArea();
-        }
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", loadPage);
-        } else {
-            loadPage();
-        }
+        ${editAndAdd}
     `;
 }
 
 export function add(model: string) {
     return /*JavaScript*/`
         // Functions for the buttons on the page
-        function goToIndex() {
+        function goToManager() {
             vscode.postMessage({
-                command: "goToIndex",
-                payload: { dummy: "foo"}
+                command: "goToManager",
+                payload: { model: "${model}"}
             })
-        }
-
-        // TomSelect part (for snippet editing)
-        const activeCallbacks = {
-            tags: null,
-            languages: null
-        };
-
-        function loadTomSelect() {
-            const tagSelector = document.getElementById("tagSelector");
-            const languageSelector = document.getElementById("languageSelector");
-            if (!tagSelector || !languageSelector) {
-                return;
-            }
-
-            const tagTom = new TomSelect(tagSelector, {
-                valueField: 'id',
-                labelField: 'label',
-                searchField: 'label',
-                plugins: {
-                    'remove_button': {
-                        title: 'Remove this tag'
-                    }, 
-                    'no_backspace_delete': {}, 
-                    'checkbox_options': {}
-                },
-                load: function(query, callback) {
-                    activeCallbacks.tags = callback;
-                    vscode.postMessage({
-                        command: 'searchTags',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
-
-            const languageTom = new TomSelect(languageSelector, {
-                valueField: 'id',
-                labelField: 'displayName',
-                searchField: 'displayName',
-                plugins: {
-                    'no_backspace_delete': {}, 
-                },
-                load: function(query, callback) {
-                    activeCallbacks.languages = callback;
-                    vscode.postMessage({
-                        command: 'searchLanguages',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
-        }
-
-        // Bridge between the webview and the extension
-        function setupMessageListener() {
-            window.addEventListener("message", (event) => {
-                const message = event.data;
-                switch (message.command) {
-                    case "receiveTags": {
-                        if (activeCallbacks.tags) {
-                            activeCallbacks.tags(message.payload.tags);
-                            activeCallbacks.tags = null;
-                        }
-                        break;
-                    }
-                    case "receiveLanguages": {
-                        if (activeCallbacks.languages) {
-                            activeCallbacks.languages(message.payload.languages);
-                            activeCallbacks.languages = null;
-                        }
-                        break;
-                    }
-                    case "error": {
-                        const errorMessageElement = document.getElementById("errorMessage");
-                        if (errorMessageElement) {
-                            errorMessageElement.textContent = message.payload.error;
-                            errorMessageElement.style.display = "block";
-                        }
-                        const successMessageElement = document.getElementById("successMessage");
-                        if (successMessageElement) {
-                            successMessageElement.textContent = '';
-                            successMessageElement.style.display = "none";
-                        }
-                        break;
-                    }
-                    case "success": {
-                        const successMessageElement = document.getElementById("successMessage");
-                        if (successMessageElement) {
-                            successMessageElement.textContent = message.payload.string;
-                            successMessageElement.style.display = "block";
-                        }
-                        const errorMessageElement = document.getElementById("errorMessage");
-                        if (errorMessageElement) {
-                            errorMessageElement.textContent = '';
-                            errorMessageElement.style.display = "none";
-                        }
-                        break;
-                    }
-                }
-            });
         }
 
         // Form submission part
@@ -493,18 +397,6 @@ export function add(model: string) {
                 });
             });
         }
-
-        // Load the TomSelect and setup the form when the DOM is fully loaded
-        function loadPage() {
-            loadTomSelect();
-            setupForm();
-            setupMessageListener();
-        }
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", loadPage);
-        } else {
-            loadPage();
-        }
+        ${editAndAdd}
     `;
 }
