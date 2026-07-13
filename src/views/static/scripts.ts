@@ -321,7 +321,9 @@ export function edit(model: string, id: number) {
                             document.execCommand('insertText', false, e.key + " " + highlighted + " " + endChar);
                             jump = 2; // Jumps the placed char + the space
                         } else {
+                            // Places the char as usual
                             document.execCommand('insertText', false, e.key);
+                            jump = 1;
                         }
                     } else {
                         // Puts the processed text in place, ends up like "(I'm highlighted!)"
