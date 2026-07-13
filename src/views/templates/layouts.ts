@@ -11,7 +11,7 @@ export function index() {
         <button id="tagBtn" onclick="goToManager('tags')">Manage tags</button>
         <button id="langBtn" onclick="goToManager('languages')">Manage languages</button>
 
-        <p>Br-Zueira's Boilerplater is an extenion that avoids rewriting boilerplate and makes snippet managment very intuitive and integrated into Vscode.<p>
+        <p>Br-Zueira's Boilerplater is an extension that avoids the need to constantly rewrite boilerplate code and makes snippet managment very intuitive and integrated into Vscode.<p>
 
         <p>To save a new snippet, highlight a string in document and use the Boilerplater shortcut (default: ctrl+u; cmd+u in mac).
         Go to a manager to either see, create, edit or delete snippets, tags or languages. In snippets, you can paste them directly into the document cursor.</p>
@@ -29,8 +29,8 @@ export function index() {
                 <strong>BP_SELECTED_TEXT:</strong> the string highlighted by cursor in document (or empty string if nothing highlighted)<br>
                 <strong>BP_CLIPBOARD:</strong> the last string copied to clipboard (or empty string if clipboard is empty)<br>
             [# ... #] => Syntax for Vscode tabstop, can be either:<br>
-                [# index #]: index is a number that identifies the tabstops order and groups (multiple tabstops with same index will hare the exact same value)<br>
-                [# index | default #]: default is a string to be used if user skips tabstop <br>
+                [# index #]: index is a number that identifies the tabstops order (it's 1 => 2 => 3... => 0) and groups (multiple tabstops with same index will hare the exact same value)<br>
+                [# index | default #]: default is a fallback string to be used if user skips tabstop <br>
             Note: JavaScript templates ( [% %] ) are evaluated first than tabspace templates ( [# #] ), 
             and it's possible to put JS templates inside tabspace templates
         </p>
