@@ -1,11 +1,33 @@
+# Vscode development files
 .vscode/**
 .vscode-test/**
+
+# Code source
 src/**
+
+# Git and Yarn Package manager configs
 .gitignore
 .yarnrc
+
+# Tutorial for Vscode extensions
 vsc-extension-quickstart.md
+
+# TypeScript configs
 **/tsconfig.json
+tsconfig.json
+
+# Eslint configs
 **/eslint.config.mjs
+eslint.config.mjs
+
+# Map files (human-readable but heavier version of compiled JavaScript)
 **/*.map
+
+# Every uncompiled TypeScript file
 **/*.ts
+
+# Vscode test files to test function outputs (unused in this extension)
 **/.vscode-test.*
+
+# Esbuild script
+build.mjs
