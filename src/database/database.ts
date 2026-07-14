@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import initSqlJs, { Database } from 'sql.js';
+
+// Import the database type from node_modules to shut up tsc as it only matters during compiling
+import type { Database, SqlJsStatic } from 'sql.js';
+
+// Import actual sql.js code locally to avoid node-modules issues when compiling
+const initSqlJs = require('./sql-js/sql-wasm.js') as (config?: any) => Promise<SqlJsStatic>;;
+
 import { state } from '../controlers/stateControler.js';
 
 export class dataBase {
@@ -65,9 +71,9 @@ async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {
     // Prepare SQL instance
     await fs.promises.mkdir(dbFolderPath, { recursive: true });
 
-    const raw = await fs.promises.readFile(path.join(context.extensionPath, 'out', 'database', 'dist', 'sql-wasm.wasm'));
+    const raw = await fs.promises.readFile(path.join(context.extensionPath, 'out', 'database', 'sql-js', 'sql-wasm.wasm'));
 
-    const SQL = await initSqlJs({ wasmBinary: raw.buffer });
+    const SQL = await initSqlJs({ wasmBinary: raw });
 
     // Set up database object
     let db: Database;

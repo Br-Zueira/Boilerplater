@@ -4,7 +4,7 @@ import { state } from '../../controlers/stateControler.js';
 
 // TomSelect Js
 export function getTomSelectLibJs(): string {
-    const tomSelectLibJsPath = path.join(state.context.extensionPath, 'node_modules', 'tom-select', 'dist', 'js', 'tom-select.complete.js');
+    const tomSelectLibJsPath = path.join(state.context.extensionPath, 'out', 'views', 'static', 'tom-select', 'tom-select.complete.js');
     return fs.readFileSync(tomSelectLibJsPath, 'utf8');
 }
 
