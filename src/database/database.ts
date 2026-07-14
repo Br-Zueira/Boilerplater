@@ -71,7 +71,7 @@ async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {
     // Prepare SQL instance
     await fs.promises.mkdir(dbFolderPath, { recursive: true });
 
-    const raw = await fs.promises.readFile(path.join(context.extensionPath, 'out', 'database', 'sql-js', 'sql-wasm.wasm'));
+    const raw = await fs.promises.readFile(path.join(context.extensionPath, 'out', 'sql-js', 'sql-wasm.wasm'));
 
     const SQL = await initSqlJs({ wasmBinary: raw });
 
