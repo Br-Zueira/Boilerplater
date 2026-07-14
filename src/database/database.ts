@@ -6,7 +6,7 @@ import * as path from 'path';
 import type { Database, SqlJsStatic } from 'sql.js';
 
 // Import actual sql.js code locally to avoid node-modules issues when compiling
-const initSqlJs = require('./database/sql-js/sql-wasm.js') as (config?: any) => Promise<SqlJsStatic>;;
+const initSqlJs = require('./sql-js/sql-wasm.js') as (config?: any) => Promise<SqlJsStatic>;;
 
 import { state } from '../controlers/stateControler.js';
 

@@ -36,10 +36,10 @@ try {
     console.log("Esbuild: Copying static files...");
 
     // Sql.js
-    copy(['node_modules/sql.js/dist/sql-wasm.js', 'node_modules/sql.js/dist/sql-wasm.wasm'], 'out/database/sql-js');
+    copy(['node_modules/sql.js/dist/sql-wasm.js', 'node_modules/sql.js/dist/sql-wasm.wasm'], 'out/sql-js');
     
     // Tom-Select
-    copy(['node_modules/tom-select/dist/js/tom-select.complete.js', 'node_modules/tom-select/dist/css/tom-select.css'], 'out/views/static/tom-select');
+    copy(['node_modules/tom-select/dist/js/tom-select.complete.js', 'node_modules/tom-select/dist/css/tom-select.css'], 'out/tom-select');
     
     const context = await esbuild.context({
         // 1. Define your entry point (usually your main extension file)
@@ -49,7 +49,7 @@ try {
         platform: 'node',     // Target Node.js (for VS Code extensions)
         target: 'node16',     // Or your target Node version
         format: 'cjs',        // CommonJS format
-        external: ['vscode', './database/sql-js/sql-wasm.js'], // Don't bundle the 'vscode' library
+        external: ['vscode', './sql-js/sql-wasm.js'], // Don't bundle the 'vscode' library
         sourcemap: true,      // Keep sourcemaps for easy debugging
     });
 
