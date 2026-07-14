@@ -6,7 +6,17 @@
 		{
 			"type": "npm",
 			"script": "watch",
-			"problemMatcher": "$tsc-watch",
+			"problemMatcher": {
+				"owner": "esbuild",
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^Esbuild: Copying static files\\.\\.\\.$",
+					"endsPattern": "^Esbuild: Watching for changes\\.\\.\\.$"
+				},
+				"pattern": {
+					"regexp": "^$"
+				}
+			},
 			"isBackground": true,
 			"presentation": {
 				"reveal": "never"

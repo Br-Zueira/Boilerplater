@@ -39,10 +39,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "copy-tom": "shx mkdir -p out/views/static/tom-select && shx cp node_modules/tom-select/dist/js/tom-select.complete.js out/views/static/tom-select && shx cp node_modules/tom-select/dist/css/tom-select.css out/views/static/tom-select",
-    "copy-sql": "shx mkdir -p out/database/sql-js && shx cp node_modules/sql.js/dist/sql-wasm.js out/database/sql-js && shx cp node_modules/sql.js/dist/sql-wasm.wasm out/database/sql-js",
-    "compile": "tsc -p ./ && npm run copy-sql && npm run copy-tom",
-    "watch": "tsc -watch -p ./",
+    "compile": "node build.mjs",
+    "watch": "node build.mjs --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"
@@ -54,11 +52,13 @@
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.28.1",
+    "esbuild-plugin-copy": "^2.1.1",
     "eslint": "^9.39.3",
     "shx": "^0.4.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1",
     "sql.js": "^1.14.1",
-    "tom-select": "^2.6.1"
+    "tom-select": "^2.6.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
   }
 }
