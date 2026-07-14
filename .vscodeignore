@@ -31,3 +31,6 @@ eslint.config.mjs
 
 # Esbuild script
 build.mjs
+
+# Already bundled version of extension
+*.vsix
