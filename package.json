@@ -39,7 +39,41 @@
         "key": "ctrl+alt+u",
         "mac": "cmd+alt+u"
       }
-    ]
+    ],
+    "configuration":{
+      "title": "Boilerplater custom template values",
+      "properties": {
+        "boilerplater.customVariables": {
+          "type": "array",
+          "markdownDescription": "Define custom variables. [Edit in settings.json](command:workbench.action.openSettingsJson) to write complex formulas.",
+          "default": [
+            {
+              "name": "MY_VARIABLE",
+              "value": "return 2 + 3;",
+              "description": "This variable adds 2 numbers and returns 5"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "required": ["name", "value"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The variable name that will become accessible inside templating tags (keep it simple to avoid errors!)"
+              },
+              "value": {
+                "type": "string",
+                "description": "The JavaScript code to be evaluated. It must return a string or stringfiable value. It can access a few external dependencies such as vscode."
+              },
+              "description": {
+                "type": "string",
+                "description": "(Optional) Describe what your variable represents and returns."
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

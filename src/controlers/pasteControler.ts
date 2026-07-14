@@ -128,6 +128,13 @@ async function BPTemplater(snippet: string): Promise<string> {
     return tabStopped;
 }
 
+// Define an interface matching your package.json structure for type safety
+interface CustomVariable {
+    name: string;
+    value: string;
+    description?: string;
+}
+
 class templaterVariables {
     private vars: Record<string, string> = {
         BP_FILENAME: '',
@@ -193,6 +200,14 @@ class templaterVariables {
         this.vars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
         
         // Clipboard var
-        this.vars.BP_CLIPBOARD = clipboard 
+        this.vars.BP_CLIPBOARD = clipboard;
+
+        // Deals with custom variables, defined in settings
+        const config = vscode.workspace.getConfiguration('boilerplater');
+        const variables = config.get<CustomVariable[]>('customVariables', []);
+
+        variables.forEach((vari: CustomVariable) => {
+            const result = new Function(vari.value);
+        });
     }
 }
