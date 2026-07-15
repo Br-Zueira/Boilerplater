@@ -154,7 +154,7 @@ class templaterVariables {
         const variables = config.get<CustomVariable[]>('customVariables', []);
 
         // Process the value of each writte variable
-        variables.forEach(async (vari: CustomVariable) => {
+        for (const vari of variables) {
             // Avoid errors
             if (!vari || !vari.name || !vari.value) return;
 
@@ -180,6 +180,6 @@ class templaterVariables {
                 console.warn(errorMessage);
                 vscode.window.showWarningMessage(errorMessage);
             }
-        });
+        };
     }
 }
