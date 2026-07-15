@@ -52,12 +52,9 @@ export async function submitDelete(id: number, model: string, panel: any) {
         if (mappedMacro) {
             state.db.alter(/*SQL*/`
                 UPDATE macros
-                SET eval_order = CASE
-                    WHEN eval_order > ? THEN eval_order - 1
-                    ELSE eval_order
-                END
+                SET eval_order = eval_order - 1
                 WHERE eval_order > ?  
-            `, [mappedMacro.eval_order, mappedMacro.eval_order]);
+            `, [mappedMacro.eval_order]);
         }
     }
 
