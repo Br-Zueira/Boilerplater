@@ -131,12 +131,12 @@ async function BPTemplater(snippet: string): Promise<string> {
 // Define an interface matching your package.json structure for type safety
 interface CustomVariable {
     name: string;
-    value: string;
+    value: string | Array<string>;
     description?: string;
 }
 
 class templaterVariables {
-    private vars: Record<string, string> = {
+    private defaultVars: Record<string, string> = {
         BP_FILENAME: '',
         BP_FILENAME_EXT: '',
         BP_EXT: '',
@@ -151,7 +151,11 @@ class templaterVariables {
         BP_CLIPBOARD: ''
     }
 
-    // Explicitly override global access points to prevent malicious scripts
+    private customVars: Record<string, string | Function> = {};
+
+    private vars: Record<string, string | Function> = {};
+
+    // Explicitly override global access points to prevent malicious scripts or errors
     private forbiddenKeys = ['global', 'globalThis', 'process', 'require'];
     private forbiddenValues = this.forbiddenKeys.map(() => undefined);
 
@@ -161,7 +165,7 @@ class templaterVariables {
     }
 
     // Get the variable values
-    public getValues(): (string | undefined)[] {
+    public getValues(): (string | Function | undefined)[] {
         return [...Object.values(this.vars), ...this.forbiddenValues];
     }
 
@@ -176,38 +180,68 @@ class templaterVariables {
 
         // This comments are examples of the output model of each function
         // script
-        this.vars.BP_FILENAME = path.basename(fullPath, ext);
+        this.defaultVars.BP_FILENAME = path.basename(fullPath, ext);
 
         // script.ts
-        this.vars.BP_FILENAME_EXT = path.basename(fullPath);
+        this.defaultVars.BP_FILENAME_EXT = path.basename(fullPath);
 
         // .ts
-        this.vars.BP_EXT = ext;
+        this.defaultVars.BP_EXT = ext;
 
         // /home/user/vscode/my-project
-        this.vars.BP_DIRECTORY_NAME = path.dirname(fullPath);
+        this.defaultVars.BP_DIRECTORY_NAME = path.dirname(fullPath);
 
         // my-project
-        this.vars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : '';
+        this.defaultVars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : '';
 
         // Date and time variables
         const now = new Date();
-        this.vars.BP_YEAR = String(now.getFullYear());
-        this.vars.BP_MONTH = String(now.getMonth() + 1).padStart(2, '0');
-        this.vars.BP_DATE = String(now.getDate()).padStart(2, '0');
+        this.defaultVars.BP_YEAR = String(now.getFullYear());
+        this.defaultVars.BP_MONTH = String(now.getMonth() + 1).padStart(2, '0');
+        this.defaultVars.BP_DATE = String(now.getDate()).padStart(2, '0');
 
         // Selected variable
-        this.vars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
+        this.defaultVars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
         
         // Clipboard var
-        this.vars.BP_CLIPBOARD = clipboard;
+        this.defaultVars.BP_CLIPBOARD = clipboard;
 
         // Deals with custom variables, defined in settings
         const config = vscode.workspace.getConfiguration('boilerplater');
+
+        // Gets the variables at configs using the default layout
         const variables = config.get<CustomVariable[]>('customVariables', []);
 
+        // Process the value of each writte variable
         variables.forEach((vari: CustomVariable) => {
-            const result = new Function(vari.value);
+            // Avoid errors
+            if (!vari || !vari.name || !vari.value) return;
+
+            // Joins every string into a single string
+            const code = Array.isArray(vari.value) ? vari.value.join("\n") : vari.value;
+
+            // Passes as arguments some of the possibly wanted dependencies and variables
+            const varFunc = new Function(...Object.keys(this.defaultVars), 'vscode', 'path', 'context', code);
+            try {
+                // Uses the function defined before to get the variable value
+                const result = varFunc(...Object.values(this.defaultVars), vscode, path, state.context);
+                
+                // Add the variables to the record for later use
+                this.customVars[vari.name] = result;
+            } catch (err) {
+                // Throws an error if variable can't be processed
+                let errorMessage = `Error while processing ${vari.name}: `;
+                if (err instanceof Error) {
+                    errorMessage += err.message;
+                } else {
+                    errorMessage += "Unknown error"
+                }
+                console.warn(errorMessage);
+                vscode.window.showWarningMessage(errorMessage);
+            }
         });
+
+        // Merges both the default and custom variables to be passed to the template evaluator
+        this.vars = {...this.defaultVars, ...this.customVars};
     }
 }

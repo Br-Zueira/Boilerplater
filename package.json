@@ -45,7 +45,7 @@
       "properties": {
         "boilerplater.customVariables": {
           "type": "array",
-          "markdownDescription": "Define custom variables. [Edit in settings.json](command:workbench.action.openSettingsJson) to write complex formulas.",
+          "markdownDescription": "Define custom variables. [Open Json](command:workbench.action.openSettingsJson) to define them.",
           "default": [
             {
               "name": "MY_VARIABLE",
@@ -62,8 +62,11 @@
                 "description": "The variable name that will become accessible inside templating tags (keep it simple to avoid errors!)"
               },
               "value": {
-                "type": "string",
-                "description": "The JavaScript code to be evaluated. It must return a string or stringfiable value. It can access a few external dependencies such as vscode."
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The JavaScript code to be evaluated. It must return a string, undefined or a function that returns one of both. It can access a few external dependencies such as vscode."
               },
               "description": {
                 "type": "string",
