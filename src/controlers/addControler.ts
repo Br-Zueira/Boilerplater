@@ -167,9 +167,9 @@ export function submitAdd(model: string, formData: any, panel: any) {
 
             // Avoids either empty evalOrder, values bigger than needed and negative values
             const beo = state.db.query(/*SQL*/`SELECT COALESCE(MAX(eval_order), 0) AS beo FROM macros;`)[0];
-            const mB = databaseHelpers.formatRows(beo.columns, beo.values)[0];
-            if (!evalOrder || evalOrder > mB.beo || evalOrder < 1) {
-                evalOrder = mB.beo;
+            const mB = databaseHelpers.formatRows(beo.columns, beo.values)[0]?.beo || 0;
+            if (evalOrder > mB + 1 || evalOrder < 1) {
+                evalOrder = mB + 1;
             }
 
             // Ensuring that all required fields are present
@@ -192,12 +192,9 @@ export function submitAdd(model: string, formData: any, panel: any) {
                 // Update all macros with equal or bigger evaluation order
                 state.db.alter(/*SQL*/`
                     UPDATE macros
-                    SET eval_order = CASE
-                        WHEN eval_order > ? then eval_order + 1
-                        ELSE eval_order
-                    END
+                    SET eval_order = eval_order + 1
                     WHERE eval_order > ?;
-                `, [evalOrder - 1, evalOrder - 1]);
+                `, [evalOrder-1]);
 
                 // Insert the actual macro
                 state.db.alter(/*SQL*/`
@@ -210,7 +207,7 @@ export function submitAdd(model: string, formData: any, panel: any) {
                 ]);
             } catch (error) {
                 if (error instanceof Error) {
-                    if (error.message.includes("UNIQUE constraint")) {
+                    if (error.message.includes("UNIQUE constraint failed")) {
                         helpers.sendError(`Failed to create macro: Another macro already is at this evaluation order`, panel)
                     }
                     helpers.sendError(`Failed to create macro: ${error.message}`, panel);

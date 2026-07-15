@@ -82,6 +82,7 @@ export function getInstanceContent(model: string, instance: any, isSearch: boole
                 <p><strong>Description:</strong> ${limitCharSize(instance.description, limitBig)}</p>
                 <p><strong>Macro:</strong> ${limitCharSize(instance.macro, limitBig)}</p>
                 <p><strong>Tags:</strong> ${tags}</p>
+                <p><strong>Evaluation order:</strong> ${instance.eval_order}</p>
             `;
         }
         case ("tags"): {
@@ -181,7 +182,7 @@ export function getEditableFields(model: string, object: any, language: any = un
             return /*HTML*/`
                 <label>
                     <h2>Title:</h2>
-                    <input type="text" name="title" value="${object.title || ''}" placeholder="My amazing snippet" required>
+                    <input type="text" name="title" value="${object.title || ''}" placeholder="My amazing macro" required>
                 </label>
                 <label>
                     <h2>Description:</h2>

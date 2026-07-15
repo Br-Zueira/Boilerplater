@@ -41,7 +41,7 @@ export class dataBase {
 export interface snippets {
     id: number;
     title: string;
-    description: string;
+    description: string | null;
     snippet: string;
     language_id: number;
 }
@@ -61,6 +61,20 @@ export interface snippet_tags {
     id: number;
     tag_id: number;
     snippet_id: number;
+}
+
+export interface macros {
+    id: number,
+    title: string,
+    description: string | null,
+    macro: string,
+    eval_order: number
+}
+
+export interface macros_tags {
+    id: number,
+    tag_id: number,
+    macro_id: number
 }
 
 async function sqlInit(context: vscode.ExtensionContext): Promise<Database> {
