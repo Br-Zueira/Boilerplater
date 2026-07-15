@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { state } from '../controlers/stateControler';
+import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import { state } from '../controlers/stateControler.js';
 
 export async function BPTemplater(snippet: string): Promise<string> {
     const vars = new templaterVariables();
@@ -87,13 +88,6 @@ export async function BPTemplater(snippet: string): Promise<string> {
     return tabStopped;
 }
 
-// Define an interface matching package.json structure for type safety
-interface CustomVariable {
-    name: string;
-    value: string | Array<string>;
-    description?: string;
-}
-
 class templaterVariables {
     private vars: Record<string, any> = {};
 
@@ -147,32 +141,32 @@ class templaterVariables {
         // Clipboard var
         this.vars.BP_CLIPBOARD = await vscode.env.clipboard.readText() || '';
 
-        // Deals with custom variables, defined in settings
-        const config = vscode.workspace.getConfiguration('boilerplater');
+        // Deals with custom macros
+        const results = state.db.query(/*SQL*/`
+            SELECT * FROM macros    
+            ORDER BY eval_order;
+        `)?.[0] || 0;
 
         // Gets the variables at configs using the default layout
-        const variables = config.get<CustomVariable[]>('customVariables', []);
+        const variables = databaseHelpers.formatRows(results.columns, results.values);
 
-        // Process the value of each writte variable
+        // Process the value of each writen macro
         for (const vari of variables) {
             // Avoid errors
-            if (!vari || !vari.name || !vari.value) return;
-
-            // Joins every string into a single string
-            const code = Array.isArray(vari.value) ? vari.value.join("\n") : vari.value;
+            if (!vari || !vari.title || !vari.macro) return;
 
             try {
                 // Passes as arguments some of the possibly wanted dependencies and variables
-                const varFunc = new Function(...this.getVars(), 'vscode', 'path', 'context', code);
+                const varFunc = new Function(...this.getVars(), 'vscode', 'path', 'context', vari.macro);
                 
                 // Uses the function defined before to get the variable value
                 const result = await varFunc(...this.getValues(), vscode, path, state.context);
                 
                 // Add the variables to the record for later use
-                this.vars[vari.name] = result;
+                this.vars[vari.title] = result;
             } catch (err) {
                 // Throws an error if variable can't be processed
-                let errorMessage = `Error while processing ${vari.name}: `;
+                let errorMessage = `Error while processing ${vari.title}: `;
                 if (err instanceof Error) {
                     errorMessage += err.message;
                 } else {

@@ -4,16 +4,16 @@ An extension that allows saving code snippets for later use in a simple and intu
 
 ## Features
 
-* **Saving snippets** by highlighting them and pressing ctrl+u (mac: cmd+u)
-* **Snippet organizing** by language, tags, title and description
+* **Saving snippets** by highlighting them and pressing ctrl+u (mac: cmd+u).
+* **Snippet organizing** by language, tags, title and description.
 * **Webview** to add, read, create or remove snippets, languages or tags.
-* **Easy use of the snippets:** Going to the webview, searching a snippet and pressing "paste snippet" pastes it directly into your cursor position. No more jumping through old projects or searching into internet to copy boilerplate
-* **Template language** for snippets: [% %] for macros and [# #] for tabstops (more info at extensions settings)
-* **100% local and self contained,** so no external dependencies or connections needed
+* **Easy use of the snippets:** Going to the webview, searching a snippet and pressing "paste snippet" pastes it directly into your cursor position. No more jumping through old projects or searching into internet to copy boilerplate.
+* **Template language** for snippets: [% %] for macros and [# #] for tabstops (more info at extensions settings).
+* **100% local and self contained,** so no external dependencies or connections needed.
 
 ## How it Works (Under the Hood)
 
-Boilerplater uses an isolated virtual database instance that commits directly to a local `boilerplater.db` sqlite file in your extension context to keep things simple, local and lightweight. For macros and tabstops, it uses a custom templater function which searches for templates with regex, evaluates macros as JavaScript to take full proveit of JS potential and converts tabstops into standard Vscode tabstop syntax, escaping dolar signs ($) in the process, which avoids Vscode engine of evaluating syntax such as JavaScript's ${value} or PHP's $value as tabstops.
+Boilerplater uses an isolated virtual database instance that commits directly to a local `boilerplater.db` sqlite file in your extension context to keep things simple, local and lightweight. For macros and tabstops, it uses a custom templater function which searches for templates with regex, evaluates macros as JavaScript to take full proveit of JS potential and converts tabstops into standard Vscode tabstop syntax, escaping '$' dolar signs in the process, which avoids Vscode engine of evaluating syntax such as JavaScript's ${value}, PHP's $value or even plain text monetary values as tabstops.
 
 ## Requirements
 
@@ -32,7 +32,7 @@ Expressions to be evaluated either by other macros or by the [% %] template eval
 
 #### Default
 
-Those are predefined by extension and always return a string.
+Those are predefined by extension and always return a string. Always evaluated first.
 These are the default macros and example values:
 
 * **BP_FILENAME:** 'script'
@@ -50,7 +50,7 @@ These are the default macros and example values:
 
 #### Custom
 
-Defined in the extension configs.json. Can be imported with snippet template syntax [% %] and its value can be accessed by the macros that come after it (the order is the JSON top-to-down order). Its value is defined by a JavaScript expression, can return anything, and must return something. Macros can be asynchronous, expect if you want to execute then inside the [% %] template evaluator, which is totally synchronous. Although it is sandboxed, it can access vscode, path, extension context and other macros.
+Defined in the macros manager. Can be imported with snippet template syntax [% %] and its value can be accessed by the macros that come after it (defined by evaluation order). Its value is defined by a JavaScript expression, can return anything, and must return something. Macros can be asynchronous, expect if you want to execute then inside the [% %] template evaluator, which is totally synchronous. Although it is sandboxed, it can access vscode, path, extension context and other macros. Their titles must be valid variable names.
 
 ## Known Issues
 

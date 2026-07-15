@@ -18,7 +18,7 @@ export function index() {
         Go to a manager to either see, create, edit or delete snippets, tags or languages. In snippets, you can paste them directly into the document cursor.</p>
 
         <p>To make it more powerful and automatic, it contains a template syntax, which is:<br>
-            [% ... %] => Can execute JavaScript code, specially for string manipulation, and access the following variables:<br>
+            [% ... %] => Can execute sandboxed JavaScript code, specially for string manipulation, and access the following macros:<br>
                 <strong>BP_FILENAME:</strong> file name without extension ("file" format)<br>
                 <strong>BP_FILENAME_EXT:</strong> file name with extension ("file.ext" format)<br>
                 <strong>BP_EXT:</strong> file extension (".ext" format)<br>
@@ -32,6 +32,7 @@ export function index() {
             [# ... #] => Syntax for Vscode tabstop, can be either:<br>
                 [# index #]: index is a number that identifies the tabstops order (it's 1 => 2 => 3... => 0) and groups (multiple tabstops with same index will hare the exact same value)<br>
                 [# index | default #]: default is a fallback string to be used if user skips tabstop <br>
+            It's possible to define your own custom macros, and use macros inside other macros!
             Note: JavaScript templates ( [% %] ) are evaluated first than tabspace templates ( [# #] ), 
             and it's possible to put JS templates inside tabspace templates
         </p>
