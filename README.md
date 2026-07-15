@@ -10,6 +10,7 @@ An extension that allows saving boilerplate code snippets for later use in a sim
 * **Webview** displayed with ctrl+alt+u (mac: cmd+alt+u)
 * **Easy use of the snippets:** Going to the webview, searchinhg a snippet and pressing "paste snippet" pastes it directly into your cursor position. No more jumping through old projects or searching into internet to copy boilerplate
 * **Template variables** for snippet: [% %] for variables such as filename (compatible with simple JavaScript code inside, meant for string manipulation) and [# #] for tabstops (more info at extensions settings)
+* **Custom macros for template variables** (Defined in the configs.json of the extension, uses sandboxed JavaScript)
 * **100% local and self contained,** so no external dependencies or connections needed
 * **Plug-and-play:** Zero login, zero configuration, zero headaches. Just download and enjoy!
 
@@ -42,6 +43,10 @@ The extension was made to be 100% self contained, so no external requirements.
 
 * BP_SELECTED_TEXT: 'print("I'm selected inside document!")'
 * BP_CLIPBOARD: 'print("I'm at clipboard!")'
+
+### Macros
+
+Defined in the extension configs.json. Can be imported with snippet template syntax [% %] and its value can be accessed by the macros that come after it (the order is the JSON top-to-down order). It can return anything.
 
 ## Known Issues
 
