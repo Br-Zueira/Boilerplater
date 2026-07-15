@@ -161,9 +161,10 @@ class templaterVariables {
             // Joins every string into a single string
             const code = Array.isArray(vari.value) ? vari.value.join("\n") : vari.value;
 
-            // Passes as arguments some of the possibly wanted dependencies and variables
-            const varFunc = new Function(...this.getVars(), 'vscode', 'path', 'context', code);
             try {
+                // Passes as arguments some of the possibly wanted dependencies and variables
+                const varFunc = new Function(...this.getVars(), 'vscode', 'path', 'context', code);
+                
                 // Uses the function defined before to get the variable value
                 const result = await varFunc(...this.getValues(), vscode, path, state.context);
                 
@@ -180,6 +181,6 @@ class templaterVariables {
                 console.warn(errorMessage);
                 vscode.window.showWarningMessage(errorMessage);
             }
-        };
+        }
     }
 }

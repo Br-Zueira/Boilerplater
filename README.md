@@ -61,4 +61,5 @@ Defined in the extension configs.json. Can be imported with snippet template syn
 
 * **SQL.js:** Made the local database completely lightweight and self contained
 * **Tom-Select:** Made the snippet manager dropdowns possible
+* **Esbuild:** Made compiled extension way more lightweight
 * **StarDance:** The inspiration for this project and the only reason it exists
