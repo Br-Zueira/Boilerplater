@@ -3,14 +3,14 @@ import * as path from 'path';
 import { state } from '../controlers/stateControler';
 
 export async function BPTemplater(snippet: string): Promise<string> {
-    const clipboard = await vscode.env.clipboard.readText() || '';
+    const vars = new templaterVariables();
+    await vars.setValues();
 
     // Match anything inside [% ... %]
     const placeholderRegex = /\[%(.*?)%\]/g;
     const evaluated = snippet.replace(placeholderRegex, (match, jsExpression) => {
         try {
             // Evaluates the JavaScript expressions
-            const vars = new templaterVariables(clipboard);
             const expression = new Function(...vars.getVars(), `return ${jsExpression};`);
             return String(expression(...vars.getValues()));
         } catch (err) {
@@ -95,20 +95,7 @@ interface CustomVariable {
 }
 
 class templaterVariables {
-    private defaultVars: Record<string, string> = {
-        BP_FILENAME: '',
-        BP_FILENAME_EXT: '',
-        BP_EXT: '',
-        BP_DIRECTORY_NAME: '',
-        BP_WORKSPACE_NAME: '',
-
-        BP_YEAR: '',
-        BP_MONTH: '',
-        BP_DAY: '',
-
-        BP_SELECTED_TEXT: '',
-        BP_CLIPBOARD: ''
-    }
+    private defaultVars: Record<string, string> = {}
 
     private customVars: Record<string, any> = {};
 
@@ -128,8 +115,7 @@ class templaterVariables {
         return [...Object.values(this.vars), ...this.forbiddenValues];
     }
 
-    // Only gets the clipboard text from outside because vscode.env.clipboard.readText() is an async function
-    constructor(clipboard: string = '') {
+    public async setValues() {
         // Standard variables
         const editor = vscode.window.activeTextEditor;
         const document = editor?.document;
@@ -163,7 +149,7 @@ class templaterVariables {
         this.defaultVars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
         
         // Clipboard var
-        this.defaultVars.BP_CLIPBOARD = clipboard;
+        this.defaultVars.BP_CLIPBOARD = await vscode.env.clipboard.readText() || '';
 
         // Deals with custom variables, defined in settings
         const config = vscode.workspace.getConfiguration('boilerplater');
@@ -172,7 +158,7 @@ class templaterVariables {
         const variables = config.get<CustomVariable[]>('customVariables', []);
 
         // Process the value of each writte variable
-        variables.forEach((vari: CustomVariable) => {
+        variables.forEach(async (vari: CustomVariable) => {
             // Avoid errors
             if (!vari || !vari.name || !vari.value) return;
 
@@ -183,7 +169,7 @@ class templaterVariables {
             const varFunc = new Function(...Object.keys(this.defaultVars), ...this.forbiddenKeys, 'vscode', 'path', 'context', code);
             try {
                 // Uses the function defined before to get the variable value
-                const result = varFunc(...Object.values(this.defaultVars), ...this.forbiddenValues, vscode, path, state.context);
+                const result = await varFunc(...Object.values(this.defaultVars), ...this.forbiddenValues, vscode, path, state.context);
                 
                 // Add the variables to the record for later use
                 this.customVars[vari.name] = result;
