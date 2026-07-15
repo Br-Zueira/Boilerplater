@@ -87,7 +87,7 @@ export async function BPTemplater(snippet: string): Promise<string> {
     return tabStopped;
 }
 
-// Define an interface matching your package.json structure for type safety
+// Define an interface matching package.json structure for type safety
 interface CustomVariable {
     name: string;
     value: string | Array<string>;
@@ -95,10 +95,6 @@ interface CustomVariable {
 }
 
 class templaterVariables {
-    private defaultVars: Record<string, string> = {}
-
-    private customVars: Record<string, any> = {};
-
     private vars: Record<string, any> = {};
 
     // Explicitly override global access points to prevent malicious scripts or accidental errors
@@ -125,31 +121,31 @@ class templaterVariables {
 
         // This comments are examples of the output model of each function
         // script
-        this.defaultVars.BP_FILENAME = path.basename(fullPath, ext);
+        this.vars.BP_FILENAME = path.basename(fullPath, ext);
 
         // script.ts
-        this.defaultVars.BP_FILENAME_EXT = path.basename(fullPath);
+        this.vars.BP_FILENAME_EXT = path.basename(fullPath);
 
         // .ts
-        this.defaultVars.BP_EXT = ext;
+        this.vars.BP_EXT = ext;
 
         // /home/user/vscode/my-project
-        this.defaultVars.BP_DIRECTORY_NAME = path.dirname(fullPath);
+        this.vars.BP_DIRECTORY_NAME = path.dirname(fullPath);
 
         // my-project
-        this.defaultVars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : '';
+        this.vars.BP_WORKSPACE_NAME = workspaceFolder ? workspaceFolder.name : '';
 
         // Date and time variables
         const now = new Date();
-        this.defaultVars.BP_YEAR = String(now.getFullYear());
-        this.defaultVars.BP_MONTH = String(now.getMonth() + 1).padStart(2, '0');
-        this.defaultVars.BP_DATE = String(now.getDate()).padStart(2, '0');
+        this.vars.BP_YEAR = String(now.getFullYear());
+        this.vars.BP_MONTH = String(now.getMonth() + 1).padStart(2, '0');
+        this.vars.BP_DATE = String(now.getDate()).padStart(2, '0');
 
         // Selected variable
-        this.defaultVars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
+        this.vars.BP_SELECTED_TEXT = editor ? editor.document.getText(editor.selection) : '';
         
         // Clipboard var
-        this.defaultVars.BP_CLIPBOARD = await vscode.env.clipboard.readText() || '';
+        this.vars.BP_CLIPBOARD = await vscode.env.clipboard.readText() || '';
 
         // Deals with custom variables, defined in settings
         const config = vscode.workspace.getConfiguration('boilerplater');
@@ -166,13 +162,13 @@ class templaterVariables {
             const code = Array.isArray(vari.value) ? vari.value.join("\n") : vari.value;
 
             // Passes as arguments some of the possibly wanted dependencies and variables
-            const varFunc = new Function(...Object.keys(this.defaultVars), ...this.forbiddenKeys, 'vscode', 'path', 'context', code);
+            const varFunc = new Function(...this.getVars(), 'vscode', 'path', 'context', code);
             try {
                 // Uses the function defined before to get the variable value
-                const result = await varFunc(...Object.values(this.defaultVars), ...this.forbiddenValues, vscode, path, state.context);
+                const result = await varFunc(...this.getValues(), vscode, path, state.context);
                 
                 // Add the variables to the record for later use
-                this.customVars[vari.name] = result;
+                this.vars[vari.name] = result;
             } catch (err) {
                 // Throws an error if variable can't be processed
                 let errorMessage = `Error while processing ${vari.name}: `;
@@ -185,8 +181,5 @@ class templaterVariables {
                 vscode.window.showWarningMessage(errorMessage);
             }
         });
-
-        // Merges both the default and custom variables to be passed to the template evaluator
-        this.vars = {...this.defaultVars, ...this.customVars};
     }
 }
