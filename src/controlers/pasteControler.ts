@@ -151,12 +151,12 @@ class templaterVariables {
         BP_CLIPBOARD: ''
     }
 
-    private customVars: Record<string, string | Function> = {};
+    private customVars: Record<string, any> = {};
 
-    private vars: Record<string, string | Function> = {};
+    private vars: Record<string, any> = {};
 
-    // Explicitly override global access points to prevent malicious scripts or errors
-    private forbiddenKeys = ['global', 'globalThis', 'process', 'require'];
+    // Explicitly override global access points to prevent malicious scripts or accidental errors
+    private forbiddenKeys = ['global', 'globalThis', 'process', 'require', 'eval', 'module', 'Function'];
     private forbiddenValues = this.forbiddenKeys.map(() => undefined);
 
     // Get the variable names
@@ -221,10 +221,10 @@ class templaterVariables {
             const code = Array.isArray(vari.value) ? vari.value.join("\n") : vari.value;
 
             // Passes as arguments some of the possibly wanted dependencies and variables
-            const varFunc = new Function(...Object.keys(this.defaultVars), 'vscode', 'path', 'context', code);
+            const varFunc = new Function(...Object.keys(this.defaultVars), ...this.forbiddenKeys, 'vscode', 'path', 'context', code);
             try {
                 // Uses the function defined before to get the variable value
-                const result = varFunc(...Object.values(this.defaultVars), vscode, path, state.context);
+                const result = varFunc(...Object.values(this.defaultVars), ...this.forbiddenValues, vscode, path, state.context);
                 
                 // Add the variables to the record for later use
                 this.customVars[vari.name] = result;

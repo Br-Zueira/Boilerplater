@@ -71,7 +71,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "The JavaScript code to be evaluated. It must return a string, undefined or a function that returns one of both. It can access a few external dependencies such as vscode."
+                "description": "The JavaScript code to be evaluated. It should return either a string or something that returns a string. It can access a few external dependencies such as vscode."
               },
               "description": {
                 "type": "string",
