@@ -51,6 +51,11 @@
               "name": "MY_VARIABLE",
               "value": "return 2 + 3;",
               "description": "This variable adds 2 numbers and returns 5"
+            },
+            {
+            "name": "MY_FUNC_VAR",
+            "value": "return (first, second) => first + second;",
+            "description": "This variable adds 2 custom numbers"
             }
           ],
           "items": {
