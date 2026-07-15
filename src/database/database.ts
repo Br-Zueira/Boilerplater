@@ -156,6 +156,20 @@ function createFreshDB(SQL: any, context: vscode.ExtensionContext) {
         "FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE, " +
         "FOREIGN KEY(snippet_id) REFERENCES snippets(id) ON DELETE CASCADE);");
 
+    db.run("CREATE TABLE IF NOT EXISTS macros " +
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "title TEXT NOT NULL, " +
+        "description TEXT, " +
+        "macro TEXT NOT NULL, " +
+        "eval_order INTEGER UNIQUE NOT NULL;");
+
+    db.run("CREATE TABLE IF NOT EXISTS macros_tags " +
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "tag_id INTEGER NOT NULL, " +
+        "macro_id INTEGER NOT NULL, " +
+        "FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE, " +
+        "FOREIGN KEY(macro_id) REFERENCES macros(id) ON DELETE CASCADE);");
+
     saveDB(db, context);
     return db;
 }

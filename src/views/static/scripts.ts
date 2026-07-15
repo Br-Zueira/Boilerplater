@@ -8,6 +8,16 @@ export function getTomSelectLibJs(): string {
     return fs.readFileSync(tomSelectLibJsPath, 'utf8');
 }
 
+export function page404() {
+    return /*JavaScript*/`
+        function goToIndex() { 
+            vscode.postMessage({
+                "command": "goToIndex", 
+                "payload": {"dummy": "foo"}
+            }) 
+        }
+    `;
+}
 export function index() {
     return /*JavaScript*/`
         // Function to abstract the page swapping message call
@@ -142,46 +152,46 @@ function editAndAdd(model: string) {
 
         function loadTomSelect() {
             const tagSelector = document.getElementById("tagSelector");
-            const languageSelector = document.getElementById("languageSelector");
-            if (!tagSelector || !languageSelector) {
-                return;
+            if (tagSelector) {
+                const tagTom = new TomSelect(tagSelector, {
+                    valueField: 'id',
+                    labelField: 'label',
+                    searchField: 'label',
+                    plugins: {
+                        'remove_button': {
+                            title: 'Remove this tag'
+                        }, 
+                        'no_backspace_delete': {}, 
+                        'checkbox_options': {}
+                    },
+                    load: function(query, callback) {
+                        activeCallbacks.tags = callback;
+                        vscode.postMessage({
+                            command: 'searchTags',
+                            payload: { searchQuery: query }
+                        });
+                    }
+                });
             }
 
-            const tagTom = new TomSelect(tagSelector, {
-                valueField: 'id',
-                labelField: 'label',
-                searchField: 'label',
-                plugins: {
-                    'remove_button': {
-                        title: 'Remove this tag'
-                    }, 
-                    'no_backspace_delete': {}, 
-                    'checkbox_options': {}
-                },
-                load: function(query, callback) {
-                    activeCallbacks.tags = callback;
-                    vscode.postMessage({
-                        command: 'searchTags',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
-
-            const languageTom = new TomSelect(languageSelector, {
-                valueField: 'id',
-                labelField: 'displayName',
-                searchField: 'displayName',
-                plugins: {
-                    'no_backspace_delete': {}, 
-                },
-                load: function(query, callback) {
-                    activeCallbacks.languages = callback;
-                    vscode.postMessage({
-                        command: 'searchLanguages',
-                        payload: { searchQuery: query }
-                    });
-                }
-            });
+            const languageSelector = document.getElementById("languageSelector");
+            if (languageSelector) {
+                const languageTom = new TomSelect(languageSelector, {
+                    valueField: 'id',
+                    labelField: 'displayName',
+                    searchField: 'displayName',
+                    plugins: {
+                        'no_backspace_delete': {}, 
+                    },
+                    load: function(query, callback) {
+                        activeCallbacks.languages = callback;
+                        vscode.postMessage({
+                            command: 'searchLanguages',
+                            payload: { searchQuery: query }
+                        });
+                    }
+                });
+            }
         }
 
         // Bridge between the webview and the extension

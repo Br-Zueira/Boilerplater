@@ -1,4 +1,5 @@
 import * as css from '../views/static/css.js';
+import * as scripts from '../views/static/scripts.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import { state } from '../controlers/stateControler.js';
 
@@ -6,7 +7,8 @@ export function page404(message: string) {
     return boiler(/*HTML*/`
         <h1>Error 404:</h1>
         <p>${message}</p>
-    `);
+        <button onclick="goToIndex()">Go back to index</button>
+    `, scripts.page404());
 }
 
 // HTML boilerplate
@@ -53,13 +55,32 @@ export function getInstanceContent(model: string, instance: any, isSearch: boole
                 }
             } else {
                 lang = state.db.getLanguage(instance);
-                tags = getTags(instance, limitTag);
+                tags = getTags(instance, limitTag, 'snippets');
             }
             return /*HTML*/`
                 <p><strong>Title:</strong> ${limitCharSize(instance.title, limitSmall)}</p>
                 <p><strong>Description:</strong> ${limitCharSize(instance.description, limitBig)}</p>
                 <p><strong>Snippet:</strong> ${limitCharSize(instance.snippet, limitBig)}</p>
                 <p><strong>Language:</strong> ${lang}</p>
+                <p><strong>Tags:</strong> ${tags}</p>
+            `;
+        }
+        case ("macros"): {
+            let tags: string = ""; 
+            if (isSearch) {
+                const tagsArray = JSON.parse(instance.tagLabels);
+                if (tagsArray.length === 0 || tagsArray[0] === null) {
+                    tags = 'None';
+                } else {
+                    tags = tagsArray.flatMap((tag: string) => /*HTML*/`<span class="tag">${limitCharSize(tag, limitTag)}</span>`);
+                }
+            } else {;
+                tags = getTags(instance, limitTag, 'macros');
+            }
+            return /*HTML*/`
+                <p><strong>Title:</strong> ${limitCharSize(instance.title, limitSmall)}</p>
+                <p><strong>Description:</strong> ${limitCharSize(instance.description, limitBig)}</p>
+                <p><strong>Macro:</strong> ${limitCharSize(instance.macro, limitBig)}</p>
                 <p><strong>Tags:</strong> ${tags}</p>
             `;
         }
@@ -149,13 +170,46 @@ export function getEditableFields(model: string, object: any, language: any = un
                 </label>
             `;
         }
+        case ("macros"): {
+            let tagOptions = '';
+            if (tags)  {
+                tags.forEach((element: any) => {
+                    tagOptions += /*HTML*/`<option value="${element.id}" selected>${element.label}</option>\n`;
+                });
+            }
+
+            return /*HTML*/`
+                <label>
+                    <h2>Title:</h2>
+                    <input type="text" name="title" value="${object.title || ''}" placeholder="My amazing snippet" required>
+                </label>
+                <label>
+                    <h2>Description:</h2>
+                    <textarea name="description">${object.description || ''}</textarea>
+                </label>
+                <label>
+                    <h2>Macro:</h2>
+                    <textarea id="snippetField" name="macro" required>${object.macro || ''}</textarea>
+                </label>
+                <div>
+                    <label for="tagSelector">Tags</label>
+                    <select id="tagSelector" name="tags" multiple>
+                        ${tagOptions}
+                    </select>
+                </div>
+                <label>
+                    <h2>Evaluation order:</h2>
+                    <input type="number" name="eval_order" value="${object.eval_order || ''}" placeholder="Let it empty to be the last">
+                </label>
+            `;
+        }
         default: {
             return /*HTML*/`<h1>INVALID MODEL</h1>`;
         }
     }
 }
 
-function getTags(instance: any, maxSize: number): string {
+function getTags(instance: any, maxSize: number, model: string): string {
     // Limit the number of tags displayed to avoid cluttering the UI
     const quantity = 5;
 
@@ -163,9 +217,9 @@ function getTags(instance: any, maxSize: number): string {
     const tags = state.db.query(/*SQL*/`
         SELECT t.*
         FROM tags as t
-        INNER JOIN snippet_tags AS st
-            ON t.id = st.tag_id
-        WHERE st.snippet_id = ?
+        INNER JOIN ${model === 'snippets' ? 'snippet_tags' : 'macros_tags'} AS middleman
+            ON t.id = middleman.tag_id
+        WHERE middleman.${model === 'snippets' ? 'snippet_id' : 'macro_id'} = ?
         ORDER BY t.label ASC
     `, [instance.id])?.[0] || [];
 

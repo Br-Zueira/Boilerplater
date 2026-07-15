@@ -4,7 +4,7 @@ import { state } from './stateControler.js';
 
 export function submitAdd(model: string, formData: any, panel: any) {
     // Validating model
-    const validModels = ['snippets', 'tags', 'languages'];
+    const validModels = ['snippets', 'tags', 'languages', 'macros'];
     if (!validModels.includes(model)) {
         helpers.sendError(`Invalid model: "${model}" doesn't exist`, panel);
         return;
@@ -41,7 +41,7 @@ export function submitAdd(model: string, formData: any, panel: any) {
             // Creating the snippet in the database
             try {
                 state.db.alter(/*SQL*/`
-                    INSERT INTO snippets (description, title, snippet, language_id) VALUES (?, ?, ?, ?)`,
+                    INSERT INTO snippets (title, description, snippet, language_id) VALUES (?, ?, ?, ?)`,
                 [
                     title, 
                     description,
@@ -151,6 +151,94 @@ export function submitAdd(model: string, formData: any, panel: any) {
             // Success message
             state.db.save();
             helpers.sendStringCommand(`success`, `Language successfully created`, panel);
+            break;
+        }
+        case 'macros': {
+            // Validating required fields
+            const { title: rawTitle = "", description: rawDescription = "", macro: rawMacro = "", tags: rawTags = [], eval_order: rawEvalOrder = null } = formData;
+
+            // Sanitizing inputs to prevent SQL injection and other potential issues
+            const title = databaseHelpers.sanitize(rawTitle) || null;
+            const description = databaseHelpers.sanitize(rawDescription) || null; // Optional field, can be null
+            const macro = databaseHelpers.sanitize(rawMacro) || null;
+            
+            // Validating evalOrder to ensure it's a number or null
+            let evalOrder = !rawEvalOrder || Number.isNaN(Number(rawEvalOrder)) ? 0 : Number(rawEvalOrder);
+
+            // Avoids either empty evalOrder, values bigger than needed and negative values
+            const beo = state.db.query(/*SQL*/`SELECT COALESCE(MAX(eval_order), 0) AS beo FROM macros;`)[0];
+            const mB = databaseHelpers.formatRows(beo.columns, beo.values)[0];
+            if (!evalOrder || evalOrder > mB.beo || evalOrder < 1) {
+                evalOrder = mB.beo;
+            }
+
+            // Ensuring that all required fields are present
+            if (!title || !macro) {
+                helpers.sendError(`Macro lacks a required field: Either title or macro`, panel);
+                return;
+            }
+
+            // Validating and sanitizing tags
+            const tags = [];
+            for (const rawTag of rawTags) {
+                const tagId = Number(rawTag);
+                if (rawTag && rawTag.trim() !== '' && !Number.isNaN(tagId) && tagId > 0) {
+                    tags.push(tagId);
+                }
+            }
+
+            // Creating the macro in the database
+            try {
+                // Update all macros with equal or bigger evaluation order
+                state.db.alter(/*SQL*/`
+                    UPDATE macros
+                    SET eval_order = CASE
+                        WHEN eval_order > ? then eval_order + 1
+                        ELSE eval_order
+                    END
+                    WHERE eval_order > ?;
+                `, [evalOrder - 1, evalOrder - 1]);
+
+                // Insert the actual macro
+                state.db.alter(/*SQL*/`
+                    INSERT INTO macros (title, description, macro, eval_order) VALUES (?, ?, ?, ?)`,
+                [
+                    title, 
+                    description,
+                    macro,
+                    evalOrder
+                ]);
+            } catch (error) {
+                if (error instanceof Error) {
+                    if (error.message.includes("UNIQUE constraint")) {
+                        helpers.sendError(`Failed to create macro: Another macro already is at this evaluation order`, panel)
+                    }
+                    helpers.sendError(`Failed to create macro: ${error.message}`, panel);
+                } else {
+                    helpers.sendError(`Failed to create macro: An unknown error occurred`, panel);
+                }
+                return;
+            }
+
+            // Add new tags that are now associated with the macro
+            if (tags.length > 0) {
+                const id = state.db.query(/*SQL*/`SELECT last_insert_rowid()`)?.[0]?.values?.[0]?.[0] as number | undefined; // Get the ID of the newly created macro
+                if (id) {
+                    const addPlaceholders = tags.map(() => '(?, ?)').join(',');
+                    const addParams = tags.flatMap(tagId => [id, tagId]);
+                    state.db.alter(/*SQL*/`
+                        INSERT INTO macros_tags (macro_id, tag_id)
+                        VALUES ${addPlaceholders}`,
+                    addParams);
+                } else {
+                    helpers.sendError("One or more tags couldn't be assigned to macro", panel);
+                    return;
+                }
+            }
+
+            // Success message
+            state.db.save();
+            helpers.sendStringCommand(`success`, `Macro successfully created`, panel);
             break;
         }
         default: {
