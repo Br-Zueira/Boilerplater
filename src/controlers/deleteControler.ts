@@ -40,7 +40,8 @@ export async function submitDelete(id: number, model: string, panel: any) {
     // Querying macro before instance deletion for obvious reasons
     let rawMacro: any;
     if (model === "macros") {
-        rawMacro = state.db.query(/*SQL*/`SELECT * FROM macros WHERE id = ?`, [id])?.[0] || [];
+        const result = state.db.query(/*SQL*/`SELECT * FROM macros WHERE id = ?`, [id])
+        rawMacro = result?.[0] || [];
     }
 
     // Deleting the instance
@@ -48,7 +49,7 @@ export async function submitDelete(id: number, model: string, panel: any) {
 
     // If model is macro, then update all bigger eval_orders to go down
     if (model === "macros") {   
-        const mappedMacro = databaseHelpers.formatRows(rawMacro.columns, rawMacro.values)?.[0] || [];
+        const mappedMacro = databaseHelpers.formatRows(rawMacro.columns, rawMacro.values)?.[0] || null;
         if (mappedMacro) {
             state.db.alter(/*SQL*/`
                 UPDATE macros

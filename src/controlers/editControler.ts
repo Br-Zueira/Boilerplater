@@ -4,7 +4,7 @@ import { state } from './stateControler.js';
 
 export function submitEdit(model: string, id: number, formData: any, panel: any) {
     // Validating model
-    const validModels = ['snippets', 'tags', 'languages'];
+    const validModels = ['snippets', 'tags', 'languages', 'macros'];
     if (!validModels.includes(model)) {
         helpers.sendError(`Invalid model: "${model}" doesn't exist`, panel);
         return;
