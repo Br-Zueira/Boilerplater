@@ -253,8 +253,19 @@ function editAndAdd(model: string) {
                     // Avoids tab from jumping to HTML elements
                     e.preventDefault();
 
+                    // Catches cursor pos
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+
+                    // Gets highlighted text, empty string if no selected text
+                    const highlighted = textarea.value.substring(start, end);
+
                     // Inserts 4 blank spaces at cursor position
-                    document.execCommand('insertText', false, '    ');
+                    document.execCommand('insertText', false, '    ' + highlighted);
+
+                    // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
+                    textarea.selectionStart = start + 4;
+                    textarea.selectionEnd = end + 4;
                 }
 
                 // List of pairs to be auto closed
