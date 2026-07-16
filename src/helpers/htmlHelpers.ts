@@ -182,7 +182,7 @@ export function getEditableFields(model: string, object: any, language: any = un
             return /*HTML*/`
                 <label>
                     <h2>Title:</h2>
-                    <input type="text" name="title" value="${object.title || ''}" placeholder="My amazing macro" required>
+                    <input type="text" name="title" value="${object.title || ''}" placeholder="MY_AMAZING_MACRO" required>
                 </label>
                 <label>
                     <h2>Description:</h2>
