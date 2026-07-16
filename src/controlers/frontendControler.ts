@@ -1,9 +1,9 @@
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as layouts from '../views/templates/layouts.js';
-import * as vscode from 'vscode';
+import { state } from './stateControler.js';
 
-export function edit(context: vscode.ExtensionContext, model: string, id: number, db: any, panel: any) {
+export function edit(model: string, id: number, panel: any) {
     // Validates the model
     const validModels = ["snippets", "tags", "languages"];
     if (!validModels.includes(model)) {
@@ -11,7 +11,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
     }
 
     // Raw query response
-    const rawObject = db.query(`SELECT * FROM ${model} WHERE id = ?`, [id])?.[0] || { columns: [], rows: [] };
+    const rawObject = state.db.query(`SELECT * FROM ${model} WHERE id = ?`, [id])?.[0] || { columns: [], rows: [] };
     // Validates something is actually received
     if (!rawObject.values || rawObject.values.length <= 0) {
         return htmlHelpers.page404(`ID ${id} from "${model}" was not found`);
@@ -27,7 +27,7 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
     // Ensure the following procedure only happens if we're dealing with a snippet
     if (model === 'snippets') {
         // Get the snippet language
-        const rawLanguage = db.query(/*SQL*/`SELECT * FROM languages WHERE id = ?`, [object.language_id])?.[0] || { columns: [], rows: [] };
+        const rawLanguage = state.db.query(/*SQL*/`SELECT * FROM languages WHERE id = ?`, [object.language_id])?.[0] || { columns: [], rows: [] };
 
         // Avoid null accessing property errors
         if (rawLanguage && rawLanguage.columns && rawLanguage.values) {
@@ -35,14 +35,14 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
         }
 
         // Get all tags assigned to this snippet
-        const rawSnippet_tags = db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object.id])?.[0] || [];
+        const rawSnippet_tags = state.db.query(/*SQL*/`SELECT * FROM snippet_tags WHERE snippet_id = ?`, [object.id])?.[0] || [];
 
         // Avoid null accessing property errors
         if (rawSnippet_tags && rawSnippet_tags.columns && rawSnippet_tags.values) {
             const snippet_tags = databaseHelpers.formatRows(rawSnippet_tags.columns, rawSnippet_tags.values);
             for (const snippet_tag of snippet_tags) {
                 // Get the tag from the snippet_tag
-                const tag = db.query(/*SQL*/`SELECT * FROM tags WHERE id = ?`, [snippet_tag.tag_id])?.[0] || [];
+                const tag = state.db.query(/*SQL*/`SELECT * FROM tags WHERE id = ?`, [snippet_tag.tag_id])?.[0] || [];
                 
                 // Ensure tag actually exist
                 if (tag && tag.columns && tag.values) {
@@ -53,10 +53,10 @@ export function edit(context: vscode.ExtensionContext, model: string, id: number
         }
     }
 
-    panel.webview.html = layouts.edit(model, object, id, context, language, tags);
+    panel.webview.html = layouts.edit(model, object, id, language, tags);
 }
 
-export function list(model: string, page: number = 1, db: any, panel: any) {
+export function list(model: string, page: number = 1, panel: any) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages"];
     if (!validModels.includes(model)) {
@@ -72,7 +72,7 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
     // Paginating info
     const perPage = 20;
     const offset = (page - 1) * perPage;
-    const totalPages = db.getPages(model, perPage);
+    const totalPages = state.db.getPages(model, perPage);
 
     // Ensure user doesn't try to read more pages than exist
     if (page > totalPages) {
@@ -80,7 +80,7 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
     }
 
     // Data
-    const queryResult = db.query(/*SQL*/`
+    const queryResult = state.db.query(/*SQL*/`
         SELECT * FROM ${model} 
         LIMIT ? 
         OFFSET ?
@@ -88,10 +88,10 @@ export function list(model: string, page: number = 1, db: any, panel: any) {
 
     const cleanRows = databaseHelpers.formatRows(queryResult.columns, queryResult.values);
 
-    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, db, false, '');
+    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, false, '');
 }
 
-export function search(model: string, page: number = 1, rawQuery: string = "", db: any, panel: any, cursorPos: [number, number] = [0, 0]) {
+export function search(model: string, page: number = 1, rawQuery: string = "", panel: any, cursorPos: [number, number] = [0, 0]) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages"];
     if (!validModels.includes(model)) {
@@ -102,7 +102,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
     // Ensure query is not empty
     const query = databaseHelpers.sanitizeLike(rawQuery);
     if (!query) {
-        return list(model, page, db, panel);
+        return list(model, page, panel);
     }
 
     // This turns, for example, "python script" into ["%python%", "%script%"] to make a tokenized query
@@ -137,7 +137,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
             const values = parsedQuery.flatMap(w => Array(6).fill(w));
 
             // The actual query
-            results = db.query(/*SQL*/`
+            results = state.db.query(/*SQL*/`
                 SELECT s.*,
                     l.displayName AS languageName,
                     JSON_GROUP_ARRAY(t.label) AS tagLabels
@@ -162,7 +162,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
             const placeholder = parsedQuery.flatMap(w => placeholderTemplate).join(' ');
 
             // The actual query
-            results = db.query(/*SQL*/`
+            results = state.db.query(/*SQL*/`
                 SELECT * FROM tags
                 WHERE 1=1
                 ${placeholder} 
@@ -186,7 +186,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
             const values = parsedQuery.flatMap(w => Array(2).fill(w));
 
             // The actual query
-            results = db.query(/*SQL*/`
+            results = state.db.query(/*SQL*/`
                 SELECT * FROM languages
                 WHERE 1=1
                 ${placeholder}
@@ -202,16 +202,16 @@ export function search(model: string, page: number = 1, rawQuery: string = "", d
 
     const formatedResult = databaseHelpers.formatRows(results?.columns || [], results?.values || []);
 
-    panel.webview.html = layouts.list(model, formatedResult, page, db.getPages(model), db, true, rawQuery, cursorPos);
+    panel.webview.html = layouts.list(model, formatedResult, page, state.db.getPages(model), true, rawQuery, cursorPos);
 }
 
-export function add(context: vscode.ExtensionContext, model: string, panel: any) {
+export function add(model: string, panel: any) {
     // Validates the model
     const validModels = ["snippets", "tags"];
     if (!validModels.includes(model)) {
         return htmlHelpers.page404(`Model "${model}" does not exist or cannot be created`);
     }
-    panel.webview.html = layouts.add(model, context);           
+    panel.webview.html = layouts.add(model);           
 }
 
 export function index(panel: any) {
