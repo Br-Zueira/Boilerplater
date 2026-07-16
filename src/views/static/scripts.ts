@@ -253,6 +253,7 @@ function editAndAdd(model: string) {
                     // Avoids tab from jumping to HTML elements
                     e.preventDefault();
 
+                    // If shift is pressed, remove up to 4 spaces, else add 4 spaces 
                     if (e.shiftKey) {
                         // Catches cursor pos
                         const start = textarea.selectionStart;
@@ -275,13 +276,15 @@ function editAndAdd(model: string) {
                         // Removes up until 4 spaces
                         for (i = 0; i < 4; i++) {
                             // Checks if character right before cursor is a space char
-                            if (textarea.value.slice(check-1, check) !== " ") break;
+                            if (textarea.value.slice(check-1, check) !== " " || check <= 0) break;
                             document.execCommand('delete', false)
                             check--;
                         }
 
+                        // Resinserts the highlighted text, if any, after the spaces have been removed
                         document.execCommand('insertText', false, highlighted);
 
+                        // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
                         textarea.selectionStart = start - i;
                         textarea.selectionEnd = end - i;
                     } else {
