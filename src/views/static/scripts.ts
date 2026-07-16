@@ -253,19 +253,52 @@ function editAndAdd(model: string) {
                     // Avoids tab from jumping to HTML elements
                     e.preventDefault();
 
-                    // Catches cursor pos
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
+                    if (e.shiftKey) {
+                        // Catches cursor pos
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
 
-                    // Gets highlighted text, empty string if no selected text
-                    const highlighted = textarea.value.substring(start, end);
+                        // Gets highlighted text, empty string if no selected text
+                        const highlighted = textarea.value.substring(start, end);
 
-                    // Inserts 4 blank spaces at cursor position
-                    document.execCommand('insertText', false, '    ' + highlighted);
+                        // Check is kind of an alias to start, to not change the original start variable
+                        let check = start;
 
-                    // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
-                    textarea.selectionStart = start + 4;
-                    textarea.selectionEnd = end + 4;
+                        // I for loop, declared up here to overcome scope issues
+                        let i;
+
+                        // Removes the highlight first, otherwise the for loop will actually not remove one of the spaces
+                        if (highlighted) {
+                            document.execCommand('delete', false);
+                        }
+
+                        // Removes up until 4 spaces
+                        for (i = 0; i < 4; i++) {
+                            // Checks if character right before cursor is a space char
+                            if (textarea.value.slice(check-1, check) !== " ") break;
+                            document.execCommand('delete', false)
+                            check--;
+                        }
+
+                        document.execCommand('insertText', false, highlighted);
+
+                        textarea.selectionStart = start - i;
+                        textarea.selectionEnd = end - i;
+                    } else {
+                        // Catches cursor pos
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+
+                        // Gets highlighted text, empty string if no selected text
+                        const highlighted = textarea.value.substring(start, end);
+
+                        // Inserts 4 blank spaces at cursor position
+                        document.execCommand('insertText', false, '    ' + highlighted);
+
+                        // Correctly replaces cursor to continue highlighting string (or only the blink cursor, if no highlighting)
+                        textarea.selectionStart = start + 4;
+                        textarea.selectionEnd = end + 4;
+                    }
                 }
 
                 // List of pairs to be auto closed
