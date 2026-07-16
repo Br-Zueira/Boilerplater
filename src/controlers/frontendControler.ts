@@ -5,7 +5,7 @@ import { state } from './stateControler.js';
 
 export function edit(model: string, id: number, panel: any) {
     // Validates the model
-    const validModels = ["snippets", "tags", "languages"];
+    const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
         return htmlHelpers.page404(`Model "${model}" does not exist`);
     }
@@ -58,7 +58,7 @@ export function edit(model: string, id: number, panel: any) {
 
 export function list(model: string, page: number = 1, panel: any) {
     // Ensure model is valid (Software development 101 - Never trust user input)
-    const validModels = ["snippets", "tags", "languages"];
+    const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
         panel.webview.html = htmlHelpers.page404(`Model "${model}" does not exist`);
         return;
@@ -93,7 +93,7 @@ export function list(model: string, page: number = 1, panel: any) {
 
 export function search(model: string, page: number = 1, rawQuery: string = "", panel: any, cursorPos: [number, number] = [0, 0]) {
     // Ensure model is valid (Software development 101 - Never trust user input)
-    const validModels = ["snippets", "tags", "languages"];
+    const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
         panel.webview.html = htmlHelpers.page404(`Model "${model}" does not exist`);
         return;
@@ -207,7 +207,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
 
 export function add(model: string, panel: any) {
     // Validates the model
-    const validModels = ["snippets", "tags"];
+    const validModels = ["snippets", "tags", "macros"];
     if (!validModels.includes(model)) {
         return htmlHelpers.page404(`Model "${model}" does not exist or cannot be created`);
     }
