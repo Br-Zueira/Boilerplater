@@ -4,6 +4,7 @@ import * as database from '../database/database.js';
 export class state {
     public static db: database.dataBase;
     public static context: vscode.ExtensionContext;
+    public static langs: string[];
     
     public static async initialize(newContext: vscode.ExtensionContext): Promise<boolean> {
         // Initializing context
@@ -19,6 +20,9 @@ export class state {
             console.error(message);
             return false;
         }
+
+        // This is for languages TomSelect
+        this.langs = await vscode.languages.getLanguages();
 
         // Confirm that everything went fine
         return true;

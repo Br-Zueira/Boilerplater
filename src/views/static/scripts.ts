@@ -147,7 +147,8 @@ function editAndAdd(model: string) {
         // TomSelect part (for snippet editing)
         const activeCallbacks = {
             tags: null,
-            languages: null
+            languages: null,
+            internalNames: null
         };
 
         function loadTomSelect() {
@@ -192,6 +193,25 @@ function editAndAdd(model: string) {
                     }
                 });
             }
+
+            const internalNameSelector = document.getElementById("internalNameSelector");
+            if (internalNameSelector) {
+                const internalNameTom = new TomSelect(internalNameSelector, {
+                    valueField: 'internalName',
+                    labelField: 'internalName',
+                    searchField: 'internalName',
+                    plugins: {
+                        'no_backspace_delete': {}, 
+                    },
+                    load: function(query, callback) {
+                        activeCallbacks.internalNames = callback;
+                        vscode.postMessage({
+                            command: 'searchNewLangs',
+                            payload: { searchQuery: query }
+                        });
+                    }
+                });
+            }
         }
 
         // Bridge between the webview and the extension
@@ -210,6 +230,13 @@ function editAndAdd(model: string) {
                         if (activeCallbacks.languages) {
                             activeCallbacks.languages(message.payload.languages);
                             activeCallbacks.languages = null;
+                        }
+                        break;
+                    }
+                    case "receiveNewLangs": {
+                        if (activeCallbacks.internalNames) {
+                            activeCallbacks.internalNames(message.payload.languages);
+                            activeCallbacks.internalNames = null;
                         }
                         break;
                     }

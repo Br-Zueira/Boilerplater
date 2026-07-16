@@ -152,14 +152,19 @@ export function getEditableFields(model: string, object: any, language: any = un
             `;
         }
         case ("languages"): {
+            // iN is internalName
+            let iN = object.internalName ? /*HTML*/`<option value="${object.internalName}">${object.internalName}</option>` : '';
+
             return /*HTML*/`
                 <label>
                     <h2>Display name:</h2>
                     <input type="text" name="displayName" value="${object.displayName || ''}" placeholder="Lorem Ipsum Language" required>
                 </label>
                 <label>
-                    <h2>Internal name (automatically generated):</h2>
-                    <input type="text" name="internalName" value="${object.internalName || ''}" readonly placeholder="loremipsum" required>
+                    <h2>Internal name:</h2>
+                    <select id="internalNameSelector" name="internalName" required>
+                        ${iN}
+                    </select>
                 </label>
             `;
         }

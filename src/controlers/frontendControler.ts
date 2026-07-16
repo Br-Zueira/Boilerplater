@@ -207,9 +207,9 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
 
 export function add(model: string, panel: any) {
     // Validates the model
-    const validModels = ["snippets", "tags", "macros"];
+    const validModels = ["snippets", "tags", "macros", "languages"];
     if (!validModels.includes(model)) {
-        return htmlHelpers.page404(`Model "${model}" does not exist or cannot be created`);
+        return htmlHelpers.page404(`Model "${model}" does not exist`);
     }
     panel.webview.html = layouts.add(model);           
 }

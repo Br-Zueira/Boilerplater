@@ -52,36 +52,34 @@ export function searchLanguages(rawQuery: string, panel: vscode.WebviewPanel) {
     });
 }
 
-export async function searchNewLangs(rawQuery: string, panel: vscode.WebviewPanel) {
+export function searchNewLangs(rawQuery: string, panel: vscode.WebviewPanel) {
     // Standardizes the query
     const query = databaseHelpers.sanitize(rawQuery).toLowerCase();
 
     // Gets all Vscode internal language ids
-    const langs = await vscode.languages.getLanguages();
+    const langs = state.langs;
     const amount = langs.length;
 
     // Checks to see if language doesn't already exist in database
-    const data = state.db.query("SELECT * FROM languages WHERE internalName LIKE ? ESCAPE '\\' LIMIT 50", [`%${databaseHelpers.sanitizeLike(query)}%`]);
-    const dataAmount = data.length;
+    const data = state.db.query("SELECT * FROM languages WHERE internalName LIKE ? ESCAPE '\\' LIMIT 50", [`%${databaseHelpers.sanitizeLike(query)}%`])?.[0] || [];
+    const formated = databaseHelpers.formatRows(data.columns, data.values);
 
     // Stores existing languages internal name
     let existingLangs = new Set<string>;
 
     // Uses for loop because it's faster
-    for (let i = 0; i < dataAmount; i++) {
-        const row = data[i];
-        const formated = databaseHelpers.formatRows(row.columns, row.values)
-        existingLangs.add( formated[0].internalName );
+    for (let i = 0; i < formated.length; i++) {
+        existingLangs.add( formated[i].internalName );
     }
 
-    // Set of all results that matches query
-    const results = new Set<string>;
+    // Array of all results that matches query (in TomSelect compatible format)
+    const results = new Array<object>;
 
     // Uses for loop because it's faster
     for (let i = 0; i < amount; i++) {
         const lang = langs[i];
         if (lang.includes(query) && !existingLangs.has(lang)) {
-            results.add(lang);
+            results.push({internalName: lang});
         }
     }
 

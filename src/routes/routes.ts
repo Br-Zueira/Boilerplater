@@ -57,6 +57,11 @@ export function routes(param: any, panel: vscode.WebviewPanel, command: string) 
             break;
         }
 
+        case ("searchNewLangs"): {
+            tomSelectControler.searchNewLangs(param.searchQuery, panel);
+            break;
+        }
+
         // Search engine
         case ("search"): {
             frontendControler.search(param.model, param.page, param.searchQuery, panel, param.cursorPos);

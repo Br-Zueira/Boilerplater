@@ -168,22 +168,27 @@ export function submitEdit(model: string, id: number, formData: any, panel: any)
         }
         case 'languages': {
             // Validating required fields
-            const { displayName: rawDisplayName = '' } = formData;
+            const { displayName: rawDisplayName = '', internalName: internalName } = formData;
             const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
 
             // Ensuring that the required field is present
-            if (!displayName) {
-                helpers.sendError(`Language lacks a required field: display Name`, panel);
+            if (!displayName || !internalName) {
+                helpers.sendError(`Language lacks a required field: display name or internal name`, panel);
+                return;
+            }
+            if (!state.langs.includes(internalName)) {
+                helpers.sendError(`Internal name "${internalName}" doesn't exist in Vscode`, panel);
                 return;
             }
 
             // Updating the language in the database with the new value
             try {
                 state.db.alter(/*SQL*/`
-                    UPDATE languages SET displayName = ?
+                    UPDATE languages SET displayName = ?, internalName = ?
                     WHERE id = ?`, 
                 [
                     displayName,
+                    internalName,
                     id
                 ]);
             } catch (error) {

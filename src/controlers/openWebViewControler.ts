@@ -20,7 +20,7 @@ export async function openWebViewControler() {
 
     // Sets up panel-backend connection
     panel.webview.onDidReceiveMessage(
-        async (message) => {
+        (message) => {
             routes.routes(message.payload, panel, message.command);
         },
         undefined,
