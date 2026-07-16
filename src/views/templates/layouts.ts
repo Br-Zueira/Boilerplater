@@ -206,7 +206,7 @@ export function langDelete(id: number, snAmount: number) {
 
         <button onclick="goToIndex()">Cancel deletion</button>
 
-        <form id="newLang">
+        <form id="newLangForm">
             <input type="hidden" name="id" value="${id}">
 
             <label>
@@ -221,5 +221,10 @@ export function langDelete(id: number, snAmount: number) {
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
             <p id="successMessage" role="alert" style="color: green; display: none;"></p>
         </form>
-    `, scripts.langDelete());
+    `, scripts.langDelete(),     
+    /*HTML*/`
+    <style>${ css.getTomSelectLibCss() }</style> 
+    <style>${ css.tomSelectCssOverride }</style>
+    <script>${ scripts.getTomSelectLibJs() }</script>
+    `);
 }

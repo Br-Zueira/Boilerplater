@@ -449,6 +449,14 @@ export function edit(model: string, id: number) {
 
 export function add(model: string) {
     return /*JavaScript*/`
+        // Script for in-page button
+        function goToIndex() { 
+            vscode.postMessage({
+                "command": "goToIndex", 
+                "payload": {"dummy": "foo"}
+            }) 
+        }
+
         // Form submission part
         function setupForm() {
             const addForm = document.getElementById("addForm");
@@ -513,14 +521,14 @@ export function langDelete() {
             window.addEventListener("message", (event) => {
                 const message = event.data;
                 switch (message.command) {
-                    case "receiveLanuages": {
+                    case "receiveLanguages": {
                         if (activeCallback) {
-                            activeCallback = message.payload.languages;
+                            activeCallback(message.payload.languages);
                             activeCallback = null;
                         }
                         break;
                     }
-                                        case "error": {
+                    case "error": {
                         const errorMessageElement = document.getElementById("errorMessage");
                         if (errorMessageElement) {
                             errorMessageElement.textContent = message.payload.error;
@@ -568,6 +576,11 @@ export function langDelete() {
                     } else {
                         data[key] = value[0];
                     }
+                }
+
+                // Appends action (the submit button that was used) info
+                if (event.submitter && event.submitter.name) {
+                    data[event.submitter.name] = event.submitter.value;
                 }
 
                 vscode.postMessage({

@@ -118,21 +118,27 @@ export function submitAdd(model: string, formData: any, panel: any) {
         }
         case 'languages': {
             // Validating required fields
-            const { displayName: rawDisplayName = '' } = formData;
+            const { displayName: rawDisplayName = '', internalName: internalName } = formData;
             const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
 
             // Ensuring that the required field is present
-            if (!displayName) {
-                helpers.sendError(`Language lacks a required field: display Name`, panel);
+            if (!displayName || !internalName) {
+                helpers.sendError(`Language lacks a required field: either display name or internal name`, panel);
+                return;
+            }
+
+            if (!state.langs.includes(internalName)) {
+                helpers.sendError(`Invalid internal name`, panel);
                 return;
             }
 
             // Creating the language in the database
             try {
                 state.db.alter(/*SQL*/`
-                    INSERT INTO languages (displayName) VALUES (?)`,
+                    INSERT INTO languages (displayName, internalName) VALUES (?, ?)`,
                 [
-                    displayName
+                    displayName,
+                    internalName
                 ]);
             } catch (error) {
                 if (error instanceof Error) {

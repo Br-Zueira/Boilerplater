@@ -6,7 +6,7 @@ import { state } from './stateControler.js';
 
 export async function submitDelete(id: number, model: string, panel: vscode.WebviewPanel) {
     // Model validation
-    const validModels = ["snippets", "tags", "macros"];
+    const validModels = ["snippets", "tags", "macros", "languages"];
     if (!validModels.includes(model)) {
         helpers.sendError(`Invalid model: ${model} doesn't exist or can't be deleted`, panel);
         return;
@@ -46,8 +46,8 @@ export async function submitDelete(id: number, model: string, panel: vscode.Webv
 
     if (model === "languages") {
         // Checks if any snippets have this language
-        const check = state.db.query(/*SQL*/`SELECT * FROM snippets WHERE language_id = ?`, [id])[0];
-        const mapped = databaseHelpers.formatRows(check.columns, check.values);
+        const check = state.db.query(/*SQL*/`SELECT * FROM snippets WHERE language_id = ?`, [id])?.[0] || [];
+        const mapped = databaseHelpers.formatRows(check?.columns, check?.values);
 
         // If there is at least one snippet with this language, activates the Alternate Language Deletion Protocol
         if (mapped && mapped[0] && mapped[0].language_id) {
