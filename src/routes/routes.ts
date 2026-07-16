@@ -45,6 +45,11 @@ export function routes(param: any, panel: vscode.WebviewPanel, command: string) 
             deleteControler.submitDelete(param.id, param.model, panel);
             break;
         }
+
+        case ("submitLangDelete"): {
+            deleteControler.langDelete(param.formData, panel);
+            break;
+        }
         
         // TomSelect/API routes
         case ("searchTags"): {

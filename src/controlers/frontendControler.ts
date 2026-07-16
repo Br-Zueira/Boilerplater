@@ -1,9 +1,10 @@
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as layouts from '../views/templates/layouts.js';
+import * as vscode from 'vscode';
 import { state } from './stateControler.js';
 
-export function edit(model: string, id: number, panel: any) {
+export function edit(model: string, id: number, panel: vscode.WebviewPanel) {
     // Validates the model
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
@@ -56,7 +57,7 @@ export function edit(model: string, id: number, panel: any) {
     panel.webview.html = layouts.edit(model, object, id, language, tags);
 }
 
-export function list(model: string, page: number = 1, panel: any) {
+export function list(model: string, page: number = 1, panel: vscode.WebviewPanel) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
@@ -91,7 +92,7 @@ export function list(model: string, page: number = 1, panel: any) {
     panel.webview.html = layouts.list(model, cleanRows, page, totalPages, false, '');
 }
 
-export function search(model: string, page: number = 1, rawQuery: string = "", panel: any, cursorPos: [number, number] = [0, 0]) {
+export function search(model: string, page: number = 1, rawQuery: string = "", panel: vscode.WebviewPanel, cursorPos: [number, number] = [0, 0]) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
@@ -205,7 +206,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
     panel.webview.html = layouts.list(model, formatedResult, page, state.db.getPages(model), true, rawQuery, cursorPos);
 }
 
-export function add(model: string, panel: any) {
+export function add(model: string, panel: vscode.WebviewPanel) {
     // Validates the model
     const validModels = ["snippets", "tags", "macros", "languages"];
     if (!validModels.includes(model)) {
@@ -214,6 +215,10 @@ export function add(model: string, panel: any) {
     panel.webview.html = layouts.add(model);           
 }
 
-export function index(panel: any) {
+export function index(panel: vscode.WebviewPanel) {
     panel.webview.html = layouts.index();
+}
+
+export function langDelete(id: number, snAmount: number, panel: vscode.WebviewPanel) {
+    panel.webview.html = layouts.langDelete(id, snAmount);
 }
