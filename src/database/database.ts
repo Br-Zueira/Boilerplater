@@ -136,7 +136,7 @@ function getTotalPages(db: any, tableName: string, perPage: number = 20): number
     return totalPages < 1 ? 1 : totalPages;
 }
 
-// Internal helper to create new BD
+// Internal helper to create new DB from scratch, used when the database file is missing or corrupted
 function createFreshDB(SQL: any, context: vscode.ExtensionContext) {
     // Database object from SQL instance
     const db = new SQL.Database();
@@ -175,7 +175,7 @@ function createFreshDB(SQL: any, context: vscode.ExtensionContext) {
         "title TEXT NOT NULL, " +
         "description TEXT, " +
         "macro TEXT NOT NULL, " +
-        "eval_order INTEGER UNIQUE NOT NULL;");
+        "eval_order INTEGER UNIQUE NOT NULL);");
 
     db.run("CREATE TABLE IF NOT EXISTS macros_tags " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
