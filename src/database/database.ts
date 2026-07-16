@@ -114,6 +114,11 @@ function saveDB(db: Database, context: vscode.ExtensionContext) {
     // Get database path
     const dbFolderPath = context.globalStorageUri.fsPath;
     const dbFilePath = path.join(dbFolderPath, 'boilerplater.db');
+
+    // Ensure the globalStorage directory exists before writing
+    if (!fs.existsSync(dbFolderPath)) {
+        fs.mkdirSync(dbFolderPath, { recursive: true });
+    }
     
     // Save into database
     fs.writeFileSync(dbFilePath, Buffer.from(db.export()));

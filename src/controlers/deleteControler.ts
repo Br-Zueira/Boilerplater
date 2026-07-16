@@ -102,7 +102,7 @@ export function langDelete(formData: any, panel: vscode.WebviewPanel) {
             // Updates snippets to use the new language
             state.db.alter(/*SQL*/`
                 UPDATE snippets 
-                SET (language_id) VALUES (?) 
+                SET language_id = ?
                 WHERE language_id = ?;
             `, [langId, id]);
         } catch (err) {

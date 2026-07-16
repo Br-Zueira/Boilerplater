@@ -211,7 +211,7 @@ export function langDelete(id: number, snAmount: number) {
 
             <label>
                 <h2>New language</h2>
-                <select id="newLangSelector" value="newLanguage"></select>
+                <select id="newLangSelector" name="newLanguage"></select>
             </label>
 
             <button name="action" value="changeDelete">Change languages and delete</button>
