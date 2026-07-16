@@ -8,6 +8,7 @@
   "publisher": "br-zueira",
   "description": "Extension to storage boilerplate snippets so they can be easily reused later",
   "version": "0.0.1",
+  "icon": "assets/logo_256x256.png",
   "engines": {
     "vscode": "^1.120.0"
   },
