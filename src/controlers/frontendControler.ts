@@ -1,6 +1,6 @@
 import * as htmlHelpers from '../helpers/htmlHelpers.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
-import * as layouts from '../templates/layouts.js';
+import * as layouts from '../layouts/layouts.js';
 import * as vscode from 'vscode';
 import { state } from './stateControler.js';
 

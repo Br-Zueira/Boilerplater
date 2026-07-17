@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as layouts from '../templates/layouts.js';
+import * as layouts from '../layouts/layouts.js';
 import * as routes from '../routes/routes.js';
 import { state } from './stateControler.js'; 
 
