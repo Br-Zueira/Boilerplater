@@ -65,7 +65,7 @@ export function getInstanceContent(model: string, instance: any, isSearch: boole
             let lang: string = ""; 
             let tags: string = ""; 
             if (isSearch) {
-                lang = instance.languageName;
+                lang = escapeHtml(instance.languageName);
                 const tagsArray = JSON.parse(instance.tagLabels);
                 if (tagsArray.length === 0 || tagsArray[0] === null) {
                     tags = 'None';
@@ -73,7 +73,7 @@ export function getInstanceContent(model: string, instance: any, isSearch: boole
                     tags = tagsArray.flatMap((tag: string) => /*HTML*/`<span class="tag">${limitCharSize(tag, limitTag)}</span>`);
                 }
             } else {
-                lang = state.db.getLanguage(instance);
+                lang = escapeHtml(state.db.getLanguage(instance));
                 tags = getTags(instance, limitTag, 'snippets');
             }
             return /*HTML*/`
@@ -234,6 +234,16 @@ export function getEditableFields(model: string, object: any, language: any = un
     }
 }
 
+function escapeHtml(str: string) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function getTags(instance: any, maxSize: number, model: string): string {
     // Limit the number of tags displayed to avoid cluttering the UI
     const quantity = 5;
@@ -272,7 +282,7 @@ function getTags(instance: any, maxSize: number, model: string): string {
         }
 
         // Add the tag to the htmlTags string
-        htmlTags += /*HTML*/`<span class="tag">${tag.label}</span>`
+        htmlTags += /*HTML*/`<span class="tag">${escapeHtml(tag.label)}</span>`
     }
     return htmlTags;
 }
@@ -287,5 +297,5 @@ function limitCharSize(str: string, maxSize: number): string {
     if (str.length > maxSize) {
         return str.substring(0, maxSize) + '...';
     }
-    return str;
+    return escapeHtml(str);
 }
