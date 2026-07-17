@@ -118,8 +118,9 @@ export function submitAdd(model: string, formData: any, panel: any) {
         }
         case 'languages': {
             // Validating required fields
-            const { displayName: rawDisplayName = '', internalName: internalName } = formData;
+            const { displayName: rawDisplayName = '', internalName: internalName, aliases: rawAliases = '' } = formData;
             const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
+            const aliases = databaseHelpers.sanitize(rawAliases) || null;
 
             // Ensuring that the required field is present
             if (!displayName || !internalName) {
@@ -135,15 +136,16 @@ export function submitAdd(model: string, formData: any, panel: any) {
             // Creating the language in the database
             try {
                 state.db.alter(/*SQL*/`
-                    INSERT INTO languages (displayName, internalName) VALUES (?, ?)`,
+                    INSERT INTO languages (displayName, internalName, aliases) VALUES (?, ?)`,
                 [
                     displayName,
-                    internalName
+                    internalName,
+                    aliases
                 ]);
             } catch (error) {
                 if (error instanceof Error) {
                     if (error.message.includes('UNIQUE constraint failed')) {
-                        helpers.sendError(`Failed to create language: A language with the display name "${displayName}" already exists`, panel);
+                        helpers.sendError(`Failed to create language: A language with euther the display name "${displayName}" or the internal name "${internalName}" already exists`, panel);
                         return;
                     }
                     helpers.sendError(`Failed to create language: ${error.message}`, panel);

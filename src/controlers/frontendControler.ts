@@ -127,6 +127,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
                     OR s.snippet LIKE ? ESCAPE '\\'
                     OR l.displayName LIKE ? ESCAPE '\\'
                     OR l.internalName LIKE ? ESCAPE '\\'
+                    OR l.aliases LIKE ? ESCAPE '\\'
                     OR t.label LIKE ? ESCAPE '\\'
                 )
             `;
@@ -135,7 +136,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
             const placeholder = parsedQuery.flatMap(w => placeholderTemplate).join(' ');
 
             // Every token is repeated the exact same amount of placeholders 
-            const values = parsedQuery.flatMap(w => Array(6).fill(w));
+            const values = parsedQuery.flatMap(w => Array(7).fill(w));
 
             // The actual query
             results = state.db.query(/*SQL*/`
@@ -177,6 +178,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
                 AND (
                     displayName LIKE ? ESCAPE '\\'
                     OR internalName LIKE ? ESCAPE '\\'
+                    OR aliases LIKE ? ESCAPE '\\'
                 )
             `;
 
@@ -184,7 +186,7 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
             const placeholder = parsedQuery.flatMap(w => placeholderTemplate);
 
             // Every token is repeated the exact same amount of placeholders 
-            const values = parsedQuery.flatMap(w => Array(2).fill(w));
+            const values = parsedQuery.flatMap(w => Array(3).fill(w));
 
             // The actual query
             results = state.db.query(/*SQL*/`

@@ -168,8 +168,9 @@ export function submitEdit(model: string, id: number, formData: any, panel: any)
         }
         case 'languages': {
             // Validating required fields
-            const { displayName: rawDisplayName = '', internalName: internalName } = formData;
+            const { displayName: rawDisplayName = '', internalName: internalName, aliases: rawAliases = '' } = formData;
             const displayName = databaseHelpers.sanitize(rawDisplayName) || null;
+            const aliases = databaseHelpers.sanitize(rawAliases) || null;
 
             // Ensuring that the required field is present
             if (!displayName || !internalName) {
@@ -184,11 +185,12 @@ export function submitEdit(model: string, id: number, formData: any, panel: any)
             // Updating the language in the database with the new value
             try {
                 state.db.alter(/*SQL*/`
-                    UPDATE languages SET displayName = ?, internalName = ?
+                    UPDATE languages SET displayName = ?, internalName = ?, aliases = ?
                     WHERE id = ?`, 
                 [
                     displayName,
                     internalName,
+                    aliases,
                     id
                 ]);
             } catch (error) {

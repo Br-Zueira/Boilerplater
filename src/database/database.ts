@@ -55,6 +55,7 @@ export interface languages {
     id: number;
     displayName: string;
     internalName: string;
+    aliases: string;
 }
 
 export interface snippet_tags {
@@ -157,7 +158,8 @@ function createFreshDB(SQL: any, context: vscode.ExtensionContext) {
     db.run("CREATE TABLE IF NOT EXISTS languages " + 
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "displayName TEXT UNIQUE NOT NULL," + 
-        "internalName TEXT UNIQUE NOT NULL);");
+        "internalName TEXT UNIQUE NOT NULL," +
+        "aliases TEXT);");
 
     db.run("CREATE TABLE IF NOT EXISTS snippets " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +

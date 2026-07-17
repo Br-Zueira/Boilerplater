@@ -113,6 +113,7 @@ export function getInstanceContent(model: string, instance: any, isSearch: boole
             return /*HTML*/`
                 <p><strong>Display name:</strong> ${limitCharSize(instance.displayName, limitSmall)}</p>
                 <p><strong>Internal name:</strong> ${limitCharSize(instance.internalName, limitSmall)}</p>
+                <p><strong>Aliases:</strong> ${limitCharSize(instance.aliases, limitSmall) || 'None'}</p>
             `;
         }
         default: {
@@ -184,6 +185,11 @@ export function getEditableFields(model: string, object: any, language: any = un
                     <select id="internalNameSelector" name="internalName" required>
                         ${iN}
                     </select>
+                </label>
+                <label>
+                    <h2>Aliases:</h2>
+                    <h5>(Optional, help search the language later, separate keywords whatever you want, I recomend spaces)</h5>
+                    <input type="text" name="aliases" value="${object.aliases || ''}" placeholder="LI Dolor Sit Amet">
                 </label>
             `;
         }

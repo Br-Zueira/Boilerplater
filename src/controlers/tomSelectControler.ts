@@ -7,7 +7,7 @@ export function searchTags(rawQuery: string, panel: vscode.WebviewPanel) {
     const query = databaseHelpers.sanitizeLike(rawQuery);
 
     // Gets actual data
-    const data = state.db.query("SELECT * FROM tags WHERE label LIKE ? ESCAPE '\\' LIMIT 50", [`%${query}%`]);
+    const data = state.db.query(/*SQL*/`SELECT * FROM tags WHERE label LIKE ? ESCAPE '\\' LIMIT 50`, [`%${query}%`]);
     const dataAmount = data.length;
 
     // Stores tags in a clean format
@@ -30,9 +30,32 @@ export function searchTags(rawQuery: string, panel: vscode.WebviewPanel) {
 export function searchLanguages(rawQuery: string, panel: vscode.WebviewPanel) {
     // Standardizes query
     const query = databaseHelpers.sanitizeLike(rawQuery);
+    const parsedQuery = query.split(" ")
+                        .filter(word => word.trim() !== "")
+                        .map(word => `%${word}%`);
+
+    // This template is what allows the tokenized query to search for every field
+    const placeholderTemplate = /*SQL*/`
+        AND (
+            displayName LIKE ? ESCAPE '\\'
+            OR internalName LIKE ? ESCAPE '\\'
+            OR aliases LIKE ? ESCAPE '\\'
+        )
+    `;
+
+    // The template is repeated for every token in the array so every token can be searched in every column
+    const placeholder = parsedQuery.flatMap(w => placeholderTemplate).join(' ');
+
+    // Every token is repeated the exact same amount of placeholders 
+    const values = parsedQuery.flatMap(w => Array(3).fill(w));
 
     // Gets actual data
-    const data = state.db.query("SELECT * FROM languages WHERE displayName LIKE ? ESCAPE '\\' LIMIT 50", [`%${query}%`]);
+    const data = state.db.query(/*SQL*/`
+        SELECT * FROM languages 
+        WHERE 1=1
+        ${placeholder} 
+        LIMIT 50
+    `, values);
     const dataAmount = data.length;
 
     // Stores languages in a clean format
@@ -61,7 +84,11 @@ export function searchNewLangs(rawQuery: string, panel: vscode.WebviewPanel) {
     const amount = langs.length;
 
     // Checks to see if language doesn't already exist in database
-    const data = state.db.query("SELECT * FROM languages WHERE internalName LIKE ? ESCAPE '\\' LIMIT 50", [`%${databaseHelpers.sanitizeLike(query)}%`])?.[0] || [];
+    const data = state.db.query(/*SQL*/`
+        SELECT * FROM languages 
+        WHERE internalName LIKE ? ESCAPE '\\' 
+        LIMIT 50
+        `, [`%${databaseHelpers.sanitizeLike(query)}%`])?.[0] || [];
     const formated = databaseHelpers.formatRows(data.columns, data.values);
 
     // Stores existing languages internal name

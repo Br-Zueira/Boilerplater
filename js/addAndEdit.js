@@ -73,8 +73,8 @@ function loadTomSelect() {
     if (languageSelector) {
         const languageTom = new TomSelect(languageSelector, {
             valueField: 'id',
-            labelField: 'displayName',
-            searchField: 'displayName',
+            labelField: 'displayName', 
+            searchField: ['displayName', 'internalName', 'aliases'],
             plugins: {
                 'no_backspace_delete': {}, 
             },
