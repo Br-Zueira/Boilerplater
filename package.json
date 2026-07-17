@@ -7,7 +7,7 @@
   },
   "publisher": "br-zueira",
   "description": "Extension to storage boilerplate snippets so they can be easily reused later",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "icon": "assets/logo_256x256.png",
   "engines": {
     "vscode": "^1.120.0"
@@ -62,7 +62,6 @@
     "esbuild": "^0.28.1",
     "esbuild-plugin-copy": "^2.1.1",
     "eslint": "^9.39.3",
-    "shx": "^0.4.0",
     "sql.js": "^1.14.1",
     "tom-select": "^2.6.1",
     "typescript": "^5.9.3",

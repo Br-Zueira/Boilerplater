@@ -2,6 +2,8 @@
 
 An extension that allows saving code snippets for later use in a simple and intuitive way. From a dev, to devs.
 
+![Print of a JavaScript snippet being pasted with Boilerplater](assets/screenshot.png)
+
 ## Features
 
 * **Saving snippets** by highlighting them and pressing ctrl+u (mac: cmd+u).
@@ -17,7 +19,10 @@ Boilerplater uses an isolated virtual database instance that commits directly to
 
 ## Requirements
 
-The extension was made to be 100% self contained, so no external requirements.
+Vscode/Vscodium or similar (duh)
+Download bundled version (vsix): None
+Compile it locally: npm >= 10
+To compile locally, you can run `npm install` to get dev dependencies and then either `npm run compile` to compile once, `npm run watch` to compile at every change or `npm run package` to compile once and bundle as vsix
 
 ## Extension Settings
 
