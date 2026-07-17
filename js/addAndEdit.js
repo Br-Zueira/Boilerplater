@@ -282,7 +282,7 @@ function setTextArea() {
 }
 
 // Load the TomSelect and setup the form when the DOM is fully loaded
-export function loadAddAndEdit(api) {
+export default function loadAddAndEdit(api) {
     vscode = api;
     model = document.getElementById("model")?.value || "";
     id = Number(document.getElementById("id")?.value || null);

@@ -1,16 +1,23 @@
-export function search(api) {
+export default function search(api) {
     const vscode = api;
 
     // Set up model here in an unrelated function just to make sure DOM is loaded when this function is called
-    const model = document.getElementById("model").value;
+    const modelEl = document.getElementById("model");
+    if (!modelEl) return;
+    const model = modelEl.value;
 
     // Debounce timeout variable to limit the number of search requests
     let debounceTimeout;
     
-    const rawCursorPos = document.getElementById("cursorPos").value; // Gets like '0,0'
-    const cursorPos = rawCursorPos.split(',').map(Number); // Becomes actual array: [0, 0]
-    const cursorStart = cursorPos[0];
-    const cursorEnd = cursorPos[1];
+    const rawCursorPosEl = document.getElementById("cursorPos");
+    let cursorStart = 0
+    let cursorEnd = 0
+    if (rawCursorPosEl) {
+        const rawCursorPos = rawCursorPosEl.value; // Gets like '0,0'
+        const cursorPos = rawCursorPos.split(',').map(Number); // Becomes actual array: [0, 0]
+        cursorStart = cursorPos[0];
+        cursorEnd = cursorPos[1];
+    }
 
     // Get the search bar element
     const searchBar = document.getElementById("searchBar");
@@ -25,7 +32,7 @@ export function search(api) {
         const end = bar.selectionEnd ?? 0;
         vscode.postMessage({
             command: "search",
-            payload: { model: "model", searchQuery: searchQuery, cursorPos: [start, end] }
+            payload: { model: model, searchQuery: searchQuery, cursorPos: [start, end] }
         });
     };
 

@@ -101,7 +101,7 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
         <button onclick="pBtn.goToIndex()">Homepage</button>
 
         <!-- Like "Create new snippet -->
-        <button onclick="pBtn.goToAdd()">Create new ${modelSingular}</button>
+        <button onclick="pBtn.goToAdd('${model}')">Create new ${modelSingular}</button>
 
         <input type="hidden" id="model" value="${model}">
         <input type="hidden" id="cursorPos" value="${cursorPos}">
@@ -145,8 +145,8 @@ export function edit(panel: vscode.WebviewPanel, model: string, object: any, id:
                 <!-- Buttons to submit the form, cancel edition and delete the model -->
                 <button type="submit">Save ${modelSingular}</button>
                 ${pasteButton}
-                <button type="button" onclick="pBtn.goToManager()">Cancel edition</button>
-                <button type="button" onclick="pBtn.deleteModel()">Delete ${model.slice(0, -1)}</button>
+                <button type="button" onclick="pBtn.goToManager('${model}')">Cancel edition</button>
+                <button type="button" onclick="pBtn.deleteModel('${model}', ${id})">Delete ${model.slice(0, -1)}</button>
 
                 <!-- Error and success messages -->
                 <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
@@ -179,7 +179,7 @@ export function add(panel: vscode.WebviewPanel, model: string) {
             <!-- Buttons to submit the form and cancel creation -->
             <button type="submit">Create ${modelSingular}</button>
             ${pasteButton}
-            <button type="button" onclick="pBtn.goToManager()">Cancel creation</button>
+            <button type="button" onclick="pBtn.goToManager('${model}')">Cancel creation</button>
 
             <!-- Error and success messages -->
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>

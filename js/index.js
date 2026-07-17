@@ -1,12 +1,10 @@
-import loadAdd from './add.js';
 import loadAddAndEdit from './addAndEdit.js';
 import loadLD from './langDelete.js';
 import search from './list.js';
 
-const vscode = adquireVsCodeApi();
+const vscode = acquireVsCodeApi();
 
 function loadPage() {
-    loadAdd(vscode);
     loadAddAndEdit(vscode);
     loadLD(vscode);
     search(vscode);
@@ -35,7 +33,7 @@ window.pBtn = {
         })
     },
 
-    goToAdd: () => {
+    goToAdd: (model) => {
         vscode.postMessage({
             command: "goToAdd",
             payload: { model: model }

@@ -98,7 +98,7 @@ function setupForm() {
 }
 
 // Load the TomSelect and setup the form when the DOM is fully loaded
-function loadLD(api) {
+export default function loadLD(api) {
     vscode = api;
     loadTomSelect();
     setupMessageListener();
