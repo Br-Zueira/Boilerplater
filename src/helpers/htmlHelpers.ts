@@ -1,4 +1,3 @@
-import * as scripts from '../views/static/scripts.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
 import * as vscode from 'vscode';
 import { state } from '../controlers/stateControler.js';
@@ -7,12 +6,12 @@ export function page404(panel: vscode.WebviewPanel, message: string) {
     return boiler(panel, /*HTML*/`
         <h1>Error 404:</h1>
         <p>${message}</p>
-        <button onclick="goToIndex()">Go back to index</button>
-    `, scripts.page404());
+        <button onclick="pBtn.goToIndex()">Go back to index</button>
+    `);
 }
 
 // HTML boilerplate
-export function boiler(panel: vscode.WebviewPanel, body: string, script?: string, head?: string) {
+export function boiler(panel: vscode.WebviewPanel, body: string) {
     // css/style.css
     const stylePath = vscode.Uri.joinPath(state.context.extensionUri, 'css', 'style.css');
     const styleUri = panel.webview.asWebviewUri(stylePath);
@@ -24,6 +23,14 @@ export function boiler(panel: vscode.WebviewPanel, body: string, script?: string
     // css/tomOverrides.css
     const tomOverridesPath = vscode.Uri.joinPath(state.context.extensionUri, 'css', 'tomOverrides.css');
     const tomOverridesUri = panel.webview.asWebviewUri(tomOverridesPath);
+
+    // out/tom-select/tom-select.complete.js
+    const tomJsPath = vscode.Uri.joinPath(state.context.extensionUri, 'out', 'tom-select', 'tom-select.complete.js');
+    const tomJsUri = panel.webview.asWebviewUri(tomJsPath);
+
+    // js/index.js
+    const indexPath = vscode.Uri.joinPath(state.context.extensionUri, 'js', 'index.js');
+    const indexUri = panel.webview.asWebviewUri(indexPath);
 
     return /*HTML*/`
         <!DOCTYPE html>
@@ -38,12 +45,9 @@ export function boiler(panel: vscode.WebviewPanel, body: string, script?: string
                 <link rel="stylesheet" href="${tomCssUri}">
                 <link rel="stylesheet" href="${tomOverridesUri}">
 
-                <script>
-                    const vscode = acquireVsCodeApi();
-                ${script ?? ''}
-                </script>
-
-                ${head ?? ''}
+                <!-- JavaScript -->
+                <script type="module" src="${tomJsUri}"></script>
+                <script type="module" src="${indexUri}"></script>
             </head>
             <body>
                 ${body}

@@ -1,5 +1,4 @@
-import * as htmlHelpers from '../../helpers/htmlHelpers.js'
-import * as scripts from '../static/scripts.js'
+import * as htmlHelpers from '../helpers/htmlHelpers.js'
 import * as vscode from 'vscode';
 
 // Page to return an HTML plain string to pass to the webView
@@ -7,10 +6,10 @@ export function index(panel: vscode.WebviewPanel) {
     return htmlHelpers.boiler(panel, /*HTML*/`
         <h1>Br-Zueira's Boilerplater!</h1>
 
-        <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
-        <button id="tagBtn" onclick="goToManager('tags')">Manage tags</button>
-        <button id="langBtn" onclick="goToManager('languages')">Manage languages</button>
-        <button id="macroBtn" onclick="goToManager('macros')">Manage macros</button>
+        <button id="snippetBtn" onclick="pBtn.goToManager('snippets')">Manage snippets</button>
+        <button id="tagBtn" onclick="pBtn.goToManager('tags')">Manage tags</button>
+        <button id="langBtn" onclick="pBtn.goToManager('languages')">Manage languages</button>
+        <button id="macroBtn" onclick="pBtn.goToManager('macros')">Manage macros</button>
 
         <p>Br-Zueira's Boilerplater is an extension that avoids the need to constantly rewrite boilerplate code and makes snippet managment very intuitive and integrated into Vscode.<p>
 
@@ -36,7 +35,7 @@ export function index(panel: vscode.WebviewPanel) {
             Note: JavaScript templates ( [% %] ) are evaluated first than tabspace templates ( [# #] ), 
             and it's possible to put JS templates inside tabspace templates
         </p>
-    `, scripts.index());
+    `);
 }
 
 // Page to return generic list
@@ -57,9 +56,9 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
             // Get the instance content using the helper function
             list += /*HTML*/`<div>`;
                 list += htmlHelpers.getInstanceContent(model, instance, isSearch);
-                list += /*HTML*/`<button onclick="goToEdit(${instance.id})">Edit ${modelSingular}</button>`
+                list += /*HTML*/`<button onclick="pBtn.goToEdit(${instance.id})">Edit ${modelSingular}</button>`
                 if (model === "snippets") {
-                    list += /*HTML*/`<button onclick="pasteSnippet(${instance.id})">Paste snippet</button>`
+                    list += /*HTML*/`<button onclick="pBtn.pasteSnippet(${instance.id})">Paste snippet</button>`
                 }
             list += /*HTML*/`</div>`;
         }
@@ -72,10 +71,10 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
     let buttons = "";
 
     if (page > 1) {
-        buttons += /*HTML*/`<button id="lastPage" onclick="goToPage(${page - 1})">Last Page</button>`;
+        buttons += /*HTML*/`<button id="lastPage" onclick="pBtn.goToPage(${page - 1})">Last Page</button>`;
     }
     if (page < totalPages) {
-        buttons += /*HTML*/`<button id="nextPage" onclick="goToPage(${page + 1})">Next Page</button>`;
+        buttons += /*HTML*/`<button id="nextPage" onclick="pBtn.goToPage(${page + 1})">Next Page</button>`;
     }
 
     // Dynamic footbar based on whether the user is searching or not
@@ -99,11 +98,13 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
         <!-- Like "Snippets manager" -->
         <h1>${modelFirstUpper} manager</h1>
 
-        <button onclick="goToIndex()">Homepage</button>
+        <button onclick="pBtn.goToIndex()">Homepage</button>
 
         <!-- Like "Create new snippet -->
-        <button onclick="goToAdd('${model}')">Create new ${modelSingular}</button>
+        <button onclick="pBtn.goToAdd()">Create new ${modelSingular}</button>
 
+        <input type="hidden" id="model" value="${model}">
+        <input type="hidden" id="cursorPos" value="${cursorPos}">
         <input type="text" id="searchBar" placeholder="Search for a specific ${modelSingular}" value="${query}">
 
         <!-- Like "Snippets:" -->
@@ -115,7 +116,7 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
 
         <!-- Footbar -->
         ${footbar}
-    `, scripts.list(model, cursorPos));
+    `);
 }
 
 // Generic model editing view
@@ -124,7 +125,7 @@ export function edit(panel: vscode.WebviewPanel, model: string, object: any, id:
     const modelSingular = model.slice(0, -1);
 
     // Only snippets have a button to paste them
-    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
+    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pBtn.pasteSnippet()">Paste snippet</button>` : "";
 
     // Return the HTML page
     return htmlHelpers.boiler(panel, /*HTML*/`
@@ -134,8 +135,8 @@ export function edit(panel: vscode.WebviewPanel, model: string, object: any, id:
         <!-- Form to edit the model -->
         <form id="editForm">
             <!-- Hidden inputs to pass the model and id to the backend -->
-            <input type="hidden" name="model" value="${model}">
-            <input type="hidden" name="id" value="${id}">
+            <input type="hidden" id="model" name="model" value="${model}">
+            <input type="hidden" id="id" name="id" value="${id}">
 
             <!-- The following function will return the necessary fields for each model -->
             ${htmlHelpers.getEditableFields(model, object, language, tags)}
@@ -144,17 +145,14 @@ export function edit(panel: vscode.WebviewPanel, model: string, object: any, id:
                 <!-- Buttons to submit the form, cancel edition and delete the model -->
                 <button type="submit">Save ${modelSingular}</button>
                 ${pasteButton}
-                <button type="button" onclick="goToManager()">Cancel edition</button>
-                <button type="button" onclick="deleteModel()">Delete ${model.slice(0, -1)}</button>
+                <button type="button" onclick="pBtn.goToManager()">Cancel edition</button>
+                <button type="button" onclick="pBtn.deleteModel()">Delete ${model.slice(0, -1)}</button>
 
                 <!-- Error and success messages -->
                 <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
                 <p id="successMessage" role="alert" style="color: green; display: none;"></p>
             </footer>
         </form>
-    `, scripts.edit(model, id),
-    /*HTML*/`
-    <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }
 
@@ -163,7 +161,7 @@ export function add(panel: vscode.WebviewPanel, model: string) {
     const modelSingular = model.slice(0, -1);
 
     // Only snippets have a button to paste them
-    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
+    const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pBtn.pasteSnippet()">Paste snippet</button>` : "";
 
     // Return the HTML page
     return htmlHelpers.boiler(panel, /*HTML*/`
@@ -173,7 +171,7 @@ export function add(panel: vscode.WebviewPanel, model: string) {
         <!-- Form to add the model -->
         <form id="addForm">
             <!-- Hidden input to pass the model to the backend -->
-            <input type="hidden" name="model" value="${model}">
+            <input type="hidden" id="model" name="model" value="${model}">
 
             <!-- The following function will return the necessary fields for each model -->
             ${htmlHelpers.getEditableFields(model, {}, undefined, undefined)}
@@ -181,15 +179,12 @@ export function add(panel: vscode.WebviewPanel, model: string) {
             <!-- Buttons to submit the form and cancel creation -->
             <button type="submit">Create ${modelSingular}</button>
             ${pasteButton}
-            <button type="button" onclick="goToManager()">Cancel creation</button>
+            <button type="button" onclick="pBtn.goToManager()">Cancel creation</button>
 
             <!-- Error and success messages -->
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
             <p id="successMessage" role="alert" style="color: green; display: none;"></p>
         </form>
-    `, scripts.add(model),
-    /*HTML*/`
-    <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }
 
@@ -200,7 +195,7 @@ export function langDelete(panel: vscode.WebviewPanel, id: number, snAmount: num
         <h1>Warning: There ${isSingular ? 'is' : 'are'} ${snAmount} snippet${isSingular ? '' : 's'} associated to this language.</h1>
         <h2>Associate them to another language or they will be deleted along with the language</h2>
 
-        <button onclick="goToIndex()">Cancel deletion</button>
+        <button onclick="pBtn.goToIndex()">Cancel deletion</button>
 
         <form id="newLangForm">
             <input type="hidden" name="id" value="${id}">
@@ -217,8 +212,5 @@ export function langDelete(panel: vscode.WebviewPanel, id: number, snAmount: num
             <p id="errorMessage" role="alert" style="color: red; display: none;"></p>
             <p id="successMessage" role="alert" style="color: green; display: none;"></p>
         </form>
-    `, scripts.langDelete(),     
-    /*HTML*/`
-    <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }
