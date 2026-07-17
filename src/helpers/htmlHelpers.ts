@@ -17,7 +17,7 @@ export function boiler(panel: vscode.WebviewPanel, body: string) {
     const styleUri = panel.webview.asWebviewUri(stylePath);
 
     // out/tom-select/tom-select.css
-    const tomCssPath = vscode.Uri.joinPath(state.context.extensionUri, 'out', 'tom-select', 'tom-select.css');
+    const tomCssPath = vscode.Uri.joinPath(state.context.extensionUri, 'tom-select', 'tom-select.css');
     const tomCssUri = panel.webview.asWebviewUri(tomCssPath);
 
     // css/tomOverrides.css
@@ -25,7 +25,7 @@ export function boiler(panel: vscode.WebviewPanel, body: string) {
     const tomOverridesUri = panel.webview.asWebviewUri(tomOverridesPath);
 
     // out/tom-select/tom-select.complete.js
-    const tomJsPath = vscode.Uri.joinPath(state.context.extensionUri, 'out', 'tom-select', 'tom-select.complete.js');
+    const tomJsPath = vscode.Uri.joinPath(state.context.extensionUri, 'tom-select', 'tom-select.complete.js');
     const tomJsUri = panel.webview.asWebviewUri(tomJsPath);
 
     // js/index.js
