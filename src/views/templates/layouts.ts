@@ -1,10 +1,10 @@
 import * as htmlHelpers from '../../helpers/htmlHelpers.js'
 import * as scripts from '../static/scripts.js'
-import * as css from "../static/css.js";
+import * as vscode from 'vscode';
 
 // Page to return an HTML plain string to pass to the webView
-export function index() {
-    return htmlHelpers.boiler(/*HTML*/`
+export function index(panel: vscode.WebviewPanel) {
+    return htmlHelpers.boiler(panel, /*HTML*/`
         <h1>Br-Zueira's Boilerplater!</h1>
 
         <button id="snippetBtn" onclick="goToManager('snippets')">Manage snippets</button>
@@ -40,7 +40,7 @@ export function index() {
 }
 
 // Page to return generic list
-export function list(model: string, data: any, page: number = 1, totalPages: number, isSearch: boolean = false, query: string = "", cursorPos: [number, number] = [0, 0]) {
+export function list(panel: vscode.WebviewPanel, model: string, data: any, page: number = 1, totalPages: number, isSearch: boolean = false, query: string = "", cursorPos: [number, number] = [0, 0]) {
     // Mounting the object list
     let list = "";
 
@@ -95,7 +95,7 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
         `;
     }
 
-    return htmlHelpers.boiler(/*HTML*/`
+    return htmlHelpers.boiler(panel, /*HTML*/`
         <!-- Like "Snippets manager" -->
         <h1>${modelFirstUpper} manager</h1>
 
@@ -119,7 +119,7 @@ export function list(model: string, data: any, page: number = 1, totalPages: num
 }
 
 // Generic model editing view
-export function edit(model: string, object: any, id: number, language: any = undefined, tags: any = undefined) {
+export function edit(panel: vscode.WebviewPanel, model: string, object: any, id: number, language: any = undefined, tags: any = undefined) {
     // String formating
     const modelSingular = model.slice(0, -1);
 
@@ -127,7 +127,7 @@ export function edit(model: string, object: any, id: number, language: any = und
     const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
 
     // Return the HTML page
-    return htmlHelpers.boiler(/*HTML*/`
+    return htmlHelpers.boiler(panel, /*HTML*/`
         <!-- Like "Edit snippet" -->
         <h1>Edit ${modelSingular}</h1>
 
@@ -154,13 +154,11 @@ export function edit(model: string, object: any, id: number, language: any = und
         </form>
     `, scripts.edit(model, id),
     /*HTML*/`
-    <style>${ css.getTomSelectLibCss() }</style> 
-    <style>${ css.tomSelectCssOverride }</style>
     <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }
 
-export function add(model: string) {
+export function add(panel: vscode.WebviewPanel, model: string) {
     // String formating
     const modelSingular = model.slice(0, -1);
 
@@ -168,7 +166,7 @@ export function add(model: string) {
     const pasteButton = model === "snippets" ? /*HTML*/`<button type="button" onclick="pasteSnippet()">Paste snippet</button>` : "";
 
     // Return the HTML page
-    return htmlHelpers.boiler(/*HTML*/`
+    return htmlHelpers.boiler(panel, /*HTML*/`
         <!-- Like "Create new snippet" -->
         <h1>Create new ${modelSingular}</h1>
 
@@ -191,15 +189,13 @@ export function add(model: string) {
         </form>
     `, scripts.add(model),
     /*HTML*/`
-    <style>${ css.getTomSelectLibCss() }</style> 
-    <style>${ css.tomSelectCssOverride }</style>
     <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }
 
-export function langDelete(id: number, snAmount: number) {
+export function langDelete(panel: vscode.WebviewPanel, id: number, snAmount: number) {
     const isSingular = snAmount === 1;
-    return htmlHelpers.boiler(/*HTML*/`
+    return htmlHelpers.boiler(panel, /*HTML*/`
         <!-- Example: There is 1 snippet or There are 2 snippets-->
         <h1>Warning: There ${isSingular ? 'is' : 'are'} ${snAmount} snippet${isSingular ? '' : 's'} associated to this language.</h1>
         <h2>Associate them to another language or they will be deleted along with the language</h2>
@@ -223,8 +219,6 @@ export function langDelete(id: number, snAmount: number) {
         </form>
     `, scripts.langDelete(),     
     /*HTML*/`
-    <style>${ css.getTomSelectLibCss() }</style> 
-    <style>${ css.tomSelectCssOverride }</style>
     <script>${ scripts.getTomSelectLibJs() }</script>
     `);
 }

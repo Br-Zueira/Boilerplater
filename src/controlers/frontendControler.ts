@@ -8,14 +8,14 @@ export function edit(model: string, id: number, panel: vscode.WebviewPanel) {
     // Validates the model
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
-        return htmlHelpers.page404(`Model "${model}" does not exist`);
+        return htmlHelpers.page404(panel, `Model "${model}" does not exist`);
     }
 
     // Raw query response
     const rawObject = state.db.query(`SELECT * FROM ${model} WHERE id = ?`, [id])?.[0] || { columns: [], rows: [] };
     // Validates something is actually received
     if (!rawObject.values || rawObject.values.length <= 0) {
-        return htmlHelpers.page404(`ID ${id} from "${model}" was not found`);
+        return htmlHelpers.page404(panel, `ID ${id} from "${model}" was not found`);
     }
 
     // Formated response
@@ -54,14 +54,14 @@ export function edit(model: string, id: number, panel: vscode.WebviewPanel) {
         }
     }
 
-    panel.webview.html = layouts.edit(model, object, id, language, tags);
+    panel.webview.html = layouts.edit(panel, model, object, id, language, tags);
 }
 
 export function list(model: string, page: number = 1, panel: vscode.WebviewPanel) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
-        panel.webview.html = htmlHelpers.page404(`Model "${model}" does not exist`);
+        panel.webview.html = htmlHelpers.page404(panel, `Model "${model}" does not exist`);
         return;
     }
         
@@ -89,14 +89,14 @@ export function list(model: string, page: number = 1, panel: vscode.WebviewPanel
 
     const cleanRows = databaseHelpers.formatRows(queryResult.columns, queryResult.values);
 
-    panel.webview.html = layouts.list(model, cleanRows, page, totalPages, false, '');
+    panel.webview.html = layouts.list(panel, model, cleanRows, page, totalPages, false, '');
 }
 
 export function search(model: string, page: number = 1, rawQuery: string = "", panel: vscode.WebviewPanel, cursorPos: [number, number] = [0, 0]) {
     // Ensure model is valid (Software development 101 - Never trust user input)
     const validModels = ["snippets", "tags", "languages", "macros"];
     if (!validModels.includes(model)) {
-        panel.webview.html = htmlHelpers.page404(`Model "${model}" does not exist`);
+        panel.webview.html = htmlHelpers.page404(panel, `Model "${model}" does not exist`);
         return;
     }
 
@@ -196,29 +196,29 @@ export function search(model: string, page: number = 1, rawQuery: string = "", p
             break;
         }
         default: {
-            panel.webview.html = htmlHelpers.page404(`Model ${model} does not exist`);
+            panel.webview.html = htmlHelpers.page404(panel, `Model ${model} does not exist`);
             return;
         }
     }
 
     const formatedResult = databaseHelpers.formatRows(results?.columns || [], results?.values || []);
 
-    panel.webview.html = layouts.list(model, formatedResult, page, state.db.getPages(model), true, rawQuery, cursorPos);
+    panel.webview.html = layouts.list(panel, model, formatedResult, page, state.db.getPages(model), true, rawQuery, cursorPos);
 }
 
 export function add(model: string, panel: vscode.WebviewPanel) {
     // Validates the model
     const validModels = ["snippets", "tags", "macros", "languages"];
     if (!validModels.includes(model)) {
-        return htmlHelpers.page404(`Model "${model}" does not exist`);
+        return htmlHelpers.page404(panel, `Model "${model}" does not exist`);
     }
-    panel.webview.html = layouts.add(model);           
+    panel.webview.html = layouts.add(panel, model);           
 }
 
 export function index(panel: vscode.WebviewPanel) {
-    panel.webview.html = layouts.index();
+    panel.webview.html = layouts.index(panel);
 }
 
 export function langDelete(id: number, snAmount: number, panel: vscode.WebviewPanel) {
-    panel.webview.html = layouts.langDelete(id, snAmount);
+    panel.webview.html = layouts.langDelete(panel, id, snAmount);
 }

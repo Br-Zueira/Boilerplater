@@ -7,7 +7,7 @@ export async function openWebViewControler() {
     // Create web panel
     const panel = vscode.window.createWebviewPanel(
         'boilerplater.managerView', // Internal name
-        'Boilerplater WebView', // Display name
+        "Br-Zueira's Boilerplater", // Display name
         vscode.ViewColumn.Beside, // How to display the panel
         {
             enableScripts: true, // Important: lets JavaScript to be executed inside the panel
@@ -15,8 +15,12 @@ export async function openWebViewControler() {
         }
     );
 
+    // Puts icon into webview
+    const iconPath = vscode.Uri.joinPath(state.context.extensionUri, 'assets', 'logo_32x32.png');
+    panel.iconPath = iconPath;
+
     // Defines panel html content
-    panel.webview.html = layouts.index();
+    panel.webview.html = layouts.index(panel);
 
     // Sets up panel-backend connection
     panel.webview.onDidReceiveMessage(

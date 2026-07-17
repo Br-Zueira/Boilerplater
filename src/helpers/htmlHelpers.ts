@@ -1,10 +1,10 @@
-import * as css from '../views/static/css.js';
 import * as scripts from '../views/static/scripts.js';
 import * as databaseHelpers from '../helpers/databaseHelpers.js';
+import * as vscode from 'vscode';
 import { state } from '../controlers/stateControler.js';
 
-export function page404(message: string) {
-    return boiler(/*HTML*/`
+export function page404(panel: vscode.WebviewPanel, message: string) {
+    return boiler(panel, /*HTML*/`
         <h1>Error 404:</h1>
         <p>${message}</p>
         <button onclick="goToIndex()">Go back to index</button>
@@ -12,7 +12,19 @@ export function page404(message: string) {
 }
 
 // HTML boilerplate
-export function boiler(body: string, script?: string, head?: string) {
+export function boiler(panel: vscode.WebviewPanel, body: string, script?: string, head?: string) {
+    // css/style.css
+    const stylePath = vscode.Uri.joinPath(state.context.extensionUri, 'css', 'style.css');
+    const styleUri = panel.webview.asWebviewUri(stylePath);
+
+    // out/tom-select/tom-select.css
+    const tomCssPath = vscode.Uri.joinPath(state.context.extensionUri, 'out', 'tom-select', 'tom-select.css');
+    const tomCssUri = panel.webview.asWebviewUri(tomCssPath);
+
+    // css/tomOverrides.css
+    const tomOverridesPath = vscode.Uri.joinPath(state.context.extensionUri, 'css', 'tomOverrides.css');
+    const tomOverridesUri = panel.webview.asWebviewUri(tomOverridesPath);
+
     return /*HTML*/`
         <!DOCTYPE html>
 
@@ -20,8 +32,11 @@ export function boiler(body: string, script?: string, head?: string) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Boilerplater</title>
-                <style>${ css.webviewCss }</style>
+
+                <!-- CSS -->
+                <link rel="stylesheet" href="${styleUri}">
+                <link rel="stylesheet" href="${tomCssUri}">
+                <link rel="stylesheet" href="${tomOverridesUri}">
 
                 <script>
                     const vscode = acquireVsCodeApi();
