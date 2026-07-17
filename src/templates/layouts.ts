@@ -56,7 +56,7 @@ export function list(panel: vscode.WebviewPanel, model: string, data: any, page:
             // Get the instance content using the helper function
             list += /*HTML*/`<div>`;
                 list += htmlHelpers.getInstanceContent(model, instance, isSearch);
-                list += /*HTML*/`<button onclick="pBtn.goToEdit(${instance.id})">Edit ${modelSingular}</button>`
+                list += /*HTML*/`<button onclick="pBtn.goToEdit('${model}', ${instance.id})">Edit ${modelSingular}</button>`
                 if (model === "snippets") {
                     list += /*HTML*/`<button onclick="pBtn.pasteSnippet(${instance.id})">Paste snippet</button>`
                 }
@@ -133,7 +133,7 @@ export function edit(panel: vscode.WebviewPanel, model: string, object: any, id:
         <h1>Edit ${modelSingular}</h1>
 
         <!-- Form to edit the model -->
-        <form id="editForm">
+        <form id="form">
             <!-- Hidden inputs to pass the model and id to the backend -->
             <input type="hidden" id="model" name="model" value="${model}">
             <input type="hidden" id="id" name="id" value="${id}">
@@ -169,7 +169,7 @@ export function add(panel: vscode.WebviewPanel, model: string) {
         <h1>Create new ${modelSingular}</h1>
 
         <!-- Form to add the model -->
-        <form id="addForm">
+        <form id="form">
             <!-- Hidden input to pass the model to the backend -->
             <input type="hidden" id="model" name="model" value="${model}">
 

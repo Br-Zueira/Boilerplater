@@ -2,11 +2,11 @@ let model, id, vscode;
 
 // Form submission part
 function setupForm() {
-    const editForm = document.getElementById("editForm");
-    if (!editForm) {
+    const form = document.getElementById("form");
+    if (!form) {
         return;
     }
-    editForm.addEventListener("submit", (event) => {
+    form.addEventListener("submit", (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const data = {};
@@ -285,7 +285,8 @@ function setTextArea() {
 export default function loadAddAndEdit(api) {
     vscode = api;
     model = document.getElementById("model")?.value || "";
-    id = Number(document.getElementById("id")?.value || null);
+    const idEl = document.getElementById("id");
+    id = idEl ? idEl.value : null;
     loadTomSelect();
     setupForm();
     setupMessageListener();

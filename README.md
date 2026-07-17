@@ -54,7 +54,7 @@ Defined in the macros manager. Can be imported with snippet template syntax [% %
 
 ## Known Issues
 
-* The search bar in list view may "glitch" a little bit (this would be misplaced cursor or missing chars) every time a search is sent.
+* The search bar in list view may "glitch" a little bit (this would be misplaced cursor or missing chars) every time a search is sent, specially if you type too fast.
 * While trying to paste a snippet, sometimes the cursor will unfocus from document before it can be pasted, making it fail. Simply refocus cursor at document, then try again while cursor is still focused at document.
 
 ## Credits/Acknowledgements
