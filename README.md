@@ -2,7 +2,7 @@
 
 An extension that allows saving code snippets for later use in a simple and intuitive way. From a dev, to devs.
 
-![Print of a JavaScript snippet being pasted with Boilerplater](assets/screenshot.png)
+![Gif of a JavaScript snippet being pasted with Boilerplater](assets/clip.gif)
 
 ## Features
 
